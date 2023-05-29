@@ -5,6 +5,22 @@
 ## Makefile
 ##
 
+
+SFML_FLAGS = -lsfml-graphics -lsfml-window -lsfml-system -lsfml-audio
+
+HOMEBREW = /opt/homebrew/Cellar/
+
+ifeq ($(shell uname -s),Linux)
+	# Linux
+endif
+ifeq ($(shell uname -s),Darwin)
+	# Mac OS X
+	SFML_FLAGS += -I$(HOMEBREW)sfml/2.5.1_2/include -L$(HOMEBREW)sfml/2.5.1_2/lib
+endif
+
+# export LIBRARY_PATH=/opt/homebrew/Cellar/sfml/2.5.1_2/lib/
+# export LIBRARY_PATH=/opt/homebrew/Cellar/sfml/2.5.1_2/lib/
+
 CC			=	g++
 
 CFLAGS		=	-Wall -g -g3 -I$(INC_DIR) --std=c++20
@@ -42,11 +58,11 @@ all:
 	@make $(NAME)
 
 $(NAME):	$(OBJ)
-	@$(CC) -o $(NAME) $(OBJ) $(CFLAGS)
+	@$(CC) -o $(NAME) $(OBJ) $(CFLAGS) $(SFML_FLAGS)
 	@echo -e "[$(GREEN)Compiled$(NC)] \"$(YELLOW)$@$(NC)\" executable created"
 
 $(OBJ): $(OBJ_DIR)/%.o : $(SRC_DIR)/%.cpp | $(OBJ_DIR)
-	@$(CC) $(CFLAGS) -c $< -o $@
+	@$(CC) $(CFLAGS) -c $< -o $@ $(SFML_FLAGS)
 	@echo -e "[$(GREEN)Compiled$(NC)] \"$(YELLOW)$<$(NC)\" object created"
 
 .PHONY: tests_run
