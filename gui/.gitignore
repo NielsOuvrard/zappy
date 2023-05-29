@@ -1,0 +1,8 @@
+*.a
+*.o
+*.out
+*.gc*
+vgcore*
+.vscode
+unit_tests
+zappy_gui
