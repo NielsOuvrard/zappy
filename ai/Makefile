@@ -6,8 +6,8 @@
 ##
 
 all:
-	@chmod +x bin/zappy_ai
-	@cp bin/zappy_ai .
+	@chmod +x bin/bin
+	@cp bin/bin ./zappy_ai
 
 clean:
 	@rm -f zappy_ai
