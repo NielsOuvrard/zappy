@@ -1,0 +1,6 @@
+#!/bin/sh
+arrVar=()
+for i in "$@"; do
+    arrVar+=("$i")
+done
+python3 ai/src/ai.py "${arrVar[@]}"
