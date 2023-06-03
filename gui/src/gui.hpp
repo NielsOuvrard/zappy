@@ -28,8 +28,10 @@ public:
 
 private:
     void draw_map(sf::RenderWindow &window);
-    sf::Sprite _tile;
-    sf::Sprite _food;
+    void load_textures(void);
+
+    std::vector<sf::Sprite> _sprites;
+    std::vector<sf::Texture> _textures;
 
     t_tile **_map;
     int _size_x;

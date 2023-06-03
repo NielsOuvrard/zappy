@@ -14,7 +14,6 @@ Gui::Gui(std::string data)
     {
         std::string line = data.substr(0, data.find("\n"));
         std::cout << "- " << line << std::endl;
-        // begin by msz
         if (line.find("msz") != std::string::npos)
         {
             std::string values = line.substr(line.find(" ") + 1);
@@ -62,9 +61,6 @@ Gui::Gui(std::string data)
         }
         data = data.substr(data.find("\n") + 1);
     }
-    std::cout << "_size_x: " << _size_x << std::endl;
-    std::cout << "_size_y: " << _size_y << std::endl;
-    std::cout << "freq: " << _freq << std::endl;
 }
 
 Gui::~Gui()
@@ -77,34 +73,81 @@ void Gui::draw_map(sf::RenderWindow &window)
     {
         for (int j = 0; j < _size_y; j++)
         {
-            _tile.setPosition(i * 64, j * 64);
-            window.draw(_tile);
+            _sprites[0].setPosition(i * 64, j * 64);
+            _sprites[0].setTexture(_textures[0]);
+            window.draw(_sprites[0]);
+            if (_map[i][j].food > 0)
+            {
+                _sprites[1].setPosition(i * 64, j * 64);
+                _sprites[1].setTexture(_textures[1]);
+                window.draw(_sprites[1]);
+            }
             if (_map[i][j].linemate > 0)
             {
-                _food.setPosition(i * 64, j * 64);
-                window.draw(_food);
+                _sprites[2].setPosition(i * 64, j * 64);
+                _sprites[2].setTexture(_textures[2]);
+                window.draw(_sprites[2]);
+            }
+            if (_map[i][j].deraumere > 0)
+            {
+                _sprites[3].setPosition(i * 64, j * 64);
+                _sprites[3].setTexture(_textures[3]);
+                window.draw(_sprites[3]);
+            }
+            if (_map[i][j].sibur > 0)
+            {
+                _sprites[4].setPosition(i * 64, j * 64);
+                _sprites[4].setTexture(_textures[4]);
+                window.draw(_sprites[4]);
+            }
+            if (_map[i][j].mendiane > 0)
+            {
+                _sprites[5].setPosition(i * 64, j * 64);
+                _sprites[5].setTexture(_textures[5]);
+                window.draw(_sprites[5]);
+            }
+            if (_map[i][j].phiras > 0)
+            {
+                _sprites[6].setPosition(i * 64, j * 64);
+                _sprites[6].setTexture(_textures[6]);
+                window.draw(_sprites[6]);
+            }
+            if (_map[i][j].thystame > 0)
+            {
+                _sprites[7].setPosition(i * 64, j * 64);
+                _sprites[7].setTexture(_textures[7]);
+                window.draw(_sprites[7]);
             }
         }
     }
     return;
 }
 
+void Gui::load_textures(void)
+{
+    std::ofstream myfile;
+    std::ifstream ifs;
+    std::string line;
+    ifs.open("gui/assets/assets.txt", std::ifstream::in);
+    if (!ifs.good())
+        exit(84);
+
+    while (std::getline(ifs, line))
+    {
+        sf::Texture texture;
+        if (!texture.loadFromFile("gui/assets/" + line))
+        {
+            std::cout << "Error loading texture " << line << std::endl;
+        }
+        _sprites.push_back(sf::Sprite());
+        _textures.push_back(texture);
+    }
+}
+
 void Gui::run(void)
 {
     sf::RenderWindow window(sf::VideoMode(1920, 1080), "Zappy");
-    sf::Texture texture;
-    if (!texture.loadFromFile("gui/assets/tile_64.png"))
-    {
-        std::cout << "Error loading texture" << std::endl;
-    }
-    _tile.setTexture(texture);
-    sf::Texture texture2;
-    if (!texture2.loadFromFile("gui/assets/food_64.png"))
-    {
-        std::cout << "Error loading texture" << std::endl;
-    }
-    _food.setTexture(texture2);
-
+    load_textures();
     // sf::CircleShape shape(100.f);
     // shape.setFillColor(sf::Color::Green);
     while (window.isOpen())
@@ -123,6 +166,7 @@ void Gui::run(void)
         }
         window.clear();
         draw_map(window);
+
         // window.draw(shape);
         window.display();
     }

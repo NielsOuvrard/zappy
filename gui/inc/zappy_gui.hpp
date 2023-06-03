@@ -15,6 +15,8 @@
 #include <sys/uio.h>
 #include <unistd.h>
 #include <cstring>
+#include <iostream>
+#include <fstream>
 
 // sfml
 #include <SFML/Graphics.hpp>

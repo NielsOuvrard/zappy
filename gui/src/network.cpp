@@ -53,7 +53,7 @@ std::string Network::receive_data()
         close(_sock);
         exit(84);
     }
-    if (!buffer)
+    if (buffer[0] == '\0')
         return "";
     std::string data = buffer;
     return data;
