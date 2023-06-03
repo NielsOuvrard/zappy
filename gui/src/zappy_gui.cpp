@@ -47,7 +47,10 @@ int zappy_gui(int ac, char **av)
     std::string data = net.receive_data(); // Welcome
     net.send_data("GRAPHIC\n");
     data = net.receive_data();
+    // std::string data2 = net.receive_data();
+    std::cout << "data2 =" << NULL << std::endl;
     Gui gui(data);
+    gui.run();
     // std::cout << "data =" << data << std::endl;
 
     std::cout << "END" << std::endl;

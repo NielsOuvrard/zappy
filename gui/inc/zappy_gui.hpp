@@ -30,28 +30,6 @@ enum class ZappyGuiState
     END
 };
 
-enum class resource
-{
-    food,
-    linemate,
-    deraumere,
-    sibur,
-    mendiane,
-    phiras,
-    thystame
-};
-
-// ? useless
-enum class stones
-{
-    linemate,
-    deraumere,
-    sibur,
-    mendiane,
-    phiras,
-    thystame
-};
-
 // spawn resources
 // inhabitants = bodiless + blurry + takes entire tile
 
