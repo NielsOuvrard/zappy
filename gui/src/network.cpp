@@ -39,13 +39,22 @@ void Network::send_data(std::string data)
 
 std::string Network::receive_data()
 {
-    char buffer[1024] = {0};
+    char buffer[1024];
+    memset(buffer, 0, 1024);
     int valread = read(_sock, buffer, 1024);
     if (valread < 0)
     {
         std::cout << "Read failed" << std::endl;
         // exit(84);
     }
+    if (valread == 0)
+    {
+        std::cout << "Server disconnected" << std::endl;
+        close(_sock);
+        exit(84);
+    }
+    if (!buffer)
+        return "";
     std::string data = buffer;
     return data;
 }

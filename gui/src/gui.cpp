@@ -22,15 +22,12 @@ Gui::Gui(std::string data)
             std::string y = values.substr(values.find(" ") + 1);
             _size_x = std::stoi(x);
             _size_y = std::stoi(y);
-            std::cout << "x = " << _size_x << " y = " << _size_y << std::endl;
+            _map = new t_tile *[_size_x];
             for (int i = 0; i < _size_x; i++)
             {
-                std::cout << "i = " << _size_y << std::endl;
                 _map[i] = new t_tile[_size_y];
-                std::cout << "i = " << i << std::endl;
                 for (int j = 0; j < _size_y; j++)
                 {
-                    std::cout << "i = " << i << " j = " << j << std::endl;
                     _map[i][j] = (t_tile){0, 0, 0, 0, 0, 0, 0};
                 }
             }
