@@ -7,9 +7,9 @@
 
 #include "my_string.h"
 
-struct string_s *string_create(void)
+struct my_string_s *string_create(void)
 {
-    struct string_s *this = malloc(sizeof(struct string_s));
+    struct my_string_s *this = malloc(sizeof(struct my_string_s));
 
     this->str = malloc(sizeof(char) * 1);
     this->str[0] = '\0';
@@ -18,7 +18,7 @@ struct string_s *string_create(void)
     return this;
 }
 
-void string_init(struct string_s *this)
+void string_init(struct my_string_s *this)
 {
     this->str = malloc(sizeof(char) * 1);
     this->str[0] = '\0';
@@ -28,12 +28,12 @@ void string_init(struct string_s *this)
 
 void string_destroy(void *this)
 {
-    struct string_s *string = this;
+    struct my_string_s *string = this;
     free(string->str);
     free(string);
 }
 
-void string_append(struct string_s *this, char *str)
+void string_append(struct my_string_s *this, char *str)
 {
     int len = strlen(str);
 
@@ -48,7 +48,7 @@ void string_append(struct string_s *this, char *str)
     this->length += len;
 }
 
-void string_append_n(struct string_s *this, char *str, int n)
+void string_append_n(struct my_string_s *this, char *str, int n)
 {
     int len = strlen(str);
 
@@ -65,7 +65,7 @@ void string_append_n(struct string_s *this, char *str, int n)
     this->length += n;
 }
 
-void string_append_int(struct string_s *this, int nb)
+void string_append_int(struct my_string_s *this, int nb)
 {
     char str[12];
 
@@ -73,7 +73,7 @@ void string_append_int(struct string_s *this, int nb)
     string_append(this, str);
 }
 
-void string_append_float(struct string_s *this, float nb)
+void string_append_float(struct my_string_s *this, float nb)
 {
     char str[12];
 
@@ -81,7 +81,7 @@ void string_append_float(struct string_s *this, float nb)
     string_append(this, str);
 }
 
-void string_append_double(struct string_s *this, double nb)
+void string_append_double(struct my_string_s *this, double nb)
 {
     char str[12];
 
@@ -89,27 +89,27 @@ void string_append_double(struct string_s *this, double nb)
     string_append(this, str);
 }
 
-bool string_isempty(struct string_s *this)
+bool string_isempty(struct my_string_s *this)
 {
     return this->length == 0;
 }
 
-bool string_equals(struct string_s *this, char *str)
+bool string_equals(struct my_string_s *this, char *str)
 {
     return strcmp(this->str, str) == 0;
 }
 
-bool string_contains(struct string_s *this, char *str)
+bool string_contains(struct my_string_s *this, char *str)
 {
     return strstr(this->str, str) != NULL;
 }
 
-bool string_startswith(struct string_s *this, char *str)
+bool string_startswith(struct my_string_s *this, char *str)
 {
     return strncmp(this->str, str, strlen(str)) == 0;
 }
 
-bool string_endswith(struct string_s *this, char *str)
+bool string_endswith(struct my_string_s *this, char *str)
 {
     int len = strlen(str);
     int start = this->length - len;
@@ -119,7 +119,7 @@ bool string_endswith(struct string_s *this, char *str)
     return strncmp(this->str + start, str, len) == 0;
 }
 
-int string_indexof(struct string_s *this, char *str)
+int string_indexof(struct my_string_s *this, char *str)
 {
     char *ptr = strstr(this->str, str);
 
@@ -128,7 +128,7 @@ int string_indexof(struct string_s *this, char *str)
     return ptr - this->str;
 }
 
-int string_lastindexof(struct string_s *this, char *str)
+int string_lastindexof(struct my_string_s *this, char *str)
 {
     char *ptr = strstr(this->str, str);
     char *last = NULL;
@@ -142,7 +142,7 @@ int string_lastindexof(struct string_s *this, char *str)
     return last - this->str;
 }
 
-void string_replace(struct string_s *this, char *old, char *new)
+void string_replace(struct my_string_s *this, char *old, char *new)
 {
     int old_len = strlen(old);
     int new_len = strlen(new);
@@ -165,43 +165,43 @@ void string_replace(struct string_s *this, char *old, char *new)
     }
 }
 
-char *string_get(struct string_s *this)
+char *string_get(struct my_string_s *this)
 {
     return this->str;
 }
 
-int string_length(struct string_s *this)
+int string_length(struct my_string_s *this)
 {
     return this->length;
 }
 
-int string_capacity(struct string_s *this)
+int string_capacity(struct my_string_s *this)
 {
     return this->capacity;
 }
 
-void string_clear(struct string_s *this)
+void string_clear(struct my_string_s *this)
 {
     free(this->str);
     string_init(this);
 }
 
-void string_print_ln(struct string_s *this)
+void string_print_ln(struct my_string_s *this)
 {
     printf("%s\n", this->str);
 }
 
-void string_print(struct string_s *this)
+void string_print(struct my_string_s *this)
 {
     printf("%s", this->str);
 }
 
-void string_print_debug(struct string_s *this)
+void string_print_debug(struct my_string_s *this)
 {
     printf("string: %s\n", this->str);
 }
 
-void string_print_debug_info_ln(struct string_s *this)
+void string_print_debug_info_ln(struct my_string_s *this)
 {
     printf("string: %s\n", this->str);
     printf("length: %d\n", this->length);
@@ -209,7 +209,7 @@ void string_print_debug_info_ln(struct string_s *this)
     printf("\n");
 }
 
-char *string_to_string(struct string_s *this)
+char *string_to_string(struct my_string_s *this)
 {
     char *str = malloc(sizeof(char) * (this->length + 1));
 
@@ -217,67 +217,67 @@ char *string_to_string(struct string_s *this)
     return str;
 }
 
-int string_to_int(struct string_s *this)
+int string_to_int(struct my_string_s *this)
 {
     return atoi(this->str);
 }
 
-float string_to_float(struct string_s *this)
+float string_to_float(struct my_string_s *this)
 {
     return atof(this->str);
 }
 
-double string_to_double(struct string_s *this)
+double string_to_double(struct my_string_s *this)
 {
     return atof(this->str);
 }
 
-struct string_s *string_copy(struct string_s *this)
+struct my_string_s *string_copy(struct my_string_s *this)
 {
-    struct string_s *copy = malloc(sizeof(struct string_s));
+    struct my_string_s *copy = malloc(sizeof(struct my_string_s));
 
     string_init(copy);
     string_append(copy, this->str);
     return copy;
 }
 
-struct string_s *string_from_string(char *str)
+struct my_string_s *string_from_string(char *str)
 {
-    struct string_s *this = malloc(sizeof(struct string_s));
+    struct my_string_s *this = malloc(sizeof(struct my_string_s));
 
     string_init(this);
     string_append(this, str);
     return this;
 }
 
-struct string_s *string_from_int(int nb)
+struct my_string_s *string_from_int(int nb)
 {
-    struct string_s *this = malloc(sizeof(struct string_s));
+    struct my_string_s *this = malloc(sizeof(struct my_string_s));
 
     string_init(this);
     string_append_int(this, nb);
     return this;
 }
 
-struct string_s *string_from_float(float nb)
+struct my_string_s *string_from_float(float nb)
 {
-    struct string_s *this = malloc(sizeof(struct string_s));
+    struct my_string_s *this = malloc(sizeof(struct my_string_s));
 
     string_init(this);
     string_append_float(this, nb);
     return this;
 }
 
-struct string_s *string_from_double(double nb)
+struct my_string_s *string_from_double(double nb)
 {
-    struct string_s *this = malloc(sizeof(struct string_s));
+    struct my_string_s *this = malloc(sizeof(struct my_string_s));
 
     string_init(this);
     string_append_double(this, nb);
     return this;
 }
 
-void string_append_format(struct string_s *this, char *format, va_list args)
+void string_append_format(struct my_string_s *this, char *format, va_list args)
 {
     int size = vsnprintf(NULL, 0, format, args);
 
@@ -289,9 +289,9 @@ void string_append_format(struct string_s *this, char *format, va_list args)
     this->length += size;
 }
 
-struct string_s *string_from_format(char *format, ...)
+struct my_string_s *string_from_format(char *format, ...)
 {
-    struct string_s *this = malloc(sizeof(struct string_s));
+    struct my_string_s *this = malloc(sizeof(struct my_string_s));
     va_list args;
 
     string_init(this);
@@ -301,17 +301,17 @@ struct string_s *string_from_format(char *format, ...)
     return this;
 }
 
-char string_get_at(struct string_s *this, int index)
+char string_get_at(struct my_string_s *this, int index)
 {
     return this->str[index];
 }
 
-void string_set_at(struct string_s *this, int index, char c)
+void string_set_at(struct my_string_s *this, int index, char c)
 {
     this->str[index] = c;
 }
 
-void string_insert_at(struct string_s *this, int index, char c)
+void string_insert_at(struct my_string_s *this, int index, char c)
 {
     if (index < 0 || index > this->length)
         return;
@@ -325,7 +325,7 @@ void string_insert_at(struct string_s *this, int index, char c)
     this->length++;
 }
 
-void string_remove_at(struct string_s *this, int index)
+void string_remove_at(struct my_string_s *this, int index)
 {
     if (index < 0 || index >= this->length)
         return;
@@ -333,9 +333,9 @@ void string_remove_at(struct string_s *this, int index)
     this->length--;
 }
 
-struct string_s *string_substring(struct string_s *this, int start, int end)
+struct my_string_s *string_substring(struct my_string_s *this, int start, int end)
 {
-    struct string_s *str = malloc(sizeof(struct string_s));
+    struct my_string_s *str = malloc(sizeof(struct my_string_s));
 
     string_init(str);
     if (end > this->length)
@@ -352,13 +352,13 @@ struct string_s *string_substring(struct string_s *this, int start, int end)
     return str;
 }
 
-struct vector_s *string_split(struct string_s *this, char *delimiter)
+struct my_vector_s *string_split(struct my_string_s *this, char *delimiter)
 {
-    struct vector_s *vector = malloc(sizeof(struct vector_s));
+    struct my_vector_s *vector = malloc(sizeof(struct my_vector_s));
     char *str = this->str;
     char *token = strtok(str, delimiter);
 
-    vector_init(vector, sizeof(struct string_s));
+    vector_init(vector, sizeof(struct my_string_s));
     while (token != NULL) {
         vector_push_back(vector, string_from_string(token));
         token = strtok(NULL, delimiter);
@@ -366,14 +366,14 @@ struct vector_s *string_split(struct string_s *this, char *delimiter)
     return vector;
 }
 
-struct string_s *string_join(struct vector_s *vector, char *delimiter)
+struct my_string_s *string_join(struct my_vector_s *vector, char *delimiter)
 {
-    struct string_s *str = malloc(sizeof(struct string_s));
+    struct my_string_s *str = malloc(sizeof(struct my_string_s));
     int i = 0;
 
     string_init(str);
     for (i = 0; i < vector->length; i++) {
-        string_append(str, ((struct string_s *)vector->items[i])->str);
+        string_append(str, ((struct my_string_s *)vector->items[i])->str);
         if (i < vector->length - 1)
             string_append(str, delimiter);
     }

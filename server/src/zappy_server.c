@@ -62,15 +62,50 @@ void check_args(int ac, char **av)
     printf("width: %d\n", arg->width);
     printf("height: %d\n", arg->height);
     for (int i = 0; i < vector_length(arg->names); i++)
-        printf("names %d: %s\n", i, ((struct string_s *)vector_get(arg->names, i))->str);
+        printf("names %d: %s\n", i, ((struct my_string_s *)vector_get(arg->names, i))->str);
     printf("clientsNb: %d\n", arg->clientsNb);
     printf("freq: %d\n", arg->freq);
+}
+
+void initialize_map(void)
+{
+    struct global_struct_s *global_struct = get_global_struct();
+    struct arg_s *arg = global_struct->arg;
+    global_struct->map = vector_create(sizeof(struct my_vector_s *));
+    for (int i = 0; i < arg->height; i++) {
+        struct my_vector_s *line = vector_create(sizeof(struct my_string_s *));
+        for (int j = 0; j < arg->width; j++) {
+            vector_push_back(line, string_from_string("X"));
+        }
+        vector_push_back(global_struct->map, line);
+    }
+    // print the map
+    struct global_struct_s *global_struct = get_global_struct();
+    struct arg_s *arg = global_struct->arg;
+    for (int i = 0; i < arg->height; i++) {
+        struct my_vector_s *line = vector_get(global_struct->map, i);
+        for (int j = 0; j < arg->width; j++) {
+            struct my_string_s *str = vector_get(line, j);
+            string_print(str);
+        }
+        printf("\n");
+    }
+}
+
+void free_all(void)
+{
+    struct global_struct_s *global_struct = get_global_struct();
+    struct arg_s *arg = global_struct->arg;
+    vector_destroy(arg->names, string_destroy);
+    for (int i = 0; i < vector_length(global_struct->map); i++)
+        vector_destroy(vector_get(global_struct->map, i), string_destroy);
+    vector_destroy(global_struct->map, NULL);
 }
 
 int zappy_server(int ac, char **av)
 {
     check_args(ac, av);
-    struct arg_s *arg = get_arg();
-    vector_destroy(arg->names, string_destroy);
+    initialize_map();
+    free_all();
     return 0;
 }

@@ -16,7 +16,7 @@
 
 #include "my_vector.h"
 
-struct string_s {
+struct my_string_s {
     char *str;
     int length;
     int capacity;
@@ -26,13 +26,13 @@ struct string_s {
 ** @brief Creates a string
 ** @return The created string
 **/
-struct string_s *string_create(void);
+struct my_string_s *string_create(void);
 
 /**
 ** @brief Initializes the string
 ** @param this The string to initialize
 **/
-void string_init(struct string_s *this);
+void string_init(struct my_string_s *this);
 
 /**
 ** @brief Destroys the string
@@ -45,7 +45,7 @@ void string_destroy(void *this);
 ** @param this The string to append to
 ** @param str The string to append
 **/
-void string_append(struct string_s *this, char *str);
+void string_append(struct my_string_s *this, char *str);
 
 /**
 ** @brief Append n char of a string to another
@@ -53,35 +53,35 @@ void string_append(struct string_s *this, char *str);
 ** @param str The string to append
 ** @param n The number of characters to append
 **/
-void string_append_n(struct string_s *this, char *str, int n);
+void string_append_n(struct my_string_s *this, char *str, int n);
 
 /**
 ** @brief Appends an int to a string
 ** @param this The string to append to
 ** @param nb The int to append
 **/
-void string_append_int(struct string_s *this, int nb);
+void string_append_int(struct my_string_s *this, int nb);
 
 /**
 ** @brief Appends a float to a string
 ** @param this The string to append to
 ** @param nb The float to append
 **/
-void string_append_float(struct string_s *this, float nb);
+void string_append_float(struct my_string_s *this, float nb);
 
 /**
 ** @brief Appends a double to a string
 ** @param this The string to append to
 ** @param nb The double to append
 **/
-void string_append_double(struct string_s *this, double nb);
+void string_append_double(struct my_string_s *this, double nb);
 
 /**
 ** @brief Checks if a string is empty
 ** @param this The string to check
 ** @return true if empty, false otherwise
 **/
-bool string_isempty(struct string_s *this);
+bool string_isempty(struct my_string_s *this);
 
 /**
 ** @brief Checks if is equal to a string
@@ -89,7 +89,7 @@ bool string_isempty(struct string_s *this);
 ** @param str The string to compare to
 ** @return true if equal, false otherwise
 **/
-bool string_equals(struct string_s *this, char *str);
+bool string_equals(struct my_string_s *this, char *str);
 
 /**
 ** @brief Checks if a string contains another
@@ -97,7 +97,7 @@ bool string_equals(struct string_s *this, char *str);
 ** @param str The string to check for
 ** @return true if contains, false otherwise
 **/
-bool string_contains(struct string_s *this, char *str);
+bool string_contains(struct my_string_s *this, char *str);
 
 /**
 ** @brief Checks if a string starts with another
@@ -105,7 +105,7 @@ bool string_contains(struct string_s *this, char *str);
 ** @param str The string to check for
 ** @return true if starts with, false otherwise
 **/
-bool string_startswith(struct string_s *this, char *str);
+bool string_startswith(struct my_string_s *this, char *str);
 
 /**
 ** @brief Checks if a string ends with another
@@ -113,7 +113,7 @@ bool string_startswith(struct string_s *this, char *str);
 ** @param str The string to check for
 ** @return true if ends with, false otherwise
 **/
-bool string_endswith(struct string_s *this, char *str);
+bool string_endswith(struct my_string_s *this, char *str);
 
 /**
 ** @brief Returns the index of a string in another
@@ -121,7 +121,7 @@ bool string_endswith(struct string_s *this, char *str);
 ** @param str The string to check for
 ** @return The index of the string, -1 if not found
 **/
-int string_indexof(struct string_s *this, char *str);
+int string_indexof(struct my_string_s *this, char *str);
 
 /**
 ** @brief Returns the last index of a string in another
@@ -129,7 +129,7 @@ int string_indexof(struct string_s *this, char *str);
 ** @param str The string to check for
 ** @return The last index of the string, -1 if not found
 **/
-int string_lastindexof(struct string_s *this, char *str);
+int string_lastindexof(struct my_string_s *this, char *str);
 
 /**
 ** @brief Replaces a string with another
@@ -137,129 +137,129 @@ int string_lastindexof(struct string_s *this, char *str);
 ** @param old The string to replace
 ** @param new The string to replace with
 **/
-void string_replace(struct string_s *this, char *old, char *new);
+void string_replace(struct my_string_s *this, char *old, char *new);
 
 /**
 ** @brief Get the string as a char *
 ** @param this The string to get
 ** @return The string as a char *
 **/
-char *string_get(struct string_s *this);
+char *string_get(struct my_string_s *this);
 
 /**
 ** @brief Get the string length
 ** @param this The string to get
 ** @return The string length
 **/
-int string_length(struct string_s *this);
+int string_length(struct my_string_s *this);
 
 /**
 ** @brief Get the string capacity
 ** @param this The string to get
 ** @return The string capacity
 **/
-int string_capacity(struct string_s *this);
+int string_capacity(struct my_string_s *this);
 
 /**
 ** @brief Clears the string
 ** @param this The string to clear
 **/
-void string_clear(struct string_s *this);
+void string_clear(struct my_string_s *this);
 
 /**
 ** @brief Prints the string with a newline
 ** @param this The string to print
 **/
-void string_print_ln(struct string_s *this);
+void string_print_ln(struct my_string_s *this);
 
 /**
 ** @brief Prints the string
 ** @param this The string to print
 **/
-void string_print(struct string_s *this);
+void string_print(struct my_string_s *this);
 
 /**
 ** @brief Prints the string in debug mode
 ** @param this The string to print
 **/
-void string_print_debug(struct string_s *this);
+void string_print_debug(struct my_string_s *this);
 
 /**
 ** @brief Prints the string in debug mode with is length and capacity
 ** and a newline
 ** @param this The string to print
 **/
-void string_print_debug_info_ln(struct string_s *this);
+void string_print_debug_info_ln(struct my_string_s *this);
 
 /**
 ** @brief Gets a copy of the string as a char *
 ** @param this The string to get
 ** @return The string as a char *
 **/
-char *string_to_string(struct string_s *this);
+char *string_to_string(struct my_string_s *this);
 
 /**
 ** @brief Gets a copy of the string as an int
 ** @param this The string to get
 ** @return The string as an int
 **/
-int string_to_int(struct string_s *this);
+int string_to_int(struct my_string_s *this);
 
 /**
 ** @brief Gets a copy of the string as a float
 ** @param this The string to get
 ** @return The string as a float
 **/
-float string_to_float(struct string_s *this);
+float string_to_float(struct my_string_s *this);
 
 /**
 ** @brief Gets a copy of the string as a double
 ** @param this The string to get
 ** @return The string as a double
 **/
-double string_to_double(struct string_s *this);
+double string_to_double(struct my_string_s *this);
 
 /**
 ** @brief Generates a string from another
 ** @param this The string to copy
 ** @return The new string
 **/
-struct string_s *string_copy(struct string_s *this);
+struct my_string_s *string_copy(struct my_string_s *this);
 
 /**
 ** @brief Generates a string from a char *
 ** @param str The string to copy
 ** @return The new string
 **/
-struct string_s *string_from_string(char *str);
+struct my_string_s *string_from_string(char *str);
 
 /**
 ** @brief Generates a string from an int
 ** @param nb The int to copy
 ** @return The new string
 **/
-struct string_s *string_from_int(int nb);
+struct my_string_s *string_from_int(int nb);
 
 /**
 ** @brief Generates a string from a float
 ** @param nb The float to copy
 ** @return The new string
 **/
-struct string_s *string_from_float(float nb);
+struct my_string_s *string_from_float(float nb);
 
 /**
 ** @brief Generates a string from a double
 ** @param nb The double to copy
 ** @return The new string
 **/
-struct string_s *string_from_double(double nb);
+struct my_string_s *string_from_double(double nb);
 
 /**
 ** @brief Generates a string from a format
 ** @param format The format to copy
 ** @return The new string
 **/
-struct string_s *string_from_format(char *format, ...);
+struct my_string_s *string_from_format(char *format, ...);
 
 /**
 ** @brief Gets a char at an index
@@ -267,7 +267,7 @@ struct string_s *string_from_format(char *format, ...);
 ** @param index The index to get
 ** @return The char
 **/
-char string_get_at(struct string_s *this, int index);
+char string_get_at(struct my_string_s *this, int index);
 
 /**
 ** @brief Sets a char at an index
@@ -275,7 +275,7 @@ char string_get_at(struct string_s *this, int index);
 ** @param index The index to set
 ** @param c The char to set
 **/
-void string_set_at(struct string_s *this, int index, char c);
+void string_set_at(struct my_string_s *this, int index, char c);
 
 /**
 ** @brief Inserts a char at an index
@@ -283,14 +283,14 @@ void string_set_at(struct string_s *this, int index, char c);
 ** @param index The index to insert at
 ** @param c The char to insert
 **/
-void string_insert_at(struct string_s *this, int index, char c);
+void string_insert_at(struct my_string_s *this, int index, char c);
 
 /**
 ** @brief Removes a char at an index
 ** @param this The string to remove in
 ** @param index The index to remove at
 **/
-void string_remove_at(struct string_s *this, int index);
+void string_remove_at(struct my_string_s *this, int index);
 
 /**
 ** @brief Return a substring of a string
@@ -299,7 +299,7 @@ void string_remove_at(struct string_s *this, int index);
 ** @param end The end index
 ** @return The substring
 **/
-struct string_s *string_substring(struct string_s *this, int start, int end);
+struct my_string_s *string_substring(struct my_string_s *this, int start, int end);
 
 
 
@@ -314,7 +314,7 @@ struct string_s *string_substring(struct string_s *this, int start, int end);
 ** @param delim The delimiter to split with
 ** @return The array of strings
 **/
-struct vector_s *string_split(struct string_s *this, char *delim);
+struct my_vector_s *string_split(struct my_string_s *this, char *delim);
 
 /**
 ** @brief Joins an array of strings into a string
@@ -322,4 +322,4 @@ struct vector_s *string_split(struct string_s *this, char *delim);
 ** @param delim The delimiter to join with
 ** @return The string
 **/
-struct string_s *string_join(struct vector_s *strs, char *delim);
+struct my_string_s *string_join(struct my_vector_s *strs, char *delim);
