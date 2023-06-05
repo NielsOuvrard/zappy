@@ -14,9 +14,9 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: update
-      run: sudo apt update
+      run: sudo apt-get update
     - name: upgrade g++
-      run: sudo apt upgrade g++ --yes
+      run: sudo apt-get -y install g++
     - name: g++ version
       run: g++ --version
     - name: make
