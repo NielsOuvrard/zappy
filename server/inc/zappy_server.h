@@ -76,6 +76,8 @@ void command_bct(struct global_struct_s *g, struct client_s *client,
 struct my_string_s *buffer);
 void command_mct(struct global_struct_s *g, struct client_s *client,
 struct my_string_s *buffer);
+void command_tna(struct global_struct_s *g, struct client_s *client,
+struct my_string_s *buffer);
 
 void initialize_map(void);
 void initialize_server(void);

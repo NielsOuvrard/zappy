@@ -135,6 +135,8 @@ struct my_string_s *buffer)
         command_bct(g, client, buffer);
     else if (string_equals(buffer, "mct\n"))
         command_mct(g, client, buffer);
+    else if (string_equals(buffer, "tna\n"))
+        command_tna(g, client, buffer);
 }
 
 void manage_specific_client(struct client_s *client, struct global_struct_s *g)
