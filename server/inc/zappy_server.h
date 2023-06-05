@@ -37,10 +37,23 @@ struct server_s {
     struct sockaddr_in server_addr;
 };
 
+struct tile_s {
+    int food;
+    int linemate;
+    int deraumere;
+    int sibur;
+    int mendiane;
+    int phiras;
+    int thystame;
+};
+
 struct client_s {
     bool is_closed;
     bool is_gui;
     int client_fd;
+    struct my_string_s *buffer;
+    int posx;
+    int posy;
 };
 
 struct global_struct_s {
@@ -54,6 +67,9 @@ struct global_struct_s {
 };
 
 struct global_struct_s *get_global_struct(void);
+
+void command_graphic(struct global_struct_s *g, struct client_s *client,
+struct my_string_s *buffer);
 
 void initialize_map(void);
 void initialize_server(void);

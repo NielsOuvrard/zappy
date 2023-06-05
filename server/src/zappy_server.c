@@ -73,8 +73,14 @@ void free_all(void)
     struct arg_s *arg = global_struct->arg;
     vector_destroy(arg->names, string_destroy);
     for (int i = 0; i < vector_length(global_struct->map); i++)
-        vector_destroy(vector_get(global_struct->map, i), string_destroy);
+        vector_destroy(vector_get(global_struct->map, i), free);
     vector_destroy(global_struct->map, NULL);
+    for (int i = 0; i < vector_length(global_struct->clients); i++) {
+        struct client_s *client = vector_get(global_struct->clients, i);
+        string_destroy(client->buffer);
+        free(client);
+    }
+    vector_destroy(global_struct->clients, NULL);
     free(global_struct->arg);
     free(global_struct->server);
 }
@@ -96,6 +102,18 @@ void set_fd_set(struct global_struct_s *g)
     }
 }
 
+void convert_coordinate(int *x, int *y)
+{
+    struct global_struct_s *global_struct = get_global_struct();
+    struct arg_s *arg = global_struct->arg;
+    *x = *x % arg->width;
+    *y = *y % arg->height;
+    while (*x < 0)
+        *x = arg->width + *x;
+    while (*y < 0)
+        *y = arg->height + *y;
+}
+
 void accept_new_client(int select_result, struct global_struct_s *g)
 {
     if (select_result > 0 && FD_ISSET(g->server->server_sock, &g->readset)) {
@@ -109,7 +127,50 @@ void accept_new_client(int select_result, struct global_struct_s *g)
         client->client_fd = client_fd;
         client->is_closed = false;
         client->is_gui = false;
+        client->buffer = string_create();
+        client->posx = 0;
+        client->posy = 0;
         vector_push_back(g->clients, client);
+        dprintf(client_fd, "WELCOME\n");
+        printf("new client\n");
+    }
+}
+
+void manage_command(struct global_struct_s *g, struct client_s *client,
+struct my_string_s *buffer)
+{
+    if (strcmp(buffer->str, "GRAPHIC\n") == 0)
+        command_graphic(g, client, buffer);
+}
+
+void manage_specific_client(struct client_s *client, struct global_struct_s *g)
+{
+    if (FD_ISSET(client->client_fd, &g->readset)) {
+        char buffer[BUFSIZ];
+        memset(buffer, 0, BUFSIZ);
+        read(client->client_fd, buffer, BUFSIZ);
+        if (strlen(buffer) == 0) {
+            close(client->client_fd);
+            client->is_closed = true;
+            return;
+        }
+        if (strstr(buffer, "\n") != NULL) {
+            string_append(client->buffer, buffer);
+            manage_command(g, client, client->buffer);
+            string_clear(client->buffer);
+        } else {
+            string_append(client->buffer, buffer);
+        }
+    }
+}
+
+void manage_clients(struct global_struct_s *g)
+{
+    for (int i = 0; i < vector_length(g->clients); i++) {
+        struct client_s *client = vector_get(g->clients, i);
+        if (client->is_closed)
+            continue;
+        manage_specific_client(client, g);
     }
 }
 
@@ -124,6 +185,7 @@ int zappy_server(int ac, char **av)
         set_fd_set(g);
         int select_result = select(g->maxfd, &g->readset, NULL, NULL, NULL);
         accept_new_client(select_result, g);
+        manage_clients(g);
     }
     free_all();
     return 0;
