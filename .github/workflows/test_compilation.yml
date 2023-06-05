@@ -16,7 +16,7 @@ jobs:
     - name: update
       run: sudo apt-get update
     - name: upgrade g++
-      run: sudo apt-get -y install g++
+      run: sudo apt-get -y install gcc
     - name: g++ version
       run: g++ --version
     - name: make
