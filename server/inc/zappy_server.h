@@ -46,7 +46,6 @@ struct global_struct_s {
     fd_set writefds;
 };
 
-struct arg_s *get_arg(void);
 struct global_struct_s *get_global_struct(void);
 
 int zappy_server(int ac, char **av);

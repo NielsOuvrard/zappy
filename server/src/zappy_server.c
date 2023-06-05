@@ -30,7 +30,7 @@ void check_args(int ac, char **av)
         print_help();
         exit(84);
     }
-    struct arg_s *arg = get_arg();
+    struct arg_s *arg = malloc(sizeof(struct arg_s));
     for (int i = 1; i < ac; i++) {
         if (strcmp(av[i], "-p") == 0 && atoi(av[i + 1]) > 0)
             arg->port = atoi(av[i + 1]);
@@ -124,6 +124,7 @@ void free_all(void)
     for (int i = 0; i < vector_length(global_struct->map); i++)
         vector_destroy(vector_get(global_struct->map, i), string_destroy);
     vector_destroy(global_struct->map, NULL);
+    free(global_struct->arg);
     free(global_struct->server);
 }
 
