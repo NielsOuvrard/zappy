@@ -37,15 +37,25 @@ struct server_s {
     struct sockaddr_in server_addr;
 };
 
+struct client_s {
+    bool is_closed;
+    bool is_gui;
+    int client_fd;
+};
+
 struct global_struct_s {
     struct arg_s *arg;
     struct my_vector_s *map;
     struct server_s *server;
-    int max_fd;
-    fd_set readfds;
-    fd_set writefds;
+    struct my_vector_s *clients;
+    int maxfd;
+    fd_set readset;
+    fd_set writeset;
 };
 
 struct global_struct_s *get_global_struct(void);
+
+void initialize_map(void);
+void initialize_server(void);
 
 int zappy_server(int ac, char **av);
