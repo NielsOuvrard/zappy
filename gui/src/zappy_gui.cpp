@@ -48,6 +48,12 @@ int zappy_gui(int ac, char **av)
     net.send_data("GRAPHIC\n");
     data = net.receive_data();
     Gui gui(data);
+    while (!gui.fill_map(data))
+    {
+        net.send_data("mct\n");
+        data = net.receive_data();
+    }
+
     gui.run();
     std::cout << "END" << std::endl;
     return 0;

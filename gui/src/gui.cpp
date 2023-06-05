@@ -7,10 +7,12 @@
 
 #include "gui.hpp"
 
+// implement log
+
 Gui::Gui(std::string data)
 {
-    // parse data
-    while (std::string::npos != data.find("\n"))
+    bool size_found = false;
+    while (std::string::npos != data.find("\n") && !size_found)
     {
         std::string line = data.substr(0, data.find("\n"));
         std::cout << "- " << line << std::endl;
@@ -30,7 +32,21 @@ Gui::Gui(std::string data)
                     _map[i][j] = (t_tile){0, 0, 0, 0, 0, 0, 0};
                 }
             }
+            size_found = true;
         }
+    }
+}
+
+Gui::~Gui()
+{
+}
+
+bool Gui::fill_map(std::string data)
+{
+    while (std::string::npos != data.find("\n"))
+    {
+        std::string line = data.substr(0, data.find("\n"));
+        std::cout << "- " << line << std::endl;
         if (line.find("sgt") != std::string::npos)
         {
             std::string values = line.substr(line.find(" ") + 1);
@@ -58,13 +74,12 @@ Gui::Gui(std::string data)
             std::string thystame = values.substr(0, values.find(" "));
             _map[std::stoi(x)][std::stoi(y)] = (t_tile){
                 std::stoi(food), std::stoi(linemate), std::stoi(deraumere), std::stoi(sibur), std::stoi(mendiane), std::stoi(phiras), std::stoi(thystame)};
+            if (std::stoi(x) == _size_x - 1 && std::stoi(y) == _size_y - 1)
+                return true;
         }
         data = data.substr(data.find("\n") + 1);
     }
-}
-
-Gui::~Gui()
-{
+    return false;
 }
 
 void Gui::draw_map(sf::RenderWindow &window)
@@ -130,7 +145,10 @@ void Gui::load_textures(void)
     std::string line;
     ifs.open("gui/assets/assets.txt", std::ifstream::in);
     if (!ifs.good())
+    {
+        std::cout << "Error opening assets.txt" << std::endl;
         exit(84);
+    }
 
     while (std::getline(ifs, line))
     {

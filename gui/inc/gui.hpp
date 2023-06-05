@@ -25,6 +25,7 @@ public:
     Gui(std::string data);
     ~Gui();
     void run(void);
+    bool fill_map(std::string data);
 
 private:
     void draw_map(sf::RenderWindow &window);
