@@ -16,7 +16,7 @@ jobs:
     - name: update
       run: sudo apt update
     - name: upgrade g++
-      run: sudo apt upgrade g++
+      run: sudo apt upgrade g++ --yes
     - name: g++ version
       run: g++ --version
     - name: make
