@@ -43,7 +43,7 @@ void check_args(int ac, char **av)
         if (strcmp(av[i], "-f") == 0 && atoi(av[i + 1]) > 0)
             arg->freq = atoi(av[i + 1]);
         if (strcmp(av[i], "-n") == 0) {
-            arg->names = malloc(sizeof(char *) * (ac - i));
+            arg->names = vector_create(sizeof(struct my_string_s *));
             int j = 0;
             for (j = 0; j < ac - i; j++) {
                 if (strcmp(av[i + j + 1], "-p") == 0 ||
@@ -52,17 +52,17 @@ void check_args(int ac, char **av)
                     strcmp(av[i + j + 1], "-c") == 0 ||
                     strcmp(av[i + j + 1], "-f") == 0)
                     break;
-                arg->names[j] = strdup(av[i + j + 1]);
+                vector_push_back(arg->names, string_from_string(av[i + j + 1]));
             }
-            for (int k = j; k < ac - i; k++)
-                arg->names[k] = NULL;
         }
     }
+    struct global_struct_s *global_struct = get_global_struct();
+    global_struct->arg = arg;
     printf("port: %d\n", arg->port);
     printf("width: %d\n", arg->width);
     printf("height: %d\n", arg->height);
-    for (int i = 0; arg->names[i] != NULL; i++)
-        printf("names %d: %s\n", i, arg->names[i]);
+    for (int i = 0; i < vector_length(arg->names); i++)
+        printf("names %d: %s\n", i, ((struct string_s *)vector_get(arg->names, i))->str);
     printf("clientsNb: %d\n", arg->clientsNb);
     printf("freq: %d\n", arg->freq);
 }
@@ -71,8 +71,6 @@ int zappy_server(int ac, char **av)
 {
     check_args(ac, av);
     struct arg_s *arg = get_arg();
-    for (int i = 0; arg->names[i] != NULL; i++)
-        free(arg->names[i]);
-    free(arg->names);
+    vector_destroy(arg->names, string_destroy);
     return 0;
 }
