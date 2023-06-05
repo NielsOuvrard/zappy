@@ -5,7 +5,7 @@
 ** et
 */
 
-#include "network.hpp"
+#include "Network.hpp"
 #include <sys/select.h>
 
 Network::Network(char *ip, int port) : _ip(ip), _port(port)
@@ -41,7 +41,8 @@ std::string Network::receive_data()
 {
     char buffer[4096];
     memset(buffer, 0, 4096);
-    int valread = read(_sock, buffer, 4096);
+    int valread = read(_sock, buffer, 4095);
+    // std::cin
     if (valread < 0)
     {
         std::cout << "Read failed" << std::endl;

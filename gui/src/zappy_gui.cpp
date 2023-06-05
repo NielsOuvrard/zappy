@@ -6,8 +6,8 @@
 */
 
 #include "zappy_gui.hpp"
-#include "network.hpp"
-#include "gui.hpp"
+#include "Network.hpp"
+#include "Gui.hpp"
 #include <sys/select.h>
 
 typedef struct args_s
@@ -55,7 +55,6 @@ int zappy_gui(int ac, char **av)
         data = net.receive_data();
         std::cout << "|" << data << "|" << std::endl;
     }
-    std::cout << "size_x : " << std::endl;
 
     // net.send_data("ppo 1\n");
     // data = net.receive_data();

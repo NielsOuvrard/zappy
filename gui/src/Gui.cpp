@@ -5,7 +5,7 @@
 ** gui
 */
 
-#include "gui.hpp"
+#include "Gui.hpp"
 
 // implement log
 
