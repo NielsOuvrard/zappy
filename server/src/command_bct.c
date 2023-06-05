@@ -14,6 +14,8 @@ struct my_string_s *buffer)
     if (client->is_gui == false)
         return;
     struct my_vector_s *args = string_split(buffer, " ");
+    if (vector_length(args) != 3)
+        return;
     int x = atoi(((struct my_string_s *)vector_get(args, 1))->str);
     int y = atoi(((struct my_string_s *)vector_get(args, 2))->str);
     convert_coordinate(&x, &y);

@@ -127,12 +127,14 @@ void accept_new_client(int select_result, struct global_struct_s *g)
 void manage_command(struct global_struct_s *g, struct client_s *client,
 struct my_string_s *buffer)
 {
-    if (strcmp(buffer->str, "GRAPHIC\n") == 0)
+    if (string_equals(buffer, "GRAPHIC\n"))
         command_graphic(g, client, buffer);
-    else if (strcmp(buffer->str, "msz\n") == 0)
+    else if (string_equals(buffer, "msz\n"))
         command_msz(g, client, buffer);
-    else if (string_startswith(buffer, "bct ") == 0)
+    else if (string_startswith(buffer, "bct "))
         command_bct(g, client, buffer);
+    else if (string_equals(buffer, "mct\n"))
+        command_mct(g, client, buffer);
 }
 
 void manage_specific_client(struct client_s *client, struct global_struct_s *g)
