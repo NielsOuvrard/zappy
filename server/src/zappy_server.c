@@ -80,8 +80,6 @@ void initialize_map(void)
         vector_push_back(global_struct->map, line);
     }
     // print the map
-    struct global_struct_s *global_struct = get_global_struct();
-    struct arg_s *arg = global_struct->arg;
     for (int i = 0; i < arg->height; i++) {
         struct my_vector_s *line = vector_get(global_struct->map, i);
         for (int j = 0; j < arg->width; j++) {
@@ -92,6 +90,32 @@ void initialize_map(void)
     }
 }
 
+void initialize_server(void)
+{
+    struct global_struct_s *g = get_global_struct();
+    struct arg_s *arg = g->arg;
+    struct server_s *server = malloc(sizeof(struct server_s));
+    server->server_sock = socket(PF_INET, SOCK_STREAM, 0);
+    if (server->server_sock == -1) {
+        printf("socket: %s", strerror(errno));
+        exit(84);
+    }
+    server->server_addr.sin_family = AF_INET;
+    server->server_addr.sin_port = htons(arg->port);
+    server->server_addr.sin_addr.s_addr = INADDR_ANY;
+    if (setsockopt(server->server_sock, SOL_SOCKET, (SO_REUSEADDR), (char*) &server->server_addr, sizeof(server->server_addr)) == -1)
+        exit(84);
+    if (bind(server->server_sock, (const struct sockaddr *) &server->server_addr, sizeof(server->server_addr)) == -1) {
+        printf("bind: %s", strerror(errno));
+        exit(84);
+    }
+    if (listen(server->server_sock, 1000) == -1) {
+        printf("listen: %s", strerror(errno));
+        exit(84);
+    }
+    g->server = server;
+}
+
 void free_all(void)
 {
     struct global_struct_s *global_struct = get_global_struct();
@@ -100,12 +124,14 @@ void free_all(void)
     for (int i = 0; i < vector_length(global_struct->map); i++)
         vector_destroy(vector_get(global_struct->map, i), string_destroy);
     vector_destroy(global_struct->map, NULL);
+    free(global_struct->server);
 }
 
 int zappy_server(int ac, char **av)
 {
     check_args(ac, av);
     initialize_map();
+    initialize_server();
     free_all();
     return 0;
 }
