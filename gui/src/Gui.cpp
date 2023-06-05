@@ -5,7 +5,7 @@
 ** gui
 */
 
-#include "gui.hpp"
+#include "Gui.hpp"
 
 // implement log
 
@@ -82,9 +82,48 @@ bool Gui::fill_map(std::string data)
             _map[std::stoi(x)][std::stoi(y)] = (t_tile){
                 std::stoi(food), std::stoi(linemate), std::stoi(deraumere), std::stoi(sibur), std::stoi(mendiane), std::stoi(phiras), std::stoi(thystame)};
         }
+        if (line.find("pnw") != std::string::npos)
+        {
+            std::string values = line.substr(line.find(" ") + 1);
+            std::string id = values.substr(0, values.find(" "));
+            values = values.substr(values.find(" ") + 1);
+            std::string x = values.substr(0, values.find(" "));
+            values = values.substr(values.find(" ") + 1);
+            std::string y = values.substr(0, values.find(" "));
+            values = values.substr(values.find(" ") + 1);
+            std::string orientation = values.substr(0, values.find(" "));
+            values = values.substr(values.find(" ") + 1);
+            std::string level = values.substr(0, values.find(" "));
+            values = values.substr(values.find(" ") + 1);
+            std::string team = values.substr(0, values.find(" "));
+            _players.push_back((t_player){std::stoi(id), std::stoi(x), std::stoi(y), std::stoi(orientation), std::stoi(level), team});
+        }
+        if (line.find("pdi") != std::string::npos)
+        {
+            std::string values = line.substr(line.find(" ") + 1);
+            std::string id = values.substr(0, values.find(" "));
+            for (int i = 0; i < _players.size(); i++)
+            {
+                if (_players[i].id == std::stoi(id))
+                {
+                    _players.erase(_players.begin() + i);
+                    break;
+                }
+            }
+        }
         data = data.substr(data.find("\n") + 1);
     }
     return tna_found;
+}
+
+void Gui::draw_players(sf::RenderWindow &window)
+{
+    for (int i = 0; i < _players.size(); i++)
+    {
+        _sprites[8].setPosition(_players[i].x * 64, _players[i].y * 64);
+        _sprites[8].setTexture(_textures[8]);
+        window.draw(_sprites[8]);
+    }
 }
 
 void Gui::draw_map(sf::RenderWindow &window)
@@ -173,8 +212,10 @@ void Gui::run(void)
     load_textures();
     // sf::CircleShape shape(100.f);
     // shape.setFillColor(sf::Color::Green);
+    window.setFramerateLimit(60);
     while (window.isOpen())
     {
+        usleep(100000);
         sf::Event event;
         while (window.pollEvent(event))
         {
@@ -189,10 +230,10 @@ void Gui::run(void)
         }
         window.clear();
         draw_map(window);
+        draw_players(window);
 
         // window.draw(shape);
         window.display();
     }
-
     return;
 }

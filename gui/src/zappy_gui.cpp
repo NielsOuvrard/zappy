@@ -6,8 +6,10 @@
 */
 
 #include "zappy_gui.hpp"
-#include "network.hpp"
-#include "gui.hpp"
+#include "Network.hpp"
+#include "Gui.hpp"
+#include "Mutex.hpp"
+#include "Pthread.hpp"
 #include <sys/select.h>
 
 typedef struct args_s
@@ -15,6 +17,14 @@ typedef struct args_s
     int port;
     char *machine;
 } args_t;
+
+typedef struct shared_s
+{
+    Network *net;
+    Gui *gui;
+    std::string data;
+    bool stop;
+} shared_t;
 
 args_t get_arguments(int ac, char **av)
 {
@@ -40,36 +50,39 @@ args_t get_arguments(int ac, char **av)
     return args;
 }
 
+void *thread_net_func(void *arg)
+{
+    shared_t *shared = (shared_t *)arg;
+    while (!shared->stop)
+    {
+        shared->gui->fill_map(shared->data);
+        shared->data = shared->net->receive_data();
+    }
+    pthread_exit(EXIT_SUCCESS);
+    return NULL;
+}
+
 int zappy_gui(int ac, char **av)
 {
     args_t args = get_arguments(ac, av);
+    shared_t shared;
     Network net(args.machine, args.port);
-    std::string data = net.receive_data(); // Welcome
-    net.send_data("GRAPHIC\n");
-    data = net.receive_data();
-    std::cout << "GRAPHIC : " << data << std::endl;
-    Gui gui(data);
-    while (!gui.fill_map(data))
-    {
-        // maybe tiles lost between two packets
-        data = net.receive_data();
-        std::cout << "|" << data << "|" << std::endl;
-    }
-    std::cout << "size_x : " << std::endl;
+    shared.net = &net;
+    MyPthread thread_net;
 
-    // net.send_data("ppo 1\n");
-    // data = net.receive_data();
-    // std::cout << " player's position ppo : " << data << "|" << std::endl;
+    shared.data = shared.net->receive_data(); // WELECOME
+    shared.net->send_data("GRAPHIC\n");
+    shared.data = shared.net->receive_data();
 
-    // net.send_data("plv 0\n");
-    // data = net.receive_data();
-    // std::cout << "player's level plv : " << data << "|" << std::endl;
+    Gui gui(shared.data);
+    shared.gui = &gui;
+    shared.stop = false;
 
-    // net.send_data("pin 0\n");
-    // data = net.receive_data();
-    // std::cout << " player's inventory pin : " << data << "|" << std::endl;
+    thread_net.create(thread_net_func, &shared);
 
     gui.run();
+    shared.stop = true;
+
     std::cout << "END" << std::endl;
     return 0;
 }

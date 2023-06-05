@@ -6,4 +6,5 @@ sibur.png
 mendiane.png
 phiras.png
 thystame.png
+player.png
 egg.png
