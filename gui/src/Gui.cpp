@@ -212,8 +212,10 @@ void Gui::run(void)
     load_textures();
     // sf::CircleShape shape(100.f);
     // shape.setFillColor(sf::Color::Green);
+    window.setFramerateLimit(60);
     while (window.isOpen())
     {
+        usleep(100000);
         sf::Event event;
         while (window.pollEvent(event))
         {
@@ -233,6 +235,5 @@ void Gui::run(void)
         // window.draw(shape);
         window.display();
     }
-
     return;
 }

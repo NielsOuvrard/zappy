@@ -46,6 +46,8 @@ std::string Network::receive_data()
     if (valread < 0)
     {
         std::cout << "Read failed" << std::endl;
+        std::cout << errno << std::endl;
+        // bad file descriptor
         // exit(84);
     }
     if (valread == 0)

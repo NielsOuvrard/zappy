@@ -23,7 +23,6 @@ typedef struct shared_s
     Network *net;
     Gui *gui;
     std::string data;
-    // MyMutex *mutex;
     bool stop;
 } shared_t;
 
