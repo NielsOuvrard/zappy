@@ -141,6 +141,8 @@ struct my_string_s *buffer)
 {
     if (strcmp(buffer->str, "GRAPHIC\n") == 0)
         command_graphic(g, client, buffer);
+    else if (strcmp(buffer->str, "msz\n") == 0)
+        command_msz(g, client, buffer);
 }
 
 void manage_specific_client(struct client_s *client, struct global_struct_s *g)
