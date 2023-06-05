@@ -102,18 +102,6 @@ void set_fd_set(struct global_struct_s *g)
     }
 }
 
-void convert_coordinate(int *x, int *y)
-{
-    struct global_struct_s *global_struct = get_global_struct();
-    struct arg_s *arg = global_struct->arg;
-    *x = *x % arg->width;
-    *y = *y % arg->height;
-    while (*x < 0)
-        *x = arg->width + *x;
-    while (*y < 0)
-        *y = arg->height + *y;
-}
-
 void accept_new_client(int select_result, struct global_struct_s *g)
 {
     if (select_result > 0 && FD_ISSET(g->server->server_sock, &g->readset)) {
@@ -143,6 +131,8 @@ struct my_string_s *buffer)
         command_graphic(g, client, buffer);
     else if (strcmp(buffer->str, "msz\n") == 0)
         command_msz(g, client, buffer);
+    else if (string_startswith(buffer, "bct ") == 0)
+        command_bct(g, client, buffer);
 }
 
 void manage_specific_client(struct client_s *client, struct global_struct_s *g)

@@ -76,4 +76,6 @@ struct my_string_s *buffer);
 void initialize_map(void);
 void initialize_server(void);
 
+void convert_coordinate(int *x, int *y);
+
 int zappy_server(int ac, char **av);
