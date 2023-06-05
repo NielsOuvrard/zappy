@@ -1,15 +1,18 @@
-#!/usr/bin/env python3
+##
+## EPITECH PROJECT, 2023
+## B-YEP-400-MAR-4-1-zappy-kenan.blasius
+## File description:
+## ai
+##
 
 import socket
 import sys
+from parse_arg import setup_data
 
-args: list[str] = sys.argv
-args.pop(0)
+data = setup_data()
 
-data: dict = {
-    "name": "AI",
-    "team-name": args
-}
+print(data)
+sys.exit(0)
 
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server.connect(('localhost', 4242))
@@ -26,6 +29,3 @@ while (1):
     if (message == "exit"):
         break
 
-# if __name__ == '__main__':
-#     inp = input("Press enter to send a message to the server")
-#     send_message(inp)
