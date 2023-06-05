@@ -72,6 +72,8 @@ void command_graphic(struct global_struct_s *g, struct client_s *client,
 struct my_string_s *buffer);
 void command_msz(struct global_struct_s *g, struct client_s *client,
 struct my_string_s *buffer);
+void command_bct(struct global_struct_s *g, struct client_s *client,
+struct my_string_s *buffer);
 
 void initialize_map(void);
 void initialize_server(void);
