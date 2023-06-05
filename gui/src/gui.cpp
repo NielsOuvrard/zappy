@@ -15,7 +15,7 @@ Gui::Gui(std::string data)
     while (std::string::npos != data.find("\n") && !size_found)
     {
         std::string line = data.substr(0, data.find("\n"));
-        std::cout << "- " << line << std::endl;
+        // std::cout << "- " << line << std::endl;
         if (line.find("msz") != std::string::npos)
         {
             std::string values = line.substr(line.find(" ") + 1);
@@ -43,14 +43,21 @@ Gui::~Gui()
 
 bool Gui::fill_map(std::string data)
 {
+    bool tna_found = false;
     while (std::string::npos != data.find("\n"))
     {
         std::string line = data.substr(0, data.find("\n"));
-        std::cout << "- " << line << std::endl;
+        // std::cout << "- " << line << std::endl;
         if (line.find("sgt") != std::string::npos)
         {
             std::string values = line.substr(line.find(" ") + 1);
             _freq = std::stoi(values);
+        }
+        if (line.find("tna") != std::string::npos)
+        {
+            std::string values = line.substr(line.find(" ") + 1);
+            _teams.push_back(values);
+            tna_found = true;
         }
         if (line.find("bct") != std::string::npos)
         {
@@ -74,12 +81,10 @@ bool Gui::fill_map(std::string data)
             std::string thystame = values.substr(0, values.find(" "));
             _map[std::stoi(x)][std::stoi(y)] = (t_tile){
                 std::stoi(food), std::stoi(linemate), std::stoi(deraumere), std::stoi(sibur), std::stoi(mendiane), std::stoi(phiras), std::stoi(thystame)};
-            if (std::stoi(x) == _size_x - 1 && std::stoi(y) == _size_y - 1)
-                return true;
         }
         data = data.substr(data.find("\n") + 1);
     }
-    return false;
+    return tna_found;
 }
 
 void Gui::draw_map(sf::RenderWindow &window)

@@ -47,12 +47,27 @@ int zappy_gui(int ac, char **av)
     std::string data = net.receive_data(); // Welcome
     net.send_data("GRAPHIC\n");
     data = net.receive_data();
+    std::cout << "GRAPHIC : " << data << std::endl;
     Gui gui(data);
     while (!gui.fill_map(data))
     {
-        net.send_data("mct\n");
+        // maybe tiles lost between two packets
         data = net.receive_data();
+        std::cout << "|" << data << "|" << std::endl;
     }
+    std::cout << "size_x : " << std::endl;
+
+    // net.send_data("ppo 1\n");
+    // data = net.receive_data();
+    // std::cout << " player's position ppo : " << data << "|" << std::endl;
+
+    // net.send_data("plv 0\n");
+    // data = net.receive_data();
+    // std::cout << "player's level plv : " << data << "|" << std::endl;
+
+    // net.send_data("pin 0\n");
+    // data = net.receive_data();
+    // std::cout << " player's inventory pin : " << data << "|" << std::endl;
 
     gui.run();
     std::cout << "END" << std::endl;

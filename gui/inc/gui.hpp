@@ -35,6 +35,7 @@ private:
     std::vector<sf::Texture> _textures;
 
     t_tile **_map;
+    std::vector<std::string> _teams;
     int _size_x;
     int _size_y;
     int _freq;

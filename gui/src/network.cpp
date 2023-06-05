@@ -39,9 +39,9 @@ void Network::send_data(std::string data)
 
 std::string Network::receive_data()
 {
-    char buffer[1024];
-    memset(buffer, 0, 1024);
-    int valread = read(_sock, buffer, 1024);
+    char buffer[4096];
+    memset(buffer, 0, 4096);
+    int valread = read(_sock, buffer, 4096);
     if (valread < 0)
     {
         std::cout << "Read failed" << std::endl;
