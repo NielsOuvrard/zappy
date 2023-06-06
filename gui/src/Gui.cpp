@@ -103,7 +103,7 @@ bool Gui::fill_map(std::string data)
         {
             std::string values = line.substr(line.find(" ") + 1);
             std::string id = values.substr(0, values.find(" "));
-            for (int i = 0; i < _players.size(); i++)
+            for (size_t i = 0; i < _players.size(); i++)
             {
                 if (_players[i].id == std::stoi(id))
                 {
@@ -119,9 +119,10 @@ bool Gui::fill_map(std::string data)
 
 void Gui::draw_players(sf::RenderWindow &window)
 {
-    for (int i = 0; i < _players.size(); i++)
+    for (size_t i = 0; i < _players.size(); i++)
     {
         _sprites[8].setPosition(_players[i].x * 64, _players[i].y * 64);
+        _sprites[8].setRotation((_players[i].orientation - 1) * 90);
         _sprites[8].setTexture(_textures[8]);
         window.draw(_sprites[8]);
     }
