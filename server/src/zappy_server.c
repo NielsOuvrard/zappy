@@ -73,8 +73,14 @@ void free_all(void)
     struct arg_s *arg = global_struct->arg;
     vector_destroy(arg->names, string_destroy);
     for (int i = 0; i < vector_length(global_struct->map); i++)
-        vector_destroy(vector_get(global_struct->map, i), string_destroy);
+        vector_destroy(vector_get(global_struct->map, i), free);
     vector_destroy(global_struct->map, NULL);
+    for (int i = 0; i < vector_length(global_struct->clients); i++) {
+        struct client_s *client = vector_get(global_struct->clients, i);
+        string_destroy(client->buffer);
+        free(client);
+    }
+    vector_destroy(global_struct->clients, NULL);
     free(global_struct->arg);
     free(global_struct->server);
 }
@@ -109,7 +115,82 @@ void accept_new_client(int select_result, struct global_struct_s *g)
         client->client_fd = client_fd;
         client->is_closed = false;
         client->is_gui = false;
+        client->buffer = string_create();
+        client->team = NULL;
+        client->posx = 0;
+        client->posy = 0;
+        client->orientation = EAST;
+        client->level = 1;
+        client->food = 0;
+        client->linemate = 0;
+        client->deraumere = 0;
+        client->sibur = 0;
+        client->mendiane = 0;
+        client->phiras = 0;
+        client->thystame = 0;
         vector_push_back(g->clients, client);
+        dprintf(client_fd, "WELCOME\n");
+        printf("new client\n");
+    }
+}
+
+void manage_command(struct global_struct_s *g, struct client_s *client,
+struct my_string_s *buffer)
+{
+    if (string_equals(buffer, "GRAPHIC\n"))
+        command_graphic(g, client, buffer);
+    else if (string_equals(buffer, "msz\n"))
+        command_msz(g, client, buffer);
+    else if (string_startswith(buffer, "bct "))
+        command_bct(g, client, buffer);
+    else if (string_equals(buffer, "mct\n"))
+        command_mct(g, client, buffer);
+    else if (string_equals(buffer, "tna\n"))
+        command_tna(g, client, buffer);
+    else if (string_startswith(buffer, "ppo "))
+        command_ppo(g, client, buffer);
+    else if (string_startswith(buffer, "plv "))
+        command_plv(g, client, buffer);
+    else if (string_startswith(buffer, "pin "))
+        command_pin(g, client, buffer);
+    else if (string_equals(buffer, "sgt\n"))
+        command_sgt(g, client, buffer);
+    else if (string_startswith(buffer, "sst "))
+        command_sst(g, client, buffer);
+    // else if (string_equals(buffer, "quit\n"))
+    //     command_quit(g, client, buffer);
+    else
+        dprintf(client->client_fd, "suc\n"); // unknown command
+}
+
+void manage_specific_client(struct client_s *client, struct global_struct_s *g)
+{
+    if (FD_ISSET(client->client_fd, &g->readset)) {
+        char buffer[BUFSIZ];
+        memset(buffer, 0, BUFSIZ);
+        read(client->client_fd, buffer, BUFSIZ);
+        if (strlen(buffer) == 0) {
+            close(client->client_fd);
+            client->is_closed = true;
+            return;
+        }
+        if (strstr(buffer, "\n") != NULL) {
+            string_append(client->buffer, buffer);
+            manage_command(g, client, client->buffer);
+            string_clear(client->buffer);
+        } else {
+            string_append(client->buffer, buffer);
+        }
+    }
+}
+
+void manage_clients(struct global_struct_s *g)
+{
+    for (int i = 0; i < vector_length(g->clients); i++) {
+        struct client_s *client = vector_get(g->clients, i);
+        if (client->is_closed)
+            continue;
+        manage_specific_client(client, g);
     }
 }
 
@@ -124,6 +205,7 @@ int zappy_server(int ac, char **av)
         set_fd_set(g);
         int select_result = select(g->maxfd, &g->readset, NULL, NULL, NULL);
         accept_new_client(select_result, g);
+        manage_clients(g);
     }
     free_all();
     return 0;

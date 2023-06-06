@@ -5,15 +5,18 @@
 ** gui
 */
 
-#include "gui.hpp"
+#include "Gui.hpp"
+#include "logger.hpp"
+
+// implement log
 
 Gui::Gui(std::string data)
 {
-    // parse data
-    while (std::string::npos != data.find("\n"))
+    bool size_found = false;
+    while (std::string::npos != data.find("\n") && !size_found)
     {
         std::string line = data.substr(0, data.find("\n"));
-        std::cout << "- " << line << std::endl;
+        // std::cout << "- " << line << std::endl;
         if (line.find("msz") != std::string::npos)
         {
             std::string values = line.substr(line.find(" ") + 1);
@@ -30,11 +33,32 @@ Gui::Gui(std::string data)
                     _map[i][j] = (t_tile){0, 0, 0, 0, 0, 0, 0};
                 }
             }
+            size_found = true;
         }
+    }
+}
+
+Gui::~Gui()
+{
+}
+
+bool Gui::fill_map(std::string data)
+{
+    bool tna_found = false;
+    while (std::string::npos != data.find("\n"))
+    {
+        std::string line = data.substr(0, data.find("\n"));
+        std::cout << LOG_GUI(line);
         if (line.find("sgt") != std::string::npos)
         {
             std::string values = line.substr(line.find(" ") + 1);
             _freq = std::stoi(values);
+        }
+        if (line.find("tna") != std::string::npos)
+        {
+            std::string values = line.substr(line.find(" ") + 1);
+            _teams.push_back(values);
+            tna_found = true;
         }
         if (line.find("bct") != std::string::npos)
         {
@@ -59,12 +83,49 @@ Gui::Gui(std::string data)
             _map[std::stoi(x)][std::stoi(y)] = (t_tile){
                 std::stoi(food), std::stoi(linemate), std::stoi(deraumere), std::stoi(sibur), std::stoi(mendiane), std::stoi(phiras), std::stoi(thystame)};
         }
+        if (line.find("pnw") != std::string::npos)
+        {
+            std::string values = line.substr(line.find(" ") + 1);
+            std::string id = values.substr(0, values.find(" "));
+            values = values.substr(values.find(" ") + 1);
+            std::string x = values.substr(0, values.find(" "));
+            values = values.substr(values.find(" ") + 1);
+            std::string y = values.substr(0, values.find(" "));
+            values = values.substr(values.find(" ") + 1);
+            std::string orientation = values.substr(0, values.find(" "));
+            values = values.substr(values.find(" ") + 1);
+            std::string level = values.substr(0, values.find(" "));
+            values = values.substr(values.find(" ") + 1);
+            std::string team = values.substr(0, values.find(" "));
+            _players.push_back((t_player){std::stoi(id), std::stoi(x), std::stoi(y), std::stoi(orientation), std::stoi(level), team});
+        }
+        if (line.find("pdi") != std::string::npos)
+        {
+            std::string values = line.substr(line.find(" ") + 1);
+            std::string id = values.substr(0, values.find(" "));
+            for (size_t i = 0; i < _players.size(); i++)
+            {
+                if (_players[i].id == std::stoi(id))
+                {
+                    _players.erase(_players.begin() + i);
+                    break;
+                }
+            }
+        }
         data = data.substr(data.find("\n") + 1);
     }
+    return tna_found;
 }
 
-Gui::~Gui()
+void Gui::draw_players(sf::RenderWindow &window)
 {
+    for (size_t i = 0; i < _players.size(); i++)
+    {
+        _sprites[8].setPosition(_players[i].x * 64, _players[i].y * 64);
+        _sprites[8].setRotation((_players[i].orientation - 1) * 90);
+        _sprites[8].setTexture(_textures[8]);
+        window.draw(_sprites[8]);
+    }
 }
 
 void Gui::draw_map(sf::RenderWindow &window)
@@ -130,7 +191,10 @@ void Gui::load_textures(void)
     std::string line;
     ifs.open("gui/assets/assets.txt", std::ifstream::in);
     if (!ifs.good())
+    {
+        std::cout << "Error opening assets.txt" << std::endl;
         exit(84);
+    }
 
     while (std::getline(ifs, line))
     {
@@ -150,8 +214,10 @@ void Gui::run(void)
     load_textures();
     // sf::CircleShape shape(100.f);
     // shape.setFillColor(sf::Color::Green);
+    window.setFramerateLimit(60);
     while (window.isOpen())
     {
+        usleep(100000);
         sf::Event event;
         while (window.pollEvent(event))
         {
@@ -166,10 +232,10 @@ void Gui::run(void)
         }
         window.clear();
         draw_map(window);
+        draw_players(window);
 
         // window.draw(shape);
         window.display();
     }
-
     return;
 }
