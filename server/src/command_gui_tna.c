@@ -7,7 +7,7 @@
 
 #include "zappy_server.h"
 
-void command_tna(struct global_struct_s *g, struct client_s *client,
+void command_gui_tna(struct global_struct_s *g, struct client_s *client,
 struct my_string_s *buffer)
 {
     if (client->is_gui == false || client->team == NULL)
