@@ -58,11 +58,16 @@ void check_args(int ac, char **av)
     }
     struct global_struct_s *global_struct = get_global_struct();
     global_struct->arg = arg;
+    global_struct->team_slots = map_create();
     printf("port: %d\n", arg->port);
     printf("width: %d\n", arg->width);
     printf("height: %d\n", arg->height);
-    for (int i = 0; i < vector_length(arg->names); i++)
+    for (int i = 0; i < vector_length(arg->names); i++) {
         printf("names %d: %s\n", i, ((struct my_string_s *)vector_get(arg->names, i))->str);
+        map_insert(global_struct->team_slots,
+        ((struct my_string_s *)vector_get(arg->names, i)),
+        string_from_int(arg->clientsNb));
+    }
     printf("clientsNb: %d\n", arg->clientsNb);
     printf("freq: %d\n", arg->freq);
 }
@@ -138,29 +143,37 @@ void manage_command(struct global_struct_s *g, struct client_s *client,
 struct my_string_s *buffer)
 {
     if (string_equals(buffer, "GRAPHIC\n"))
-        command_graphic(g, client, buffer);
+        command_gui_graphic(g, client, buffer);
     else if (string_equals(buffer, "msz\n"))
-        command_msz(g, client, buffer);
+        command_gui_msz(g, client, buffer);
     else if (string_startswith(buffer, "bct "))
-        command_bct(g, client, buffer);
+        command_gui_bct(g, client, buffer);
     else if (string_equals(buffer, "mct\n"))
-        command_mct(g, client, buffer);
+        command_gui_mct(g, client, buffer);
     else if (string_equals(buffer, "tna\n"))
-        command_tna(g, client, buffer);
+        command_gui_tna(g, client, buffer);
     else if (string_startswith(buffer, "ppo "))
-        command_ppo(g, client, buffer);
+        command_gui_ppo(g, client, buffer);
     else if (string_startswith(buffer, "plv "))
-        command_plv(g, client, buffer);
+        command_gui_plv(g, client, buffer);
     else if (string_startswith(buffer, "pin "))
-        command_pin(g, client, buffer);
+        command_gui_pin(g, client, buffer);
     else if (string_equals(buffer, "sgt\n"))
-        command_sgt(g, client, buffer);
+        command_gui_sgt(g, client, buffer);
     else if (string_startswith(buffer, "sst "))
-        command_sst(g, client, buffer);
+        command_gui_sst(g, client, buffer);
     // else if (string_equals(buffer, "quit\n"))
-    //     command_quit(g, client, buffer);
-    else
+    //     command_gui_quit(g, client, buffer);
+    else {
+        for (int i = 0; i < vector_length(g->arg->names); i++) {
+            struct my_string_s *name = vector_get(g->arg->names, i);
+            if (string_startswith(buffer, name->str)) {
+                command_ai_team(g, client, buffer, name);
+                return;
+            }
+        }
         dprintf(client->client_fd, "suc\n"); // unknown command
+    }
 }
 
 void manage_specific_client(struct client_s *client, struct global_struct_s *g)

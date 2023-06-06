@@ -22,6 +22,7 @@
 
 #include "my_vector.h"
 #include "my_string.h"
+#include "my_map.h"
 
 struct arg_s {
     int port;
@@ -78,6 +79,7 @@ struct global_struct_s {
     struct my_vector_s *map;
     struct server_s *server;
     struct my_vector_s *clients;
+    struct my_map_s *team_slots;
     int ai_spawn;
     int maxfd;
     fd_set readset;
@@ -86,26 +88,29 @@ struct global_struct_s {
 
 struct global_struct_s *get_global_struct(void);
 
-void command_graphic(struct global_struct_s *g, struct client_s *client,
+void command_gui_graphic(struct global_struct_s *g, struct client_s *client,
 struct my_string_s *buffer);
-void command_msz(struct global_struct_s *g, struct client_s *client,
+void command_gui_msz(struct global_struct_s *g, struct client_s *client,
 struct my_string_s *buffer);
-void command_bct(struct global_struct_s *g, struct client_s *client,
+void command_gui_bct(struct global_struct_s *g, struct client_s *client,
 struct my_string_s *buffer);
-void command_mct(struct global_struct_s *g, struct client_s *client,
+void command_gui_mct(struct global_struct_s *g, struct client_s *client,
 struct my_string_s *buffer);
-void command_tna(struct global_struct_s *g, struct client_s *client,
+void command_gui_tna(struct global_struct_s *g, struct client_s *client,
 struct my_string_s *buffer);
-void command_ppo(struct global_struct_s *g, struct client_s *client,
+void command_gui_ppo(struct global_struct_s *g, struct client_s *client,
 struct my_string_s *buffer);
-void command_plv(struct global_struct_s *g, struct client_s *client,
+void command_gui_plv(struct global_struct_s *g, struct client_s *client,
 struct my_string_s *buffer);
-void command_pin(struct global_struct_s *g, struct client_s *client,
+void command_gui_pin(struct global_struct_s *g, struct client_s *client,
 struct my_string_s *buffer);
-void command_sgt(struct global_struct_s *g, struct client_s *client,
+void command_gui_sgt(struct global_struct_s *g, struct client_s *client,
 struct my_string_s *buffer);
-void command_sst(struct global_struct_s *g, struct client_s *client,
+void command_gui_sst(struct global_struct_s *g, struct client_s *client,
 struct my_string_s *buffer);
+
+void command_ai_team(struct global_struct_s *g, struct client_s *client,
+struct my_string_s *buffer, struct my_string_s *name);
 
 void initialize_map(void);
 void initialize_server(void);
