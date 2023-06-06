@@ -6,6 +6,7 @@
 */
 
 #include "Gui.hpp"
+#include "logger.hpp"
 
 // implement log
 
@@ -47,7 +48,7 @@ bool Gui::fill_map(std::string data)
     while (std::string::npos != data.find("\n"))
     {
         std::string line = data.substr(0, data.find("\n"));
-        // std::cout << "- " << line << std::endl;
+        std::cout << LOG_GUI(line);
         if (line.find("sgt") != std::string::npos)
         {
             std::string values = line.substr(line.find(" ") + 1);

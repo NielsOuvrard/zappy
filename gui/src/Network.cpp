@@ -42,13 +42,11 @@ std::string Network::receive_data()
     char buffer[4096];
     memset(buffer, 0, 4096);
     int valread = read(_sock, buffer, 4095);
-    // std::cin
     if (valread < 0)
     {
         std::cout << "Read failed" << std::endl;
         std::cout << errno << std::endl;
-        // bad file descriptor
-        // exit(84);
+        // 9 = bad file descriptor
     }
     if (valread == 0)
     {
@@ -60,35 +58,4 @@ std::string Network::receive_data()
         return "";
     std::string data = buffer;
     return data;
-}
-
-// useless ?
-char *Network::get_message()
-{
-    fd_set readFds;
-    fd_set writeFds;
-    timeval tv;
-
-    char *buffer = new char[4096];
-
-    tv.tv_sec = 0;
-    tv.tv_usec = 0;
-    FD_ZERO(&readFds);
-    FD_SET(_sock, &readFds);
-    select(_sock + 1, &readFds, &writeFds, NULL, &tv);
-    if (FD_ISSET(_sock, &readFds))
-    {
-        memset(buffer, 0, 4096);
-        if (recv(_sock, buffer, 4096, 0) <= 0)
-        {
-            std::cout << "Server disconnected" << std::endl;
-            close(_sock);
-            exit(84);
-        }
-        std::cout << buffer << std::endl;
-        return buffer;
-    }
-    std::cout << "No message" << std::endl;
-    delete[] buffer;
-    return NULL;
 }

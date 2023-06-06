@@ -1,6 +1,6 @@
 /*
 ** EPITECH PROJECT, 2023
-** B-CCP-400-MAR-4-1-theplazza-niels.ouvrard
+** B-YEP-400-MAR-4-1-zappy-kenan.blasius
 ** File description:
 ** Mutex
 */
