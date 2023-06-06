@@ -38,5 +38,3 @@ def setup_data():
             print("Error: Invalid argument")
             print_help(84)
     return data
-
-

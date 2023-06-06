@@ -11,22 +11,72 @@ void initialize_map(void)
 {
     struct global_struct_s *global_struct = get_global_struct();
     struct arg_s *arg = global_struct->arg;
+    global_struct->ai_spawn = false;
     global_struct->map = vector_create(sizeof(struct my_vector_s *));
     for (int i = 0; i < arg->height; i++) {
         struct my_vector_s *line = vector_create(sizeof(struct my_string_s *));
         for (int j = 0; j < arg->width; j++) {
-            vector_push_back(line, string_from_string("X"));
+            struct tile_s *tile = malloc(sizeof(struct tile_s));
+            tile->food = 0;
+            tile->linemate = 0;
+            tile->deraumere = 0;
+            tile->sibur = 0;
+            tile->mendiane = 0;
+            tile->phiras = 0;
+            tile->thystame = 0;
+            vector_push_back(line, tile);
         }
         vector_push_back(global_struct->map, line);
     }
-    // print the map
-    for (int i = 0; i < arg->height; i++) {
-        struct my_vector_s *line = vector_get(global_struct->map, i);
-        for (int j = 0; j < arg->width; j++) {
-            struct my_string_s *str = vector_get(line, j);
-            string_print(str);
+    int max_food = (arg->width * arg->height) * 0.5;
+    int max_linemate = (arg->width * arg->height) * 0.3;
+    int max_deraumere = (arg->width * arg->height) * 0.15;
+    int max_sibur = (arg->width * arg->height) * 0.1;
+    int max_mendiane = (arg->width * arg->height) * 0.1;
+    int max_phiras = (arg->width * arg->height) * 0.08;
+    int max_thystame = (arg->width * arg->height) * 0.05;
+    int max_all = max_food + max_linemate + max_deraumere +
+    max_sibur + max_mendiane + max_phiras + max_thystame;
+    while (max_all) {
+        int x = rand() % arg->width;
+        int y = rand() % arg->height;
+        int r = rand() % 7;
+        struct tile_s *tile = vector_get(vector_get(global_struct->map, y), x);
+        if (r == 0 && max_food > 0 && tile->food <= 0) {
+            tile->food++;
+            max_food--;
+            max_all--;
         }
-        printf("\n");
+        if (r == 1 && max_linemate > 0 && tile->linemate <= 0) {
+            tile->linemate++;
+            max_linemate--;
+            max_all--;
+        }
+        if (r == 2 && max_deraumere > 0 && tile->deraumere <= 0) {
+            tile->deraumere++;
+            max_deraumere--;
+            max_all--;
+        }
+        if (r == 3 && max_sibur > 0 && tile->sibur <= 0) {
+            tile->sibur++;
+            max_sibur--;
+            max_all--;
+        }
+        if (r == 4 && max_mendiane > 0 && tile->mendiane <= 0) {
+            tile->mendiane++;
+            max_mendiane--;
+            max_all--;
+        }
+        if (r == 5 && max_phiras > 0 && tile->phiras <= 0) {
+            tile->phiras++;
+            max_phiras--;
+            max_all--;
+        }
+        if (r == 6 && max_thystame > 0 && tile->thystame <= 0) {
+            tile->thystame++;
+            max_thystame--;
+            max_all--;
+        }
     }
 }
 
