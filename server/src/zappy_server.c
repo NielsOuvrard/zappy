@@ -116,8 +116,18 @@ void accept_new_client(int select_result, struct global_struct_s *g)
         client->is_closed = false;
         client->is_gui = false;
         client->buffer = string_create();
+        client->team = NULL;
         client->posx = 0;
         client->posy = 0;
+        client->orientation = EAST;
+        client->level = 1;
+        client->food = 0;
+        client->linemate = 0;
+        client->deraumere = 0;
+        client->sibur = 0;
+        client->mendiane = 0;
+        client->phiras = 0;
+        client->thystame = 0;
         vector_push_back(g->clients, client);
         dprintf(client_fd, "WELCOME\n");
         printf("new client\n");
@@ -137,6 +147,20 @@ struct my_string_s *buffer)
         command_mct(g, client, buffer);
     else if (string_equals(buffer, "tna\n"))
         command_tna(g, client, buffer);
+    else if (string_startswith(buffer, "ppo "))
+        command_ppo(g, client, buffer);
+    else if (string_startswith(buffer, "plv "))
+        command_plv(g, client, buffer);
+    // else if (string_startswith(buffer, "pin "))
+    //     command_pin(g, client, buffer);
+    // else if (string_startswith(buffer, "sgt\n"))
+    //     command_sgt(g, client, buffer);
+    // else if (string_startswith(buffer, "sst "))
+    //     command_sst(g, client, buffer);
+    // else if (string_equals(buffer, "quit\n"))
+    //     command_quit(g, client, buffer);
+    else
+        dprintf(client->client_fd, "suc\n"); // unknown command
 }
 
 void manage_specific_client(struct client_s *client, struct global_struct_s *g)

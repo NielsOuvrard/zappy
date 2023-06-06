@@ -47,13 +47,30 @@ struct tile_s {
     int thystame;
 };
 
+enum orientation_e {
+    NORTH = 1,
+    EAST = 2,
+    SOUTH = 3,
+    WEST = 4
+};
+
 struct client_s {
     bool is_closed;
     bool is_gui;
     int client_fd;
     struct my_string_s *buffer;
+    struct my_string_s *team;
     int posx;
     int posy;
+    enum orientation_e orientation;
+    int level;
+    int food;
+    int linemate;
+    int deraumere;
+    int sibur;
+    int mendiane;
+    int phiras;
+    int thystame;
 };
 
 struct global_struct_s {
@@ -61,6 +78,7 @@ struct global_struct_s {
     struct my_vector_s *map;
     struct server_s *server;
     struct my_vector_s *clients;
+    int ai_spawn;
     int maxfd;
     fd_set readset;
     fd_set writeset;
@@ -77,6 +95,10 @@ struct my_string_s *buffer);
 void command_mct(struct global_struct_s *g, struct client_s *client,
 struct my_string_s *buffer);
 void command_tna(struct global_struct_s *g, struct client_s *client,
+struct my_string_s *buffer);
+void command_ppo(struct global_struct_s *g, struct client_s *client,
+struct my_string_s *buffer);
+void command_plv(struct global_struct_s *g, struct client_s *client,
 struct my_string_s *buffer);
 
 void initialize_map(void);
