@@ -153,10 +153,10 @@ struct my_string_s *buffer)
         command_plv(g, client, buffer);
     else if (string_startswith(buffer, "pin "))
         command_pin(g, client, buffer);
-    // else if (string_startswith(buffer, "sgt\n"))
-    //     command_sgt(g, client, buffer);
-    // else if (string_startswith(buffer, "sst "))
-    //     command_sst(g, client, buffer);
+    else if (string_equals(buffer, "sgt\n"))
+        command_sgt(g, client, buffer);
+    else if (string_startswith(buffer, "sst "))
+        command_sst(g, client, buffer);
     // else if (string_equals(buffer, "quit\n"))
     //     command_quit(g, client, buffer);
     else

@@ -102,6 +102,10 @@ void command_plv(struct global_struct_s *g, struct client_s *client,
 struct my_string_s *buffer);
 void command_pin(struct global_struct_s *g, struct client_s *client,
 struct my_string_s *buffer);
+void command_sgt(struct global_struct_s *g, struct client_s *client,
+struct my_string_s *buffer);
+void command_sst(struct global_struct_s *g, struct client_s *client,
+struct my_string_s *buffer);
 
 void initialize_map(void);
 void initialize_server(void);
