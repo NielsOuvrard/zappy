@@ -112,6 +112,28 @@ bool Gui::fill_map(std::string data)
                 }
             }
         }
+        // ppo
+        if (line.find("ppo") != std::string::npos)
+        {
+            std::string values = line.substr(line.find(" ") + 1);
+            std::string id = values.substr(0, values.find(" "));
+            values = values.substr(values.find(" ") + 1);
+            std::string x = values.substr(0, values.find(" "));
+            values = values.substr(values.find(" ") + 1);
+            std::string y = values.substr(0, values.find(" "));
+            values = values.substr(values.find(" ") + 1);
+            std::string orientation = values.substr(0, values.find(" "));
+            for (int i = 0; i < _players.size(); i++)
+            {
+                if (_players[i].id == std::stoi(id))
+                {
+                    _players[i].x = std::stoi(x);
+                    _players[i].y = std::stoi(y);
+                    _players[i].orientation = std::stoi(orientation);
+                    break;
+                }
+            }
+        }
         data = data.substr(data.find("\n") + 1);
     }
     return tna_found;
