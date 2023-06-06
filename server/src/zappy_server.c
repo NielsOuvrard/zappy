@@ -151,8 +151,8 @@ struct my_string_s *buffer)
         command_ppo(g, client, buffer);
     else if (string_startswith(buffer, "plv "))
         command_plv(g, client, buffer);
-    // else if (string_startswith(buffer, "pin "))
-    //     command_pin(g, client, buffer);
+    else if (string_startswith(buffer, "pin "))
+        command_pin(g, client, buffer);
     // else if (string_startswith(buffer, "sgt\n"))
     //     command_sgt(g, client, buffer);
     // else if (string_startswith(buffer, "sst "))
