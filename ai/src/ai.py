@@ -108,22 +108,6 @@ def main():
         if simple_algo_eat(player):
             res = player.take("food")
             print("take food", res)
-
-    # [ player food deraumere, food food food linemate phiras, food food food linemate mendiane, food deraumere ]
-
-    # server.send("Fordward\n".encode())
-    # server.send("Look\n".encode())
-    # response = server.recv(1024).decode()
-    # print("'" + response + "'")
-
-    # while (1):
-    #     response = server.recv(1024).decode()
-    #     print("'" + response + "'")
-    #     message = input("Enter a message to send to the server: ")
-    #     if (message != ""):
-    #         server.send(message.encode())
-    #     if (message == "exit"):
-    #         break
     sys.exit(0)
 
 if __name__ == "__main__":
