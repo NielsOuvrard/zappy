@@ -96,7 +96,6 @@ def simple_algo_eat(player: Player):
         print("forward", res)
     return 0
 
-['player', 'mendiane', 'mendiane', 'linemate', 'food', 'food']
 def main():
     data = setup_data()
     player = connect_to_server(data)
