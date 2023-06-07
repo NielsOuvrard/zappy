@@ -192,8 +192,22 @@ void manage_specific_client(struct client_s *client, struct global_struct_s *g)
         }
         if (strstr(buffer, "\n") != NULL) {
             string_append(client->buffer, buffer);
-            manage_command(g, client, client->buffer);
+            struct my_vector_s *lines = string_split(client->buffer, "\n");
+            for (int i = 0; i < vector_length(lines); i++) {
+                struct my_string_s *line = vector_get(lines, i);
+                if (i == vector_length(lines) - 1 && !string_endswith(client->buffer, "\n"))
+                    break;
+                else
+                    string_append(line, "\n");
+            }
+            while (vector_length(lines) > 0 && string_endswith(vector_get(lines, 0), "\n")) {
+                manage_command(g, client, (vector_get(lines, 0)));
+                string_destroy(vector_remove(lines, 0));
+            }
             string_clear(client->buffer);
+            if (vector_length(lines) > 0)
+                string_append(client->buffer, vector_get(lines, 0));
+            vector_destroy(lines, string_destroy);
         } else {
             string_append(client->buffer, buffer);
         }
