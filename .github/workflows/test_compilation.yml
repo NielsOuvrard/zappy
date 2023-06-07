@@ -13,11 +13,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-    - name: print env
-      run: env
-      env:
-        CC: gcc-10
-        CXX: g++-10
+    - name: install dependancies
+      run: sudo apt install libsfml-dev
     - name: make
       run: make
       env:
