@@ -81,7 +81,7 @@ void string_append_double(struct my_string_s *this, double nb);
 ** @param this The string to check
 ** @return true if empty, false otherwise
 **/
-bool string_isempty(struct my_string_s *this);
+bool string_isempty(void *this);
 
 /**
 ** @brief Checks if is equal to a string
@@ -89,7 +89,15 @@ bool string_isempty(struct my_string_s *this);
 ** @param str The string to compare to
 ** @return true if equal, false otherwise
 **/
-bool string_equals(struct my_string_s *this, char *str);
+bool string_equals(void *this, void *str);
+
+/**
+** @brief Checks if is equal to a string
+** @param this The string to check
+** @param str The string to compare to
+** @return true if equal, false otherwise
+**/
+bool string_equals_str(void *this, void *str);
 
 /**
 ** @brief Checks if a string contains another
@@ -97,7 +105,7 @@ bool string_equals(struct my_string_s *this, char *str);
 ** @param str The string to check for
 ** @return true if contains, false otherwise
 **/
-bool string_contains(struct my_string_s *this, char *str);
+bool string_contains(void *this, void *str);
 
 /**
 ** @brief Checks if a string starts with another
@@ -105,7 +113,7 @@ bool string_contains(struct my_string_s *this, char *str);
 ** @param str The string to check for
 ** @return true if starts with, false otherwise
 **/
-bool string_startswith(struct my_string_s *this, char *str);
+bool string_startswith(void *this, void *str);
 
 /**
 ** @brief Checks if a string ends with another
@@ -113,7 +121,7 @@ bool string_startswith(struct my_string_s *this, char *str);
 ** @param str The string to check for
 ** @return true if ends with, false otherwise
 **/
-bool string_endswith(struct my_string_s *this, char *str);
+bool string_endswith(void *this, void *str);
 
 /**
 ** @brief Returns the index of a string in another

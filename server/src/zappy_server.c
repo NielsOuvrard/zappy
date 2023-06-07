@@ -67,7 +67,7 @@ void check_args(int ac, char **av)
         int tmp = arg->clientsNb;
         map_insert(global_struct->team_slots,
         string_copy((struct my_string_s *)vector_get(arg->names, i)),
-        tmp);
+        (int *)&tmp);
     }
     printf("clientsNb: %d\n", arg->clientsNb);
     printf("freq: %d\n", arg->freq);
