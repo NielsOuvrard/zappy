@@ -97,7 +97,7 @@ bool Gui::fill_map(std::string data)
             std::string level = values.substr(0, values.find(" "));
             values = values.substr(values.find(" ") + 1);
             std::string team = values.substr(0, values.find(" "));
-            _players.push_back((t_player){std::stoi(id), std::stoi(x), std::stoi(y), std::stoi(orientation), std::stoi(level), team});
+            _players.push_back((t_player){std::stoi(id), std::stoi(x) - 1, std::stoi(y) - 1, std::stoi(orientation), std::stoi(level), team});
         }
         if (line.find("pdi") != std::string::npos)
         {
@@ -143,7 +143,7 @@ void Gui::draw_players(sf::RenderWindow &window)
 {
     for (size_t i = 0; i < _players.size(); i++)
     {
-        _sprites[8].setPosition(_players[i].x * 64, _players[i].y * 64);
+        _sprites[8].setPosition(_players[i].x * 64 + 32, _players[i].y * 64 + 32);
         _sprites[8].setRotation((_players[i].orientation - 1) * 90);
         _sprites[8].setTexture(_textures[8]);
         window.draw(_sprites[8]);
@@ -228,6 +228,7 @@ void Gui::load_textures(void)
         _sprites.push_back(sf::Sprite());
         _textures.push_back(texture);
     }
+    _sprites[8].setOrigin(32, 32);
 }
 
 void Gui::run(void)

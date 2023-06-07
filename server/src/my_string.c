@@ -89,34 +89,50 @@ void string_append_double(struct my_string_s *this, double nb)
     string_append(this, str);
 }
 
-bool string_isempty(struct my_string_s *this)
+bool string_isempty(void *this)
 {
-    return this->length == 0;
+    struct my_string_s *string = this;
+    return string->length == 0;
 }
 
-bool string_equals(struct my_string_s *this, char *str)
+bool string_equals(void *this, void *str)
 {
-    return strcmp(this->str, str) == 0;
+    struct my_string_s *first = this;
+    char *second = str;
+    return strcmp(first->str, second) == 0;
 }
 
-bool string_contains(struct my_string_s *this, char *str)
+bool string_equals_str(void *this, void *str)
 {
-    return strstr(this->str, str) != NULL;
+    struct my_string_s *first = this;
+    struct my_string_s *second = str;
+    return strcmp(first->str, second->str) == 0;
 }
 
-bool string_startswith(struct my_string_s *this, char *str)
+bool string_contains(void *this, void *str)
 {
-    return strncmp(this->str, str, strlen(str)) == 0;
+    struct my_string_s *first = this;
+    char *second = str;
+    return strstr(first->str, second) != NULL;
 }
 
-bool string_endswith(struct my_string_s *this, char *str)
+bool string_startswith(void *this, void *str)
 {
-    int len = strlen(str);
-    int start = this->length - len;
+    struct my_string_s *first = this;
+    char *second = str;
+    return strncmp(first->str, second, strlen(second)) == 0;
+}
+
+bool string_endswith(void *this, void *str)
+{
+    struct my_string_s *first = this;
+    char *second = str;
+    int len = strlen(second);
+    int start = first->length - len;
 
     if (start < 0)
         return 0;
-    return strncmp(this->str + start, str, len) == 0;
+    return strncmp(first->str + start, second, len) == 0;
 }
 
 int string_indexof(struct my_string_s *this, char *str)

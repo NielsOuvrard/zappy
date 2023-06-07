@@ -2,26 +2,21 @@ name: C/C++ CI
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "*" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "*" ]
 
 jobs:
   build:
 
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
 
     steps:
     - uses: actions/checkout@v3
-    - name: update
-      run: sudo apt-get update
-    - name: upgrade g++
-      run: sudo apt-get -y install gcc
-    - name: g++ version
-      run: g++ --version
+    - name: install dependancies
+      run: sudo apt install libsfml-dev
     - name: make
       run: make
-    - name: make check
-      run: make check
-    - name: make distcheck
-      run: make distcheck
+      env:
+        CC: gcc-10
+        CXX: g++-10

@@ -5,6 +5,8 @@
 ## Player
 ##
 
+import json
+
 class Player:
     def __init__(self, size_x, size_y, id, server):
         self.size_x = size_x
@@ -31,6 +33,30 @@ class Player:
             # remove empty string
             response[i] = list(filter(None, response[i]))
         print(response)
+        self.map = []
+        for i in range(len(response)):
+            case_info: dict = {
+                "player": 0,
+                "food": 0,
+                "linemate": 0,
+                "deraumere": 0,
+                "sibur": 0,
+                "mendiane": 0,
+                "phiras": 0,
+                "thystame": 0
+            }
+            for j in range(len(response[i])):
+                # print(f"response[{i}][{j}] = " + response[i][j])
+                case_info[response[i][j]] += 1
+                # print(json.dumps(case_info, indent=4))
+            # print("PREVIOUS case_info = " + str(case_info))
+            self.map.append(case_info)
+            # print("AFTER case_info = " + str(case_info))
+            # print("I = " + str(i))
+            # print(json.dumps(tmp_map, indent=4))
+        # self.map = tmp_map
+        print(json.dumps(self.map, indent=4))
+        # print(json.dumps(tmp_map, indent=4))
         return response
 
     def forward(self):

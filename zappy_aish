@@ -1,0 +1,6 @@
+if [ "$1" = 'c' ]; then
+    shift
+    ./zappy_ai $@
+else
+    ./zappy_ai -p 8080 -n myname -h 127.0.0.1
+fi

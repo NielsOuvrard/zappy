@@ -65,7 +65,7 @@ void check_args(int ac, char **av)
     for (int i = 0; i < vector_length(arg->names); i++) {
         printf("names %d: %s\n", i, ((struct my_string_s *)vector_get(arg->names, i))->str);
         map_insert(global_struct->team_slots,
-        ((struct my_string_s *)vector_get(arg->names, i)),
+        string_copy((struct my_string_s *)vector_get(arg->names, i)),
         string_from_int(arg->clientsNb));
     }
     printf("clientsNb: %d\n", arg->clientsNb);
@@ -83,9 +83,12 @@ void free_all(void)
     for (int i = 0; i < vector_length(global_struct->clients); i++) {
         struct client_s *client = vector_get(global_struct->clients, i);
         string_destroy(client->buffer);
+        if (client->team)
+            string_destroy(client->team);
         free(client);
     }
     vector_destroy(global_struct->clients, NULL);
+    map_destroy(global_struct->team_slots, string_destroy, string_destroy);
     free(global_struct->arg);
     free(global_struct->server);
 }
@@ -207,11 +210,19 @@ void manage_clients(struct global_struct_s *g)
     }
 }
 
+void sigint_handler(int sig)
+{
+    (void) sig;
+    free_all();
+    exit(0);
+}
+
 int zappy_server(int ac, char **av)
 {
     check_args(ac, av);
     initialize_map();
     initialize_server();
+    signal(SIGINT, sigint_handler);
     struct global_struct_s *g = get_global_struct();
     g->clients = vector_create(sizeof(struct client_s *));
     while (true) {

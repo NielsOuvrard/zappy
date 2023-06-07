@@ -1,0 +1,14 @@
+if [ "$1" = 'v' ] && [ "$2" = 'g' ]; then
+    valgrind -s --leak-check=full --show-leak-kinds=all --track-origins=yes --vgdb=yes --vgdb-error=0 ./zappy_server -p 8080 -x 10 -y 10 -n myname myname2 -c 10 -f 10
+elif [ "$1" = 'v' ] && [ "$2" = 'c' ]; then
+    shift
+    shift
+    valgrind -s --leak-check=full --show-leak-kinds=all --track-origins=yes ./zappy_server $@
+elif [ "$1" = 'v' ]; then
+    valgrind -s --leak-check=full --show-leak-kinds=all --track-origins=yes ./zappy_server -p 8080 -x 10 -y 10 -n myname myname2 -c 10 -f 10
+elif [ "$1" = 'c' ]; then
+    shift
+    ./zappy_server $@
+else
+    ./zappy_server -p 8080 -x 10 -y 10 -n myname myname2 -c 10 -f 10
+fi
