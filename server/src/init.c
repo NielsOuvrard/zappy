@@ -90,6 +90,7 @@ void initialize_server(void)
         printf("socket: %s", strerror(errno));
         exit(84);
     }
+    server->server_addr = (struct sockaddr_in) {0};
     server->server_addr.sin_family = AF_INET;
     server->server_addr.sin_port = htons(arg->port);
     server->server_addr.sin_addr.s_addr = INADDR_ANY;
