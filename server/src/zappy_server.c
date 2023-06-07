@@ -207,11 +207,19 @@ void manage_clients(struct global_struct_s *g)
     }
 }
 
+void sigint_handler(int sig)
+{
+    (void) sig;
+    free_all();
+    exit(0);
+}
+
 int zappy_server(int ac, char **av)
 {
     check_args(ac, av);
     initialize_map();
     initialize_server();
+    signal(SIGINT, sigint_handler);
     struct global_struct_s *g = get_global_struct();
     g->clients = vector_create(sizeof(struct client_s *));
     while (true) {
