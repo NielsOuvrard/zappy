@@ -13,15 +13,18 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-    - name: update
-      run: sudo apt-get update
-    - name: upgrade g++
-      run: sudo apt-get -y install gcc
-    - name: g++ version
-      run: g++ --version
     - name: make
       run: make
+      env:
+        CC: gcc-10
+        CXX: g++-10
     - name: make check
       run: make check
+      env:
+        CC: gcc-10
+        CXX: g++-10
     - name: make distcheck
       run: make distcheck
+      env:
+        CC: gcc-10
+        CXX: g++-10
