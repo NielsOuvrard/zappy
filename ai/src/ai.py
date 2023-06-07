@@ -5,6 +5,7 @@
 ## main
 ##
 
+import random
 import socket
 import sys
 from time import sleep
@@ -61,27 +62,59 @@ def fill_map(player: Player, look: list, size: int, incr: int = 1):
         fill_map(player, look[size:], size + incr, incr + 2)
 
 
-def simple_algo_eat(player):
-    look = player.look()
-    print(look)
-    if (look[0] == "food"):
-        res = player.forward()
-        print("forward", res)
-        res = player.take("food")
-        print("food", res)
-        return
+def check_food(player: Player, look: list):
+    if len(look) > 1 and look[1] == "food":
+        return True
+    return False
+
+
+def check_food_far_away(player: Player, look: list):
+    if len(look) > 3 and look[3] == "food":
+        return True
+    return False
+
+
+def simple_algo_eat(player: Player):
+    look: list = player.look()
+    for thing in look[0]:
+        if thing == "food":
+            return 1
+    for i in range(4):
+        look: list = player.look()
+        if check_food(player, look):
+            res = player.forward()
+            print("forward", res)
+            return 1
+        if check_food_far_away(player, look):
+            res = player.forward()
+            res = player.forward()
+            print("forward x 2", res)
+            return 1
+        res = player.right()
+        print("right", res)
+    if random.randint(0, 1) == 0:
+        res = player.right()
+        print("right", res)
     else:
         res = player.left()
         print("left", res)
-        simple_algo_eat(player)
+    return 0
 
 ['player', 'mendiane', 'mendiane', 'linemate', 'food', 'food']
 def main():
     data = setup_data()
     player = connect_to_server(data)
+    print("inventory", player.inventory())
 
     while (1):
-        simple_algo_eat(player)
+        inventory: list = player.inventory()
+        if len(inventory) == 0:
+            print("inventory is empty")
+            break
+        print("inventory", inventory)
+        if simple_algo_eat(player):
+            res = player.take("food")
+            print("take food", res)
 
     # [ player food deraumere, food food food linemate phiras, food food food linemate mendiane, food deraumere ]
 

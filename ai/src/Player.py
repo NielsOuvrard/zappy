@@ -21,11 +21,15 @@ class Player:
         self.server.send("Look\n".encode())
         response = self.server.recv(1024).decode()
         try:
-            response = response[1:-2]
+            response = response[1:-2] # bof
         except:
             print("error")
             return []
-        response = response.replace(",", " ").split()
+        response = response.split(",")
+        for i in range(len(response)):
+            response[i] = response[i].split(" ")
+            # remove empty string
+            response[i] = list(filter(None, response[i]))
         print(response)
         return response
 
