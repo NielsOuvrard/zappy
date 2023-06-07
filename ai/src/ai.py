@@ -63,8 +63,11 @@ def fill_map(player: Player, look: list, size: int, incr: int = 1):
 
 
 def check_food(player: Player, look: list):
-    if len(look) > 2 and look[2] == "food":
-        return True
+    if len(look) <= 2:
+        return False
+    for thing in look[2]:
+        if thing == "food":
+            return True
     return False
 
 
