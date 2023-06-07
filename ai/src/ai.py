@@ -63,13 +63,7 @@ def fill_map(player: Player, look: list, size: int, incr: int = 1):
 
 
 def check_food(player: Player, look: list):
-    if len(look) > 1 and look[1] == "food":
-        return True
-    return False
-
-
-def check_food_far_away(player: Player, look: list):
-    if len(look) > 3 and look[3] == "food":
+    if len(look) > 2 and look[2] == "food":
         return True
     return False
 
@@ -85,19 +79,18 @@ def simple_algo_eat(player: Player):
             res = player.forward()
             print("forward", res)
             return 1
-        if check_food_far_away(player, look):
-            res = player.forward()
-            res = player.forward()
-            print("forward x 2", res)
-            return 1
         res = player.right()
         print("right", res)
-    if random.randint(0, 1) == 0:
+    val_rand = random.randint(0, 2)
+    if val_rand == 0:
         res = player.right()
         print("right", res)
-    else:
+    elif val_rand == 1:
         res = player.left()
         print("left", res)
+    else:
+        res = player.forward()
+        print("forward", res)
     return 0
 
 ['player', 'mendiane', 'mendiane', 'linemate', 'food', 'food']
