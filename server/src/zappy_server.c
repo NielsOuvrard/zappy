@@ -64,9 +64,10 @@ void check_args(int ac, char **av)
     printf("height: %d\n", arg->height);
     for (int i = 0; i < vector_length(arg->names); i++) {
         printf("names %d: %s\n", i, ((struct my_string_s *)vector_get(arg->names, i))->str);
+        int tmp = arg->clientsNb;
         map_insert(global_struct->team_slots,
-        ((struct my_string_s *)vector_get(arg->names, i)),
-        string_from_int(arg->clientsNb));
+        string_copy((struct my_string_s *)vector_get(arg->names, i)),
+        tmp);
     }
     printf("clientsNb: %d\n", arg->clientsNb);
     printf("freq: %d\n", arg->freq);
@@ -86,6 +87,7 @@ void free_all(void)
         free(client);
     }
     vector_destroy(global_struct->clients, NULL);
+    map_destroy(global_struct->team_slots, string_destroy, NULL);
     free(global_struct->arg);
     free(global_struct->server);
 }
