@@ -10,7 +10,7 @@ import socket
 import sys
 from time import sleep
 from parse_arg import setup_data
-from Player import Player
+from player import Player
 
 
 # One unit of food allows them to live for 126 units of time
@@ -55,12 +55,11 @@ def connect_to_server(data):
 # 25
 
 # issue [AI] Handle map
-def fill_map(player: Player, look: list, size: int, incr: int = 1):
-    for i in range(size):
-        player.map.append(look[i]) # to change
-    if look.length() > size:
-        fill_map(player, look[size:], size + incr, incr + 2)
-
+# def fill_map(player: Player, look: list, size: int, incr: int = 1):
+#     for i in range(size):
+#         player.map.append(look[i]) # to change
+#     if look.length() > size:
+#         fill_map(player, look[size:], size + incr, incr + 2)
 
 def check_food(player: Player, look: list):
     if len(look) <= 2:
@@ -102,6 +101,7 @@ def main():
     print("inventory", player.inventory())
 
     while (1):
+        input()
         inventory: list = player.inventory()
         if len(inventory) == 0:
             print("inventory is empty")
