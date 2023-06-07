@@ -2,13 +2,15 @@
 ## EPITECH PROJECT, 2023
 ## B-YEP-400-MAR-4-1-zappy-kenan.blasius
 ## File description:
-## ai
+## main
 ##
 
+import random
 import socket
 import sys
 from time import sleep
 from parse_arg import setup_data
+from Player import Player
 
 
 # One unit of food allows them to live for 126 units of time
@@ -27,9 +29,7 @@ from parse_arg import setup_data
 # # (represented on the board by an egg waiting for a client to connect).
 # so...
 
-def main():
-    data = setup_data()
-    # data["team_name"]
+def connect_to_server(data):
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     try:
         server.connect((data["host"], data["port"]))
@@ -42,26 +42,75 @@ def main():
     response = server.recv(1024).decode()
     print("recieve '" + response + "'")
 
-    # recive :
-    # nmb_authorized_remaining_clients_in_team size_x size_y
-    nmb_authorized_remaining_clients_in_team = int(response.split("\n")[0])
+    id = int(response.split("\n")[0])
     size_x = int(response.split("\n")[1].split(" ")[0])
     size_y = int(response.split("\n")[1].split(" ")[1])
-    # [ player food deraumere, food food food linemate phiras, food food food linemate mendiane, food deraumere ]
+    player = Player(size_x, size_y, id, server)
+    return player
 
-    # server.send("Fordward\n".encode())
-    server.send("Look\n".encode())
-    response = server.recv(1024).decode()
-    print("'" + response + "'")
+# 1
+# 4
+# 9
+# 16
+# 25
+
+# issue [AI] Handle map
+def fill_map(player: Player, look: list, size: int, incr: int = 1):
+    for i in range(size):
+        player.map.append(look[i]) # to change
+    if look.length() > size:
+        fill_map(player, look[size:], size + incr, incr + 2)
+
+
+def check_food(player: Player, look: list):
+    if len(look) <= 2:
+        return False
+    for thing in look[2]:
+        if thing == "food":
+            return True
+    return False
+
+
+def simple_algo_eat(player: Player):
+    look: list = player.look()
+    for thing in look[0]:
+        if thing == "food":
+            return 1
+    for i in range(4):
+        look: list = player.look()
+        if check_food(player, look):
+            res = player.forward()
+            print("forward", res)
+            return 1
+        res = player.right()
+        print("right", res)
+    val_rand = random.randint(0, 2)
+    if val_rand == 0:
+        res = player.right()
+        print("right", res)
+    elif val_rand == 1:
+        res = player.left()
+        print("left", res)
+    else:
+        res = player.forward()
+        print("forward", res)
+    return 0
+
+['player', 'mendiane', 'mendiane', 'linemate', 'food', 'food']
+def main():
+    data = setup_data()
+    player = connect_to_server(data)
+    print("inventory", player.inventory())
 
     while (1):
-        response = server.recv(1024).decode()
-        print("'" + response + "'")
-        message = input("Enter a message to send to the server: ")
-        if (message != ""):
-            server.send(message.encode())
-        if (message == "exit"):
+        inventory: list = player.inventory()
+        if len(inventory) == 0:
+            print("inventory is empty")
             break
+        print("inventory", inventory)
+        if simple_algo_eat(player):
+            res = player.take("food")
+            print("take food", res)
     sys.exit(0)
 
 if __name__ == "__main__":
