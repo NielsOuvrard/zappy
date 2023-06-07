@@ -20,9 +20,25 @@ void map_init(struct my_map_s *this)
     this->root = vector_create(sizeof(struct my_map_node_s));
 }
 
-void map_destroy(struct my_map_s *this)
+void node_destroy(void *this, void (*destroy_key)(void *), void (*destroy_value)(void *))
 {
-    vector_destroy(this->root, string_destroy);
+    struct my_map_node_s *node = this;
+
+    if (!node)
+        return;
+    if (destroy_key)
+        destroy_key(node->key);
+    if (destroy_value)
+        destroy_value(node->value);
+    free(node);
+}
+
+void map_destroy(struct my_map_s *this, void (*destroy_key)(void *), void (*destroy_value)(void *))
+{
+    for (int i = 0; i < this->root->length; i++)
+        node_destroy(this->root->items[i], destroy_key, destroy_value);
+    free(this->root->items);
+    free(this->root);
     free(this);
 }
 
@@ -31,7 +47,7 @@ int map_size(struct my_map_s *this)
     return vector_length(this->root);
 }
 
-void map_insert(struct my_map_s *this, struct my_string_s *key, struct my_string_s *value)
+void map_insert(struct my_map_s *this, void *key, void *value)
 {
     struct my_map_node_s *node = malloc(sizeof(struct my_map_node_s));
 
@@ -40,57 +56,63 @@ void map_insert(struct my_map_s *this, struct my_string_s *key, struct my_string
     vector_push_back(this->root, node);
 }
 
-struct my_string_s *map_get(struct my_map_s *this, struct my_string_s *key)
+void *map_get(struct my_map_s *this, void *key, bool (*cmp)(void *, void *))
 {
     struct my_map_node_s *node = NULL;
 
     for (int i = 0; i < this->root->length; i++) {
         node = vector_get(this->root, i);
-        if (string_equals(node->key, key->str))
+        if (cmp(node->key, key))
             return node->value;
     }
     return NULL;
 }
 
-void map_remove(struct my_map_s *this, struct my_string_s *key)
+void map_remove(struct my_map_s *this, void *key, bool (*cmp)(void *, void *), void (*destroy_key)(void *), void (*destroy_value)(void *))
 {
     struct my_map_node_s *node = NULL;
 
     for (int i = 0; i < this->root->length; i++) {
         node = vector_get(this->root, i);
-        if (string_equals(node->key, key->str)) {
-            vector_remove(this->root, i);
+        if (cmp(node->key, key)) {
+            struct my_map_node_s *tmp = vector_remove(this->root, i);
+            node_destroy(tmp, destroy_key, destroy_value);
             return;
         }
     }
 }
 
-void map_clear(struct my_map_s *this)
+void map_clear(struct my_map_s *this, void (*destroy_key)(void *), void (*destroy_value)(void *))
 {
-    vector_clear(this->root, string_destroy);
+    for (int i = 0; i < this->root->length; i++)
+        node_destroy(this->root->items[i], destroy_key, destroy_value);
+    free(this->root->items);
+    free(this->root);
+    this->root = vector_create(sizeof(struct my_map_node_s));
 }
 
-void map_set(struct my_map_s *this, struct my_string_s *key, struct my_string_s *value)
+void map_set(struct my_map_s *this, void *key, void *value, bool (*cmp)(void *, void *), void (*destroy_value)(void *))
 {
     struct my_map_node_s *node = NULL;
 
     for (int i = 0; i < this->root->length; i++) {
         node = vector_get(this->root, i);
-        if (string_equals(node->key, key->str)) {
-            string_destroy(node->value);
+        if (cmp(node->key, key)) {
+            if (destroy_value)
+                destroy_value(node->value);
             node->value = value;
             return;
         }
     }
 }
 
-bool map_contains(struct my_map_s *this, struct my_string_s *key)
+bool map_contains(struct my_map_s *this, void *key, bool (*cmp)(void *, void *))
 {
     struct my_map_node_s *node = NULL;
 
     for (int i = 0; i < this->root->length; i++) {
         node = vector_get(this->root, i);
-        if (string_equals(node->key, key->str))
+        if (cmp(node->key, key))
             return true;
     }
     return false;
