@@ -49,13 +49,13 @@ Gui::Gui(std::string data)
     _shift_x = 0;
     _shift_y = 500;
 
-    _move_x = 0;
-    _move_y = 0;
+    _speed_x = 0;
+    _speed_y = 0;
 
-    _speed_up_x = false;
-    _speed_up_y = false;
-    _speed_down_x = false;
-    _speed_down_y = false;
+    _move_right = false;
+    _move_up = false;
+    _move_left = false;
+    _move_down = false;
 }
 
 Gui::~Gui()
@@ -222,7 +222,7 @@ void Gui::draw_decor_map(sf::RenderWindow &window)
             if (_map[i][j].food > 0)
             {
                 // food
-                _sprites[ID_FOOD].setPosition(_shift_x + j * 64 + i * 64, _shift_y + i * 32 - j * 32 - 20);
+                _sprites[ID_FOOD].setPosition(_shift_x + j * 64 + i * 64, _shift_y + i * 32 - j * 32 + (SIZE_TILE / 2 - SIZE_FOOD / 2));
                 _textures[ID_FOOD].setSmooth(false);
                 _sprites[ID_FOOD].setTexture(_textures[ID_FOOD]);
                 _sprites[ID_FOOD].setTextureRect(sf::IntRect(2 * SIZE_FOOD, 1 * SIZE_FOOD, SIZE_FOOD, SIZE_FOOD));
@@ -231,42 +231,42 @@ void Gui::draw_decor_map(sf::RenderWindow &window)
             if (_map[i][j].linemate > 0)
             {
                 // green
-                _sprites[ID_STONE].setPosition(_shift_x + j * 64 + i * 64, _shift_y + i * 32 - j * 32 - 20);
+                _sprites[ID_STONE].setPosition(_shift_x + j * 64 + i * 64, _shift_y + i * 32 - j * 32 + (SIZE_TILE / 2 - SIZE_STONE / 16));
                 _sprites[ID_STONE].setTextureRect(sf::IntRect(1 * SIZE_STONE, 0 * SIZE_STONE, SIZE_STONE, SIZE_STONE));
                 window.draw(_sprites[ID_STONE]);
             }
             if (_map[i][j].deraumere > 0)
             {
                 // purple
-                _sprites[ID_STONE].setPosition(_shift_x + j * 64 + i * 64, _shift_y + i * 32 - j * 32 - 20);
+                _sprites[ID_STONE].setPosition(_shift_x + j * 64 + i * 64, _shift_y + i * 32 - j * 32 + (SIZE_TILE / 2 - SIZE_STONE / 16));
                 _sprites[ID_STONE].setTextureRect(sf::IntRect(1 * SIZE_STONE, 1 * SIZE_STONE, SIZE_STONE, SIZE_STONE));
                 window.draw(_sprites[ID_STONE]);
             }
             if (_map[i][j].sibur > 0)
             {
                 // blue
-                _sprites[ID_STONE].setPosition(_shift_x + j * 64 + i * 64, _shift_y + i * 32 - j * 32 - 20);
+                _sprites[ID_STONE].setPosition(_shift_x + j * 64 + i * 64, _shift_y + i * 32 - j * 32 + (SIZE_TILE / 2 - SIZE_STONE / 16));
                 _sprites[ID_STONE].setTextureRect(sf::IntRect(1 * SIZE_STONE, 3 * SIZE_STONE, SIZE_STONE, SIZE_STONE));
                 window.draw(_sprites[ID_STONE]);
             }
             if (_map[i][j].mendiane > 0)
             {
                 // yellow
-                _sprites[ID_STONE].setPosition(_shift_x + j * 64 + i * 64, _shift_y + i * 32 - j * 32 - 20);
+                _sprites[ID_STONE].setPosition(_shift_x + j * 64 + i * 64, _shift_y + i * 32 - j * 32 + (SIZE_TILE / 2 - SIZE_STONE / 16));
                 _sprites[ID_STONE].setTextureRect(sf::IntRect(1 * SIZE_STONE, 2 * SIZE_STONE, SIZE_STONE, SIZE_STONE));
                 window.draw(_sprites[ID_STONE]);
             }
             if (_map[i][j].phiras > 0)
             {
                 // red
-                _sprites[ID_STONE].setPosition(_shift_x + j * 64 + i * 64, _shift_y + i * 32 - j * 32 - 20);
+                _sprites[ID_STONE].setPosition(_shift_x + j * 64 + i * 64, _shift_y + i * 32 - j * 32 + (SIZE_TILE / 2 - SIZE_STONE / 16));
                 _sprites[ID_STONE].setTextureRect(sf::IntRect(12 * SIZE_STONE, 5 * SIZE_STONE, SIZE_STONE, SIZE_STONE));
                 window.draw(_sprites[ID_STONE]);
             }
             if (_map[i][j].thystame > 0)
             {
                 // white
-                _sprites[ID_STONE].setPosition(_shift_x + j * 64 + i * 64, _shift_y + i * 32 - j * 32 - 20);
+                _sprites[ID_STONE].setPosition(_shift_x + j * 64 + i * 64, _shift_y + i * 32 - j * 32 + (SIZE_TILE / 2 - SIZE_STONE / 16));
                 _sprites[ID_STONE].setTextureRect(sf::IntRect(2 * SIZE_STONE, 4 * SIZE_STONE, SIZE_STONE, SIZE_STONE));
                 window.draw(_sprites[ID_STONE]);
             }
@@ -323,99 +323,99 @@ void Gui::move_map(sf::Event event)
     // _shift_x = 0;
     // _shift_y = 500;
 
-    // bool _speed_up_x = false;
-    // bool _speed_up_y = false;
-    // bool _speed_down_x = false;
-    // bool _speed_down_y = false;
+    // bool _move_right = false;
+    // bool _move_up = false;
+    // bool _move_left = false;
+    // bool _move_down = false;
 
-    // _move_x = 0;
-    // _move_y = 0;
+    // _speed_x = 0;
+    // _speed_y = 0;
 
     if (event.type == sf::Event::KeyPressed)
     {
         if (event.key.code == sf::Keyboard::Right)
-            _speed_up_x = true;
+            _move_right = true;
         if (event.key.code == sf::Keyboard::Left)
-            _speed_down_x = true;
+            _move_left = true;
         if (event.key.code == sf::Keyboard::Up)
-            _speed_up_y = true;
+            _move_down = true;
         if (event.key.code == sf::Keyboard::Down)
-            _speed_down_y = true;
+            _move_up = true;
     }
-    else
-    {
-        _speed_up_x = false;
-        _speed_down_x = false;
-        _speed_up_y = false;
-        _speed_down_y = false;
-    }
+    // else
+    // {
+    //     _move_right = false;
+    //     _move_left = false;
+    //     _move_up = false;
+    //     _move_down = false;
+    // }
 
     if (event.type == sf::Event::KeyReleased)
     {
         if (event.key.code == sf::Keyboard::Right)
-            _speed_up_x = false;
+            _move_right = false;
         if (event.key.code == sf::Keyboard::Left)
-            _speed_down_x = false;
+            _move_left = false;
         if (event.key.code == sf::Keyboard::Up)
-            _speed_up_y = false;
+            _move_down = false;
         if (event.key.code == sf::Keyboard::Down)
-            _speed_down_y = false;
+            _move_up = false;
     }
-    if (_speed_up_x)
+    if (_move_right)
     {
-        if (_move_x >= SPEED_MAX)
-            _move_x = SPEED_MAX;
-        _move_x *= 1.1;
-        _move_x += 1;
+        _speed_x *= 1.1;
+        _speed_x += 1;
+        if (_speed_x >= SPEED_MAX)
+            _speed_x = SPEED_MAX;
     }
-    if (_speed_down_x)
+    if (_move_left)
     {
-        if (_move_x <= -SPEED_MAX)
-            _move_x = -SPEED_MAX;
-        _move_x *= 1.1;
-        _move_x -= 1;
+        _speed_x *= 1.1;
+        _speed_x -= 1;
+        if (_speed_x <= -SPEED_MAX)
+            _speed_x = -SPEED_MAX;
     }
-    if (_speed_up_y)
+    if (_move_up)
     {
-        if (_move_y <= -SPEED_MAX)
-            _move_y = -SPEED_MAX;
-        _move_y *= 1.1;
-        _move_y -= 1;
+        _speed_y *= 1.1;
+        _speed_y -= 1;
+        if (_speed_y <= -SPEED_MAX)
+            _speed_y = -SPEED_MAX;
     }
-    if (_speed_down_y)
+    if (_move_down)
     {
-        if (_move_y >= SPEED_MAX)
-            _move_y = SPEED_MAX;
-        _move_y *= 1.1;
-        _move_y += 1;
+        _speed_y *= 1.1;
+        _speed_y += 1;
+        if (_speed_y >= SPEED_MAX)
+            _speed_y = SPEED_MAX;
     }
 
-    if (_move_x > 0 && !_speed_up_x)
+    if (_speed_x > 0 && !_move_right)
     {
-        _move_x *= 0.95;
-        if (_move_x < 1)
-            _move_x = 0;
+        _speed_x *= 0.95;
+        if (_speed_x < 1)
+            _speed_x = 0;
     }
-    if (_move_x < 0 && !_speed_down_x)
+    if (_speed_x < 0 && !_move_left)
     {
-        _move_x *= 0.95;
-        if (_move_x > -1)
-            _move_x = 0;
+        _speed_x *= 0.95;
+        if (_speed_x > -1)
+            _speed_x = 0;
     }
-    if (_move_y > 0 && !_speed_down_y)
+    if (_speed_y > 0 && !_move_down)
     {
-        _move_y *= 0.95;
-        if (_move_y < 1)
-            _move_y = 0;
+        _speed_y *= 0.95;
+        if (_speed_y < 1)
+            _speed_y = 0;
     }
-    if (_move_y < 0 && !_speed_up_y)
+    if (_speed_y < 0 && !_move_up)
     {
-        _move_y *= 0.95;
-        if (_move_y > -1)
-            _move_y = 0;
+        _speed_y *= 0.95;
+        if (_speed_y > -1)
+            _speed_y = 0;
     }
-    _shift_x += _move_x;
-    _shift_y += _move_y;
+    _shift_x -= _speed_x;
+    _shift_y += _speed_y;
 }
 
 void Gui::run(void)

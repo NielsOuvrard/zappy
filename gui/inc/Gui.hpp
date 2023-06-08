@@ -60,11 +60,11 @@ private:
     int _shift_x;
     int _shift_y;
 
-    float _move_x;
-    float _move_y;
+    float _speed_x;
+    float _speed_y;
 
-    bool _speed_up_x;
-    bool _speed_up_y;
-    bool _speed_down_x;
-    bool _speed_down_y;
+    bool _move_right;
+    bool _move_up;
+    bool _move_left;
+    bool _move_down;
 };
