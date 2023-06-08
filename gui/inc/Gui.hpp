@@ -52,6 +52,9 @@ private:
     std::vector<std::string> _teams;
     std::vector<t_player> _players;
 
+    int _shift_x;
+    int _shift_y;
+
     int _size_x;
     int _size_y;
     int _freq;
