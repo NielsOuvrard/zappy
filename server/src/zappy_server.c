@@ -125,9 +125,9 @@ void accept_new_client(int select_result, struct global_struct_s *g)
         client->is_gui = false;
         client->buffer = string_create();
         client->team = NULL;
-        client->posx = 0;
-        client->posy = 0;
-        client->orientation = EAST;
+        client->posx = rand() % g->arg->width;
+        client->posy = rand() % g->arg->height;
+        client->orientation = rand() % 4 + 1;
         client->level = 1;
         client->food = 0;
         client->linemate = 0;
@@ -190,6 +190,8 @@ struct my_string_s *buffer)
             command_ai_right(g, client, buffer);
         else if (string_equals(buffer, "Left\n"))
             command_ai_left(g, client, buffer);
+        else if (string_equals(buffer, "Look\n"))
+            command_ai_look(g, client, buffer);
         else {
             dprintf(client->client_fd, "ko\n"); // unknown command
         }
