@@ -10,7 +10,7 @@ import socket
 import sys
 from time import sleep
 from parse_arg import setup_data
-from player import Player
+from character import Player
 
 
 # One unit of food allows them to live for 126 units of time
