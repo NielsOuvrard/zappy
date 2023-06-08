@@ -167,6 +167,12 @@ struct my_string_s *buffer)
         command_gui_sst(g, client, buffer);
     // else if (string_equals(buffer, "quit\n"))
     //     command_gui_quit(g, client, buffer);
+    else if (string_equals(buffer, "Forward\n"))
+        command_ai_forward(g, client, buffer);
+    else if (string_equals(buffer, "Right\n"))
+        command_ai_right(g, client, buffer);
+    else if (string_equals(buffer, "Left\n"))
+        command_ai_left(g, client, buffer);
     else {
         for (int i = 0; i < vector_length(g->arg->names); i++) {
             struct my_string_s *name = vector_get(g->arg->names, i);
