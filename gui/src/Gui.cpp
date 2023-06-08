@@ -19,7 +19,7 @@
 
 // implement log
 
-Gui::Gui(std::string data) : _shift_x(0), _shift_y(500)
+Gui::Gui(std::string data)
 {
     bool size_found = false;
     while (std::string::npos != data.find("\n") && !size_found)
@@ -45,6 +45,17 @@ Gui::Gui(std::string data) : _shift_x(0), _shift_y(500)
             size_found = true;
         }
     }
+
+    _shift_x = 0;
+    _shift_y = 500;
+
+    _move_x = 0;
+    _move_y = 0;
+
+    _speed_up_x = false;
+    _speed_up_y = false;
+    _speed_down_x = false;
+    _speed_down_y = false;
 }
 
 Gui::~Gui()
@@ -305,17 +316,119 @@ void Gui::load_textures(void)
     _sprites[ID_PLAYER].setScale(5, 5);
 }
 
+#define SPEED_MAX 15
+
+void Gui::move_map(sf::Event event)
+{
+    // _shift_x = 0;
+    // _shift_y = 500;
+
+    // bool _speed_up_x = false;
+    // bool _speed_up_y = false;
+    // bool _speed_down_x = false;
+    // bool _speed_down_y = false;
+
+    // _move_x = 0;
+    // _move_y = 0;
+
+    if (event.type == sf::Event::KeyPressed)
+    {
+        if (event.key.code == sf::Keyboard::Right)
+            _speed_up_x = true;
+        if (event.key.code == sf::Keyboard::Left)
+            _speed_down_x = true;
+        if (event.key.code == sf::Keyboard::Up)
+            _speed_up_y = true;
+        if (event.key.code == sf::Keyboard::Down)
+            _speed_down_y = true;
+    }
+    else
+    {
+        _speed_up_x = false;
+        _speed_down_x = false;
+        _speed_up_y = false;
+        _speed_down_y = false;
+    }
+
+    if (event.type == sf::Event::KeyReleased)
+    {
+        if (event.key.code == sf::Keyboard::Right)
+            _speed_up_x = false;
+        if (event.key.code == sf::Keyboard::Left)
+            _speed_down_x = false;
+        if (event.key.code == sf::Keyboard::Up)
+            _speed_up_y = false;
+        if (event.key.code == sf::Keyboard::Down)
+            _speed_down_y = false;
+    }
+    if (_speed_up_x)
+    {
+        if (_move_x >= SPEED_MAX)
+            _move_x = SPEED_MAX;
+        _move_x *= 1.1;
+        _move_x += 1;
+    }
+    if (_speed_down_x)
+    {
+        if (_move_x <= -SPEED_MAX)
+            _move_x = -SPEED_MAX;
+        _move_x *= 1.1;
+        _move_x -= 1;
+    }
+    if (_speed_up_y)
+    {
+        if (_move_y <= -SPEED_MAX)
+            _move_y = -SPEED_MAX;
+        _move_y *= 1.1;
+        _move_y -= 1;
+    }
+    if (_speed_down_y)
+    {
+        if (_move_y >= SPEED_MAX)
+            _move_y = SPEED_MAX;
+        _move_y *= 1.1;
+        _move_y += 1;
+    }
+
+    if (_move_x > 0 && !_speed_up_x)
+    {
+        _move_x *= 0.95;
+        if (_move_x < 1)
+            _move_x = 0;
+    }
+    if (_move_x < 0 && !_speed_down_x)
+    {
+        _move_x *= 0.95;
+        if (_move_x > -1)
+            _move_x = 0;
+    }
+    if (_move_y > 0 && !_speed_down_y)
+    {
+        _move_y *= 0.95;
+        if (_move_y < 1)
+            _move_y = 0;
+    }
+    if (_move_y < 0 && !_speed_up_y)
+    {
+        _move_y *= 0.95;
+        if (_move_y > -1)
+            _move_y = 0;
+    }
+    _shift_x += _move_x;
+    _shift_y += _move_y;
+}
+
 void Gui::run(void)
 {
     sf::RenderWindow window(sf::VideoMode(1920, 1080), "Zappy");
     load_map();
     load_textures();
+
     // sf::CircleShape shape(100.f);
     // shape.setFillColor(sf::Color::Green);
     window.setFramerateLimit(60);
     while (window.isOpen())
     {
-        usleep(100000);
         sf::Event event;
         while (window.pollEvent(event))
         {
@@ -323,27 +436,8 @@ void Gui::run(void)
             {
                 window.close();
             }
-            if (event.type == sf::Event::KeyPressed)
-            {
-                // arrow keys
-                if (event.key.code == sf::Keyboard::Left)
-                {
-                    _shift_x -= 10;
-                }
-                if (event.key.code == sf::Keyboard::Right)
-                {
-                    _shift_x += 10;
-                }
-                if (event.key.code == sf::Keyboard::Up)
-                {
-                    _shift_y -= 10;
-                }
-                if (event.key.code == sf::Keyboard::Down)
-                {
-                    _shift_y += 10;
-                }
-            }
         }
+        move_map(event);
         window.clear();
         // draw_map(window);
         draw_decor_map(window);

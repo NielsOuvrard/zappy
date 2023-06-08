@@ -43,6 +43,7 @@ private:
     void load_textures(void);
     void load_map(void);
     void draw_decor_map(sf::RenderWindow &window);
+    void move_map(sf::Event event);
 
     std::vector<sf::Sprite> _sprites;
     std::vector<sf::Texture> _textures;
@@ -52,10 +53,18 @@ private:
     std::vector<std::string> _teams;
     std::vector<t_player> _players;
 
-    int _shift_x;
-    int _shift_y;
-
     int _size_x;
     int _size_y;
     int _freq;
+
+    int _shift_x;
+    int _shift_y;
+
+    float _move_x;
+    float _move_y;
+
+    bool _speed_up_x;
+    bool _speed_up_y;
+    bool _speed_down_x;
+    bool _speed_down_y;
 };
