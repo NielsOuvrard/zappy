@@ -205,10 +205,12 @@ void manage_specific_client(struct client_s *client, struct global_struct_s *g)
         if (strlen(buffer) == 0) {
             close(client->client_fd);
             client->is_closed = true;
-            struct global_struct_s *g = get_global_struct();
-            int slots = string_to_int(map_get(g->team_slots, client->team, string_equals_str));
-            slots++;
-            map_set(g->team_slots, client->team, string_from_int(slots), string_equals_str, string_destroy);
+            if (client->team != NULL && !client->is_gui) {
+                struct global_struct_s *g = get_global_struct();
+                int slots = string_to_int(map_get(g->team_slots, client->team, string_equals_str));
+                slots++;
+                map_set(g->team_slots, client->team, string_from_int(slots), string_equals_str, string_destroy);
+            }
             return;
         }
         if (strstr(buffer, "\n") != NULL) {
