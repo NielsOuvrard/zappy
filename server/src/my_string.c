@@ -371,7 +371,8 @@ struct my_string_s *string_substring(struct my_string_s *this, int start, int en
 struct my_vector_s *string_split(struct my_string_s *this, char *delimiter)
 {
     struct my_vector_s *vector = malloc(sizeof(struct my_vector_s));
-    char *str = this->str;
+    char *str = strdup(this->str);
+    char *str_head = str;
     char *token = strtok(str, delimiter);
 
     vector_init(vector, sizeof(struct my_string_s));
@@ -379,6 +380,7 @@ struct my_vector_s *string_split(struct my_string_s *this, char *delimiter)
         vector_push_back(vector, string_from_string(token));
         token = strtok(NULL, delimiter);
     }
+    free(str_head);
     return vector;
 }
 

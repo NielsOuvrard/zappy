@@ -9,7 +9,4 @@ zappy_server
 zappy_gui
 zappy_ai
 .DS_Store
-zappy_serversh
-zappy_guish
-zappy_aish
 __pycache__

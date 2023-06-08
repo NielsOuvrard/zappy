@@ -145,37 +145,54 @@ void accept_new_client(int select_result, struct global_struct_s *g)
 void manage_command(struct global_struct_s *g, struct client_s *client,
 struct my_string_s *buffer)
 {
-    if (string_equals(buffer, "GRAPHIC\n"))
-        command_gui_graphic(g, client, buffer);
-    else if (string_equals(buffer, "msz\n"))
-        command_gui_msz(g, client, buffer);
-    else if (string_startswith(buffer, "bct "))
-        command_gui_bct(g, client, buffer);
-    else if (string_equals(buffer, "mct\n"))
-        command_gui_mct(g, client, buffer);
-    else if (string_equals(buffer, "tna\n"))
-        command_gui_tna(g, client, buffer);
-    else if (string_startswith(buffer, "ppo "))
-        command_gui_ppo(g, client, buffer);
-    else if (string_startswith(buffer, "plv "))
-        command_gui_plv(g, client, buffer);
-    else if (string_startswith(buffer, "pin "))
-        command_gui_pin(g, client, buffer);
-    else if (string_equals(buffer, "sgt\n"))
-        command_gui_sgt(g, client, buffer);
-    else if (string_startswith(buffer, "sst "))
-        command_gui_sst(g, client, buffer);
-    // else if (string_equals(buffer, "quit\n"))
-    //     command_gui_quit(g, client, buffer);
-    else {
-        for (int i = 0; i < vector_length(g->arg->names); i++) {
-            struct my_string_s *name = vector_get(g->arg->names, i);
-            if (string_startswith(buffer, name->str)) {
-                command_ai_team(g, client, buffer, name);
-                return;
+    // connection to a team
+    if (client->team == NULL) {
+        if (string_equals(buffer, "GRAPHIC\n"))
+            command_gui_graphic(g, client, buffer);
+        else {
+            for (int i = 0; i < vector_length(g->arg->names); i++) {
+                struct my_string_s *name = vector_get(g->arg->names, i);
+                if (string_startswith(buffer, name->str)) {
+                    command_ai_team(g, client, buffer, name);
+                    return;
+                }
             }
+            dprintf(client->client_fd, "ko\n");
         }
-        dprintf(client->client_fd, "suc\n"); // unknown command
+    }
+    if (client->is_gui) { // commands for gui
+        if (string_equals(buffer, "msz\n"))
+            command_gui_msz(g, client, buffer);
+        else if (string_startswith(buffer, "bct "))
+            command_gui_bct(g, client, buffer);
+        else if (string_equals(buffer, "mct\n"))
+            command_gui_mct(g, client, buffer);
+        else if (string_equals(buffer, "tna\n"))
+            command_gui_tna(g, client, buffer);
+        else if (string_startswith(buffer, "ppo "))
+            command_gui_ppo(g, client, buffer);
+        else if (string_startswith(buffer, "plv "))
+            command_gui_plv(g, client, buffer);
+        else if (string_startswith(buffer, "pin "))
+            command_gui_pin(g, client, buffer);
+        else if (string_equals(buffer, "sgt\n"))
+            command_gui_sgt(g, client, buffer);
+        else if (string_startswith(buffer, "sst "))
+            command_gui_sst(g, client, buffer);
+        // else if (string_equals(buffer, "quit\n"))
+        //     command_gui_quit(g, client, buffer);
+        else
+            dprintf(client->client_fd, "suc\n");
+    } else { // commands for ai
+        if (string_equals(buffer, "Forward\n"))
+            command_ai_forward(g, client, buffer);
+        else if (string_equals(buffer, "Right\n"))
+            command_ai_right(g, client, buffer);
+        else if (string_equals(buffer, "Left\n"))
+            command_ai_left(g, client, buffer);
+        else {
+            dprintf(client->client_fd, "ko\n"); // unknown command
+        }
     }
 }
 
@@ -188,12 +205,32 @@ void manage_specific_client(struct client_s *client, struct global_struct_s *g)
         if (strlen(buffer) == 0) {
             close(client->client_fd);
             client->is_closed = true;
+            if (client->team != NULL && !client->is_gui) {
+                struct global_struct_s *g = get_global_struct();
+                int slots = string_to_int(map_get(g->team_slots, client->team, string_equals_str));
+                slots++;
+                map_set(g->team_slots, client->team, string_from_int(slots), string_equals_str, string_destroy);
+            }
             return;
         }
         if (strstr(buffer, "\n") != NULL) {
             string_append(client->buffer, buffer);
-            manage_command(g, client, client->buffer);
+            struct my_vector_s *lines = string_split(client->buffer, "\n");
+            for (int i = 0; i < vector_length(lines); i++) {
+                struct my_string_s *line = vector_get(lines, i);
+                if (i == vector_length(lines) - 1 && !string_endswith(client->buffer, "\n"))
+                    break;
+                else
+                    string_append(line, "\n");
+            }
+            while (vector_length(lines) > 0 && string_endswith(vector_get(lines, 0), "\n")) {
+                manage_command(g, client, (vector_get(lines, 0)));
+                string_destroy(vector_remove(lines, 0));
+            }
             string_clear(client->buffer);
+            if (vector_length(lines) > 0)
+                string_append(client->buffer, vector_get(lines, 0));
+            vector_destroy(lines, string_destroy);
         } else {
             string_append(client->buffer, buffer);
         }
