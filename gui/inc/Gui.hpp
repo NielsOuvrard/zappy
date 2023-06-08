@@ -41,11 +41,14 @@ private:
     void draw_map(sf::RenderWindow &window);
     void draw_players(sf::RenderWindow &window);
     void load_textures(void);
+    void load_map(void);
+    void draw_decor_map(sf::RenderWindow &window);
 
     std::vector<sf::Sprite> _sprites;
     std::vector<sf::Texture> _textures;
 
     t_tile **_map;
+    std::vector<std::string> _map_decor;
     std::vector<std::string> _teams;
     std::vector<t_player> _players;
 

@@ -8,6 +8,13 @@
 #include "Gui.hpp"
 #include "logger.hpp"
 
+#define START_X 100
+#define START_Y 500
+
+#define SIZE_TILE 64
+#define SIZE_STONE 512
+#define SIZE_FOOD 32
+
 // implement log
 
 Gui::Gui(std::string data)
@@ -143,67 +150,111 @@ void Gui::draw_players(sf::RenderWindow &window)
 {
     for (size_t i = 0; i < _players.size(); i++)
     {
-        _sprites[8].setPosition(_players[i].x * 64 + 32, _players[i].y * 64 + 32);
+        _sprites[8].setPosition(START_X + _players[i].x * 64 + _players[i].y * 64, START_Y + _players[i].y * 32 - _players[i].x * 32);
         _sprites[8].setRotation((_players[i].orientation - 1) * 90);
         _sprites[8].setTexture(_textures[8]);
         window.draw(_sprites[8]);
     }
 }
 
-void Gui::draw_map(sf::RenderWindow &window)
+void Gui::load_map(void)
 {
+    std::ofstream myfile;
+    std::ifstream ifs;
+    std::string line;
+    ifs.open("gui/assets/map.txt", std::ifstream::in);
+    if (!ifs.good())
+    {
+        std::cout << "Error opening assets.txt" << std::endl;
+        exit(84);
+    }
+    std::cout << LOG_GUI("Loading map");
+
+    while (std::getline(ifs, line))
+    {
+        _map_decor.push_back(line);
+        std::cout << LOG_GUI(line);
+    }
+}
+
+void Gui::draw_decor_map(sf::RenderWindow &window)
+{
+    // draw map decor
     for (int i = 0; i < _size_x; i++)
     {
-        for (int j = 0; j < _size_y; j++)
+        for (int j = _size_y - 1; j >= 0; j--)
         {
-            _sprites[0].setPosition(i * 64, j * 64);
-            _sprites[0].setTexture(_textures[0]);
-            window.draw(_sprites[0]);
+            int x = _map_decor[i][j] - 'a';
+            int y = 0;
+            while (x >= 10)
+            {
+                x -= 10;
+                y++;
+            }
+            _sprites[9].setTextureRect(sf::IntRect(x * 256, y * 256, 256, 256));
+            // isometric
+            _sprites[9].setPosition(START_X + j * 64 + i * 64, START_Y + i * 32 - j * 32);
+            window.draw(_sprites[9]);
+        }
+    }
+    // draw map resources
+    for (int i = 0; i < _size_x; i++)
+    {
+        for (int j = _size_y - 1; j >= 0; j--)
+        {
             if (_map[i][j].food > 0)
             {
-                _sprites[1].setPosition(i * 64, j * 64);
-                _sprites[1].setTexture(_textures[1]);
-                window.draw(_sprites[1]);
+                // food
+                _sprites[11].setPosition(START_X + j * 64 + i * 64, START_Y + i * 32 - j * 32 - 20);
+                _textures[11].setSmooth(false);
+                _sprites[11].setTexture(_textures[11]);
+                _sprites[11].setTextureRect(sf::IntRect(2 * SIZE_FOOD, 1 * SIZE_FOOD, SIZE_FOOD, SIZE_FOOD));
+                window.draw(_sprites[11]);
             }
             if (_map[i][j].linemate > 0)
             {
-                _sprites[2].setPosition(i * 64, j * 64);
-                _sprites[2].setTexture(_textures[2]);
-                window.draw(_sprites[2]);
+                // green
+                _sprites[10].setPosition(START_X + j * 64 + i * 64, START_Y + i * 32 - j * 32 - 20);
+                _sprites[10].setTextureRect(sf::IntRect(1 * SIZE_STONE, 0 * SIZE_STONE, SIZE_STONE, SIZE_STONE));
+                window.draw(_sprites[10]);
             }
             if (_map[i][j].deraumere > 0)
             {
-                _sprites[3].setPosition(i * 64, j * 64);
-                _sprites[3].setTexture(_textures[3]);
-                window.draw(_sprites[3]);
+                // purple
+                _sprites[10].setPosition(START_X + j * 64 + i * 64, START_Y + i * 32 - j * 32 - 20);
+                _sprites[10].setTextureRect(sf::IntRect(1 * SIZE_STONE, 1 * SIZE_STONE, SIZE_STONE, SIZE_STONE));
+                window.draw(_sprites[10]);
             }
             if (_map[i][j].sibur > 0)
             {
-                _sprites[4].setPosition(i * 64, j * 64);
-                _sprites[4].setTexture(_textures[4]);
-                window.draw(_sprites[4]);
+                // blue
+                _sprites[10].setPosition(START_X + j * 64 + i * 64, START_Y + i * 32 - j * 32 - 20);
+                _sprites[10].setTextureRect(sf::IntRect(1 * SIZE_STONE, 3 * SIZE_STONE, SIZE_STONE, SIZE_STONE));
+                window.draw(_sprites[10]);
             }
             if (_map[i][j].mendiane > 0)
             {
-                _sprites[5].setPosition(i * 64, j * 64);
-                _sprites[5].setTexture(_textures[5]);
-                window.draw(_sprites[5]);
+                // yellow
+                _sprites[10].setPosition(START_X + j * 64 + i * 64, START_Y + i * 32 - j * 32 - 20);
+                _sprites[10].setTextureRect(sf::IntRect(1 * SIZE_STONE, 2 * SIZE_STONE, SIZE_STONE, SIZE_STONE));
+                window.draw(_sprites[10]);
             }
             if (_map[i][j].phiras > 0)
             {
-                _sprites[6].setPosition(i * 64, j * 64);
-                _sprites[6].setTexture(_textures[6]);
-                window.draw(_sprites[6]);
+                // red
+                _sprites[10].setPosition(START_X + j * 64 + i * 64, START_Y + i * 32 - j * 32 - 20);
+                _sprites[10].setTextureRect(sf::IntRect(12 * SIZE_STONE, 5 * SIZE_STONE, SIZE_STONE, SIZE_STONE));
+                window.draw(_sprites[10]);
             }
             if (_map[i][j].thystame > 0)
             {
-                _sprites[7].setPosition(i * 64, j * 64);
-                _sprites[7].setTexture(_textures[7]);
-                window.draw(_sprites[7]);
+                // white
+                _sprites[10].setPosition(START_X + j * 64 + i * 64, START_Y + i * 32 - j * 32 - 20);
+                _sprites[10].setTextureRect(sf::IntRect(2 * SIZE_STONE, 4 * SIZE_STONE, SIZE_STONE, SIZE_STONE));
+                window.draw(_sprites[10]);
             }
         }
     }
-    return;
 }
 
 void Gui::load_textures(void)
@@ -229,11 +280,25 @@ void Gui::load_textures(void)
         _textures.push_back(texture);
     }
     _sprites[8].setOrigin(32, 32);
+
+    _sprites[9].setTexture(_textures[9]);
+    _sprites[9].setTextureRect(sf::IntRect(0, 0, 256, 256));
+    _sprites[9].setScale(0.5, 0.5);
+
+    _sprites[10].setTexture(_textures[10]);
+    _sprites[10].setTextureRect(sf::IntRect(0, 0, SIZE_STONE, SIZE_STONE));
+    _sprites[10].setScale(0.125, 0.125);
+
+    _textures[11].setSmooth(false);
+    _sprites[11].setTexture(_textures[11]);
+    _sprites[11].setTextureRect(sf::IntRect(2, 1, SIZE_FOOD, SIZE_FOOD));
+    // _sprites[11].setScale(1, 1);
 }
 
 void Gui::run(void)
 {
     sf::RenderWindow window(sf::VideoMode(1920, 1080), "Zappy");
+    load_map();
     load_textures();
     // sf::CircleShape shape(100.f);
     // shape.setFillColor(sf::Color::Green);
@@ -254,7 +319,8 @@ void Gui::run(void)
             // }
         }
         window.clear();
-        draw_map(window);
+        // draw_map(window);
+        draw_decor_map(window);
         draw_players(window);
 
         // window.draw(shape);
