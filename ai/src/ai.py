@@ -8,10 +8,81 @@
 import random
 import socket
 import sys
+import json
 from time import sleep
 from parse_arg import setup_data
 from character import Player
 
+
+LVL1_2 = {
+    "ally": 0,
+    "linemate": 1,
+    "deraumere": 0,
+    "sibur": 0,
+    "mendiane": 0,
+    "phiras": 0,
+    "thystame": 0
+}
+
+LVL2_3 = {
+    "ally": 1,
+    "linemate": 1,
+    "deraumere": 1,
+    "sibur": 1,
+    "mendiane": 0,
+    "phiras": 0,
+    "thystame": 0
+}
+
+LVL3_4 = {
+    "ally": 1,
+    "linemate": 2,
+    "deraumere": 0,
+    "sibur": 1,
+    "mendiane": 0,
+    "phiras": 2,
+    "thystame": 0
+}
+
+LVL4_5 = {
+    "ally": 3,
+    "linemate": 1,
+    "deraumere": 1,
+    "sibur": 2,
+    "mendiane": 0,
+    "phiras": 1,
+    "thystame": 0
+}
+
+LVL5_6 = {
+    "ally": 3,
+    "linemate": 1,
+    "deraumere": 2,
+    "sibur": 1,
+    "mendiane": 3,
+    "phiras": 0,
+    "thystame": 0
+}
+
+LVL6_7 = {
+    "ally": 5,
+    "linemate": 1,
+    "deraumere": 2,
+    "sibur": 3,
+    "mendiane": 0,
+    "phiras": 1,
+    "thystame": 0
+}
+
+LVL7_8 = {
+    "ally": 5,
+    "linemate": 2,
+    "deraumere": 2,
+    "sibur": 2,
+    "mendiane": 2,
+    "phiras": 2,
+    "thystame": 1
+}
 
 # One unit of food allows them to live for 126 units of time
 
@@ -95,21 +166,36 @@ def simple_algo_eat(player: Player):
         print("forward", res)
     return 0
 
+def detect_priority(player: Player, look: list):
+    """
+    Detect priority of the looked ressources
+    """
+
 def main():
     data = setup_data()
     player = connect_to_server(data)
-    print("inventory", player.inventory())
+    print("inventory", player.inventory)
 
     while (1):
         input()
-        inventory: list = player.inventory()
-        if len(inventory) == 0:
-            print("inventory is empty")
-            break
-        print("inventory", inventory)
-        if simple_algo_eat(player):
-            res = player.take("food")
-            print("take food", res)
+        if player.first == True:
+            player.first = False
+            player.look()
+        print("inventory", player.inventory)
+        print("map", json.dumps(player.map, indent=4))
+        # response = player.server.recv(1024).decode()
+        # player.parse_cmd(response)
+        # command = player.next_command[0]
+        # print("command = ", command)
+        # player.getInventory()
+        # if player.getInventory() == "dead":
+        #     print("player is dead")
+        #     break
+        # print("inventory", player.getInventory())
+
+        # if simple_algo_eat(player):
+        #     res = player.take("food")
+        #     print("take food", res)
     sys.exit(0)
 
 if __name__ == "__main__":
