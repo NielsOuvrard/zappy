@@ -181,7 +181,10 @@ struct my_string_s *buffer)
                 return;
             }
         }
-        dprintf(client->client_fd, "suc\n"); // unknown command
+        if (client->is_gui)
+            dprintf(client->client_fd, "suc\n"); // unknown command
+        else
+            dprintf(client->client_fd, "ko\n"); // unknown command
     }
 }
 
