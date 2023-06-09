@@ -38,15 +38,14 @@ public:
     bool fill_map(std::string data);
 
 private:
-    void draw_map(sf::RenderWindow &window);
-    void draw_players(sf::RenderWindow &window);
+    void draw_map(void);
+    void draw_players(void);
     void load_textures(void);
     void load_map(void);
-    void draw_decor_map(sf::RenderWindow &window);
+    void draw_decor_map(void);
     void move_map(sf::Event event);
 
-    float good_position_x(int j, int i, int size_x, int size_y);
-    float good_position_y(int j, int i, int size_x, int size_y);
+    float draw_stone(int i, int j, int pos_x, int pos_y);
 
     std::vector<sf::Sprite> _sprites;
     std::vector<sf::Texture> _textures;
@@ -55,6 +54,10 @@ private:
     std::vector<std::string> _map_decor;
     std::vector<std::string> _teams;
     std::vector<t_player> _players;
+
+    sf::RenderWindow *_window;
+
+    float _zoom;
 
     int _size_x;
     int _size_y;

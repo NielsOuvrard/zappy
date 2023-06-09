@@ -46,6 +46,8 @@ Gui::Gui(std::string data)
         }
     }
 
+    _zoom = 1.0f;
+
     _shift_x = 0;
     _shift_y = 500;
 
@@ -159,18 +161,45 @@ bool Gui::fill_map(std::string data)
     return tna_found;
 }
 
-void Gui::draw_players(sf::RenderWindow &window)
+#define SIZE_PLAYER_X 16
+#define SIZE_PLAYER_Y 22
+
+void Gui::draw_players()
 {
     for (size_t i = 0; i < _players.size(); i++)
     {
-        _sprites[ID_PLAYER].setPosition(_shift_x + _players[i].x * 64 + _players[i].y * 64, _shift_y + _players[i].y * 32 - _players[i].x * 32);
-        // _sprites[ID_PLAYER].setRotation((_players[i].orientation - 1) * 90);
+        _sprites[ID_PLAYER].setPosition(
+            (_shift_x + _players[i].x * 64 + _players[i].y * 64 + 32) * _zoom,
+            (_shift_y + _players[i].y * 32 - _players[i].x * 32 - 32) * _zoom);
         _textures[ID_PLAYER].setSmooth(false);
         _sprites[ID_PLAYER].setTexture(_textures[ID_PLAYER]);
-        // 22 px height
-        // 16 px width
-        _sprites[ID_PLAYER].setTextureRect(sf::IntRect(4 * 16, 1 * 22, 16, 22));
-        window.draw(_sprites[ID_PLAYER]);
+        _sprites[ID_PLAYER].setScale(5 * _zoom, 5 * _zoom);
+        int orientation = _players[i].orientation;
+        if (orientation == 2)
+            orientation = 0;
+        else if (orientation == 4)
+            orientation = 2;
+        else if (orientation == 3)
+            orientation = 3;
+        else if (orientation == 1)
+            orientation = 1;
+
+        // recive orientation is oriented like this:
+        // 1 = S
+        // 2 = E
+        // 3 = N
+        // 4 = W
+
+        // Sprite sheet is oriented like this:
+        // 1 = S
+        // 0 = E
+        // 3 = N
+        // 2 = W
+
+        _sprites[ID_PLAYER].setTextureRect(sf::IntRect(
+            SIZE_PLAYER_X + (2 * orientation * SIZE_PLAYER_X),
+            1 * SIZE_PLAYER_Y, SIZE_PLAYER_X, SIZE_PLAYER_Y));
+        _window->draw(_sprites[ID_PLAYER]);
     }
 }
 
@@ -194,23 +223,16 @@ void Gui::load_map(void)
     }
 }
 
-float Gui::good_position_x(int j, int i, int size_x, int size_y)
+float Gui::draw_stone(int i, int j, int pos_x, int pos_y)
 {
-    // if (j < 0 || i < 0 || j >= size_x || i >= size_y)
-    //     return sf::IntRect(0, 0, 0, 0);
-    // return sf::IntRect(j * 64, i * 64, 64, 64);
-    return _shift_x + j * 64 + i * 64;
+    _sprites[ID_STONE].setPosition((_shift_x + j * 64 + i * 64 + 32) * _zoom, (_shift_y + i * 32 - j * 32 - 32) * _zoom);
+    _sprites[ID_STONE].setTextureRect(sf::IntRect(pos_x * SIZE_STONE, pos_y * SIZE_STONE, SIZE_STONE, SIZE_STONE));
+    _sprites[ID_STONE].setScale(0.125 * _zoom, 0.125 * _zoom);
+    _window->draw(_sprites[ID_STONE]);
+    return 1;
 }
 
-float Gui::good_position_y(int j, int i, int size_x, int size_y)
-{
-    // if (j < 0 || i < 0 || j >= size_x || i >= size_y)
-    //     return sf::IntRect(0, 0, 0, 0);
-    // return sf::IntRect(j * 64, i * 64, 64, 64);
-    return _shift_y + i * 32 - j * 32 + (SIZE_TILE / 2 - SIZE_STONE / 16);
-}
-
-void Gui::draw_decor_map(sf::RenderWindow &window)
+void Gui::draw_decor_map(void)
 {
     // draw map decor
     for (int i = 0; i < _size_x; i++)
@@ -226,8 +248,9 @@ void Gui::draw_decor_map(sf::RenderWindow &window)
             }
             _sprites[ID_TILE].setTextureRect(sf::IntRect(x * 256, y * 256, 256, 256));
             // isometric
-            _sprites[ID_TILE].setPosition(_shift_x + j * 64 + i * 64, _shift_y + i * 32 - j * 32);
-            window.draw(_sprites[ID_TILE]);
+            _sprites[ID_TILE].setPosition((_shift_x + j * 64 + i * 64) * _zoom, (_shift_y + i * 32 - j * 32) * _zoom);
+            _sprites[ID_TILE].setScale(0.5 * _zoom, 0.5 * _zoom);
+            _window->draw(_sprites[ID_TILE]);
         }
     }
     // linear interpolation
@@ -237,55 +260,26 @@ void Gui::draw_decor_map(sf::RenderWindow &window)
         for (int j = _size_y - 1; j >= 0; j--)
         {
             if (_map[i][j].linemate > 0)
-            {
-                // green
-                _sprites[ID_STONE].setPosition(_shift_x + j * 64 + i * 64 + 32, _shift_y + i * 32 - j * 32 - 32);
-                _sprites[ID_STONE].setTextureRect(sf::IntRect(1 * SIZE_STONE, 0 * SIZE_STONE, SIZE_STONE, SIZE_STONE));
-                window.draw(_sprites[ID_STONE]);
-            }
+                draw_stone(i, j, 1, 0);
             if (_map[i][j].deraumere > 0)
-            {
-                // purple
-                _sprites[ID_STONE].setPosition(_shift_x + j * 64 + i * 64 + 32, _shift_y + i * 32 - j * 32 - 32);
-                _sprites[ID_STONE].setTextureRect(sf::IntRect(1 * SIZE_STONE, 1 * SIZE_STONE, SIZE_STONE, SIZE_STONE));
-                window.draw(_sprites[ID_STONE]);
-            }
+                draw_stone(i, j, 1, 1);
             if (_map[i][j].sibur > 0)
-            {
-                // blue
-                _sprites[ID_STONE].setPosition(_shift_x + j * 64 + i * 64 + 32, _shift_y + i * 32 - j * 32 - 32);
-                _sprites[ID_STONE].setTextureRect(sf::IntRect(1 * SIZE_STONE, 3 * SIZE_STONE, SIZE_STONE, SIZE_STONE));
-                window.draw(_sprites[ID_STONE]);
-            }
+                draw_stone(i, j, 1, 3);
             if (_map[i][j].mendiane > 0)
-            {
-                // yellow
-                _sprites[ID_STONE].setPosition(_shift_x + j * 64 + i * 64 + 32, _shift_y + i * 32 - j * 32 - 32);
-                _sprites[ID_STONE].setTextureRect(sf::IntRect(1 * SIZE_STONE, 2 * SIZE_STONE, SIZE_STONE, SIZE_STONE));
-                window.draw(_sprites[ID_STONE]);
-            }
+                draw_stone(i, j, 1, 2);
             if (_map[i][j].phiras > 0)
-            {
-                // red
-                _sprites[ID_STONE].setPosition(_shift_x + j * 64 + i * 64 + 32, _shift_y + i * 32 - j * 32 - 32);
-                _sprites[ID_STONE].setTextureRect(sf::IntRect(12 * SIZE_STONE, 5 * SIZE_STONE, SIZE_STONE, SIZE_STONE));
-                window.draw(_sprites[ID_STONE]);
-            }
+                draw_stone(i, j, 12, 5);
             if (_map[i][j].thystame > 0)
-            {
-                // white
-                _sprites[ID_STONE].setPosition(_shift_x + j * 64 + i * 64 + 32, _shift_y + i * 32 - j * 32 - 32);
-                _sprites[ID_STONE].setTextureRect(sf::IntRect(2 * SIZE_STONE, 4 * SIZE_STONE, SIZE_STONE, SIZE_STONE));
-                window.draw(_sprites[ID_STONE]);
-            }
+                draw_stone(i, j, 2, 4);
             if (_map[i][j].food > 0)
             {
                 // food
-                _sprites[ID_FOOD].setPosition(_shift_x + j * 64 + i * 64 + 32, _shift_y + i * 32 - j * 32 + 16);
+                _sprites[ID_FOOD].setPosition((_shift_x + j * 64 + i * 64 + 32) * _zoom, (_shift_y + i * 32 - j * 32 + 16) * _zoom);
                 _textures[ID_FOOD].setSmooth(false);
                 _sprites[ID_FOOD].setTexture(_textures[ID_FOOD]);
                 _sprites[ID_FOOD].setTextureRect(sf::IntRect(2 * SIZE_FOOD, 1 * SIZE_FOOD, SIZE_FOOD, SIZE_FOOD));
-                window.draw(_sprites[ID_FOOD]);
+                _sprites[ID_FOOD].setScale(_zoom, _zoom);
+                _window->draw(_sprites[ID_FOOD]);
             }
         }
     }
@@ -337,23 +331,10 @@ void Gui::load_textures(void)
 
 void Gui::move_map(sf::Event event)
 {
-    // _shift_x = 0;
-    // _shift_y = 500;
-
-    // bool _move_right = false;
-    // bool _move_up = false;
-    // bool _move_left = false;
-    // bool _move_down = false;
-
-    // _speed_x = 0;
-    // _speed_y = 0;
-
     if (event.type == sf::Event::KeyPressed)
     {
         if (event.key.code == sf::Keyboard::Left)
-        {
             _move_right = true;
-        }
         if (event.key.code == sf::Keyboard::Right)
             _move_left = true;
         if (event.key.code == sf::Keyboard::Down)
@@ -361,23 +342,6 @@ void Gui::move_map(sf::Event event)
         if (event.key.code == sf::Keyboard::Up)
             _move_up = true;
     }
-    // if (event.type == sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
-    //     _move_right = true;
-    // if (event.type == sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
-    //     _move_left = true;
-    // if (event.type == sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
-    //     _move_down = true;
-    // if (event.type == sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
-    //     _move_up = true;
-
-    // else
-    // {
-    //     _move_right = false;
-    //     _move_left = false;
-    //     _move_up = false;
-    //     _move_down = false;
-    // }
-
     if (event.type == sf::Event::KeyReleased)
     {
         if (event.key.code == sf::Keyboard::Left)
@@ -448,31 +412,52 @@ void Gui::move_map(sf::Event event)
 
 void Gui::run(void)
 {
-    sf::RenderWindow window(sf::VideoMode(1920, 1080), "Zappy");
+    sf::RenderWindow win = sf::RenderWindow(sf::VideoMode(1920, 1080), "Zappy");
+    _window = &win;
     load_map();
     load_textures();
 
     // sf::CircleShape shape(100.f);
     // shape.setFillColor(sf::Color::Green);
-    window.setFramerateLimit(60);
-    while (window.isOpen())
+    _window->setFramerateLimit(60);
+    while (_window->isOpen())
     {
         sf::Event event;
-        while (window.pollEvent(event))
+        while (_window->pollEvent(event))
         {
             if (event.type == sf::Event::Closed)
             {
-                window.close();
+                _window->close();
+            }
+            if (event.type == sf::Event::Resized)
+            {
+                sf::FloatRect visibleArea(0, 0, event.size.width, event.size.height);
+                _window->setView(sf::View(visibleArea));
+            }
+            if (event.type == sf::Event::KeyPressed)
+            {
+                if (event.key.code == sf::Keyboard::P)
+                {
+                    _zoom *= 1.1;
+                    _shift_x *= 1.1;
+                    _shift_y *= 1.1;
+                }
+                if (event.key.code == sf::Keyboard::M)
+                {
+                    _zoom /= 1.1;
+                    _shift_x /= 1.1;
+                    _shift_y /= 1.1;
+                }
             }
         }
         move_map(event);
-        window.clear();
-        // draw_map(window);
-        draw_decor_map(window);
-        draw_players(window);
+        _window->clear();
+        // draw_map(_window);
+        draw_decor_map();
+        draw_players();
 
-        // window.draw(shape);
-        window.display();
+        // _window->draw(shape);
+        _window->display();
     }
     return;
 }
