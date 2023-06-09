@@ -265,6 +265,7 @@ struct my_string_s *string_from_double(double nb);
 /**
 ** @brief Generates a string from a format
 ** @param format The format to copy
+** @param ... The arguments to the format
 ** @return The new string
 **/
 struct my_string_s *string_from_format(char *format, ...);
@@ -308,13 +309,6 @@ void string_remove_at(struct my_string_s *this, int index);
 ** @return The substring
 **/
 struct my_string_s *string_substring(struct my_string_s *this, int start, int end);
-
-
-
-
-
-
-// TODO: Add these functions
 
 /**
 ** @brief Splits a string into an array

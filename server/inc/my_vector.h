@@ -32,9 +32,9 @@ void vector_init(struct my_vector_s *vector, size_t item_size);
 /**
 ** @brief Destroys a vector.
 ** @param vector The vector to destroy.
-** @param func The function to call on each item.
+** @param destroy The function to destroy the items in the vector.
 **/
-void vector_destroy(struct my_vector_s *vector, void (*func)(void *));
+void vector_destroy(struct my_vector_s *vector, void (*destroy)(void *));
 
 /**
 ** @brief Returns the length of a vector.
@@ -69,8 +69,9 @@ void *vector_pop_back(struct my_vector_s *vector);
 ** @param vector The vector to set the item in.
 ** @param index The index of the item to set.
 ** @param item The item to set.
+** @param destroy The function to destroy the item being replaced.
 **/
-void vector_set(struct my_vector_s *vector, int index, void *item);
+void vector_set(struct my_vector_s *vector, int index, void *item, void (*destroy)(void *));
 
 /**
 ** @brief Gets an item from a vector.
@@ -99,8 +100,9 @@ void *vector_remove(struct my_vector_s *vector, int index);
 /**
 ** @brief Clears a vector.
 ** @param vector The vector to clear.
+** @param destroy The function to destroy the items in the vector.
 **/
-void vector_clear(struct my_vector_s *vector, void (*func)(void *));
+void vector_clear(struct my_vector_s *vector, void (*destroy)(void *));
 
 /**
 ** @brief Sorts a vector.

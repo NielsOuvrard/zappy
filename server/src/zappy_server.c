@@ -125,9 +125,9 @@ void accept_new_client(int select_result, struct global_struct_s *g)
         client->is_gui = false;
         client->buffer = string_create();
         client->team = NULL;
-        client->posx = 0;
-        client->posy = 0;
-        client->orientation = EAST;
+        client->posx = rand() % g->arg->width;
+        client->posy = rand() % g->arg->height;
+        client->orientation = rand() % 4 + 1;
         client->level = 1;
         client->food = 0;
         client->linemate = 0;
@@ -138,15 +138,14 @@ void accept_new_client(int select_result, struct global_struct_s *g)
         client->thystame = 0;
         vector_push_back(g->clients, client);
         dprintf(client_fd, "WELCOME\n");
-        printf("new client\n");
+        printf("new client: x: %d, y: %d, orient: %d\n", client->posx, client->posy, client->orientation);
     }
 }
 
 void manage_command(struct global_struct_s *g, struct client_s *client,
 struct my_string_s *buffer)
 {
-    // connection to a team
-    if (client->team == NULL) {
+    if (client->team == NULL) { // connection to a team
         if (string_equals(buffer, "GRAPHIC\n"))
             command_gui_graphic(g, client, buffer);
         else {
@@ -157,7 +156,7 @@ struct my_string_s *buffer)
                     return;
                 }
             }
-            dprintf(client->client_fd, "ko\n");
+            dprintf(client->client_fd, "ko\n"); // unknown command
         }
     }
     if (client->is_gui) { // commands for gui
@@ -179,10 +178,8 @@ struct my_string_s *buffer)
             command_gui_sgt(g, client, buffer);
         else if (string_startswith(buffer, "sst "))
             command_gui_sst(g, client, buffer);
-        // else if (string_equals(buffer, "quit\n"))
-        //     command_gui_quit(g, client, buffer);
         else
-            dprintf(client->client_fd, "suc\n");
+            dprintf(client->client_fd, "suc\n"); // unknown command
     } else { // commands for ai
         if (string_equals(buffer, "Forward\n"))
             command_ai_forward(g, client, buffer);
@@ -190,6 +187,12 @@ struct my_string_s *buffer)
             command_ai_right(g, client, buffer);
         else if (string_equals(buffer, "Left\n"))
             command_ai_left(g, client, buffer);
+        else if (string_equals(buffer, "Look\n"))
+            command_ai_look(g, client, buffer);
+        else if (string_equals(buffer, "Inventory\n"))
+            command_ai_inventory(g, client, buffer);
+        else if (string_startswith(buffer, "Broadcast "))
+            command_ai_broadcast(g, client, buffer);
         else {
             dprintf(client->client_fd, "ko\n"); // unknown command
         }
@@ -237,6 +240,22 @@ void manage_specific_client(struct client_s *client, struct global_struct_s *g)
     }
 }
 
+void close_client(void)
+{
+    struct global_struct_s *g = get_global_struct();
+    for (int i = 0; i < vector_length(g->clients); i++) {
+        struct client_s *client = vector_get(g->clients, i);
+        if (client->is_closed) {
+            struct client_s *tmp = vector_remove(g->clients, i);
+            i--;
+            string_destroy(tmp->buffer);
+            if (tmp->team)
+                string_destroy(tmp->team);
+            free(tmp);
+        }
+    }
+}
+
 void manage_clients(struct global_struct_s *g)
 {
     for (int i = 0; i < vector_length(g->clients); i++) {
@@ -245,6 +264,7 @@ void manage_clients(struct global_struct_s *g)
             continue;
         manage_specific_client(client, g);
     }
+    close_client();
 }
 
 void sigint_handler(int sig)

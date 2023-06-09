@@ -10,10 +10,6 @@
 void command_ai_right(struct global_struct_s *g, struct client_s *client,
 struct my_string_s *buffer)
 {
-    if (client->is_gui || client->team == NULL) {
-        dprintf(client->client_fd, "suc\n");
-        return;
-    }
     if (client->orientation == NORTH)
         client->orientation = EAST;
     else if (client->orientation == SOUTH)

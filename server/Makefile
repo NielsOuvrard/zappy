@@ -7,9 +7,9 @@
 
 CC			=	gcc
 
-CFLAGS		=	-Wall -g3 -I$(INC_DIR)
+CFLAGS		=	-Wall -g3 -I$(INC_DIR) -lm
 
-TESTS_FLAGS	=	-Wall -g3 -I$(INC_DIR) -lcriterion --coverage
+TESTS_FLAGS	=	-Wall -g3 -I$(INC_DIR) -lm -lcriterion --coverage
 
 SRC_DIR		=	src
 

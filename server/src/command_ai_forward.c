@@ -10,10 +10,6 @@
 void command_ai_forward(struct global_struct_s *g, struct client_s *client,
 struct my_string_s *buffer)
 {
-    if (client->is_gui || client->team == NULL) {
-        dprintf(client->client_fd, "suc\n");
-        return;
-    }
     if (client->orientation == NORTH)
         client->posy = (client->posy - 1 + g->arg->height) % g->arg->height;
     else if (client->orientation == SOUTH)
