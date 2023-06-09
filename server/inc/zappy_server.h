@@ -66,6 +66,7 @@ struct client_s {
     int posx;
     int posy;
     enum orientation_e orientation;
+    int client_nb;
     int level;
     int food;
     int linemate;
@@ -82,6 +83,7 @@ struct global_struct_s {
     struct server_s *server;
     struct my_vector_s *clients;
     struct my_map_s *team_slots;
+    int client_id;
     int ai_spawn;
     int maxfd;
     fd_set readset;

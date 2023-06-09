@@ -11,6 +11,7 @@ void initialize_map(void)
 {
     struct global_struct_s *global_struct = get_global_struct();
     struct arg_s *arg = global_struct->arg;
+    global_struct->client_id = 0;
     global_struct->ai_spawn = false;
     global_struct->map = vector_create(sizeof(struct my_vector_s *));
     for (int i = 0; i < arg->height; i++) {
