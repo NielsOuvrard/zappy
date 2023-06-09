@@ -37,6 +37,16 @@ typedef struct s_egg
     int player_id;
 } t_egg;
 
+#define ID_TILE 0
+#define ID_STONE 1
+#define ID_FOOD 2
+#define ID_PLAYER 3
+#define ID_EGG 4
+
+#define SIZE_TILE 64
+#define SIZE_STONE 512
+#define SIZE_FOOD 32
+
 class Gui
 {
 public:
@@ -52,6 +62,7 @@ private:
     void load_map(void);
     void draw_decor_map(void);
     void move_map(sf::Event event);
+    void interface(void);
 
     float draw_stone(int i, int j, int pos_x, int pos_y);
 
@@ -67,6 +78,13 @@ private:
     std::vector<t_egg> _eggs;
 
     sf::RenderWindow *_window;
+    std::string _ressources[7] = {"food", "linemate", "deraumere", "sibur", "mendiane", "phiras", "thystame"};
+
+    sf::Font _font;
+    sf::Text _text;
+
+    size_t _selected_tile_x;
+    size_t _selected_tile_y;
 
     float _zoom;
 

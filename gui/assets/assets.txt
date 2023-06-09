@@ -1,12 +1,3 @@
-tile.png
-food.png
-linemate.png
-deraumere.png
-sibur.png
-mendiane.png
-phiras.png
-thystame.png
-player.png
 256x256_Cubes.png
 512x512_Crystals_Transparent.png
 fruits_shadow.png
