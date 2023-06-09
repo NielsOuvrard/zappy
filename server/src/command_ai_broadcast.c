@@ -102,6 +102,10 @@ struct my_string_s *buffer)
             dprintf(tmp->client_fd, "message %d, %s\n", orientation,
             buffer->str);
         }
+        if (tmp->is_gui == true && tmp->client_fd != client->client_fd && tmp->is_closed == false) {
+            dprintf(tmp->client_fd, "pbc %d %s\n", client->client_nb,
+            buffer->str);
+        }
     }
     dprintf(client->client_fd, "ok\n");
 }

@@ -128,6 +128,7 @@ void accept_new_client(int select_result, struct global_struct_s *g)
         client->posx = rand() % g->arg->width;
         client->posy = rand() % g->arg->height;
         client->orientation = rand() % 4 + 1;
+        client->client_nb = g->client_id++;
         client->level = 1;
         client->food = 0;
         client->linemate = 0;
