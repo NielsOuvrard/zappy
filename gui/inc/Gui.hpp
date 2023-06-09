@@ -37,6 +37,16 @@ typedef struct s_egg
     int player_id;
 } t_egg;
 
+#define ID_TILE 0
+#define ID_STONE 1
+#define ID_FOOD 2
+#define ID_PLAYER 3
+#define ID_EGG 4
+
+#define SIZE_TILE 64
+#define SIZE_STONE 512
+#define SIZE_FOOD 32
+
 class Gui
 {
 public:
