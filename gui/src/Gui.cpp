@@ -12,6 +12,7 @@
 #define ID_STONE 10
 #define ID_FOOD 11
 #define ID_PLAYER 12
+#define ID_EGG 13
 
 #define SIZE_TILE 64
 #define SIZE_STONE 512
@@ -58,6 +59,8 @@ Gui::Gui(std::string data)
     _move_up = false;
     _move_left = false;
     _move_down = false;
+
+    _eggs = std::vector<t_egg>();
 }
 
 Gui::~Gui()
@@ -156,6 +159,21 @@ bool Gui::fill_map(std::string data)
                 }
             }
         }
+        // pfk (fork)
+        // enw (egg)
+        if (line.find("enw") != std::string::npos)
+        {
+            std::cout << LOG_GUI("creating egg");
+            std::string values = line.substr(line.find(" ") + 1);
+            std::string id = values.substr(0, values.find(" "));
+            values = values.substr(values.find(" ") + 1);
+            std::string player_id = values.substr(0, values.find(" "));
+            values = values.substr(values.find(" ") + 1);
+            std::string x = values.substr(0, values.find(" "));
+            values = values.substr(values.find(" ") + 1);
+            std::string y = values.substr(0, values.find(" "));
+            _eggs.push_back((t_egg){std::stoi(id), std::stoi(x), std::stoi(y), std::stoi(player_id)});
+        }
         data = data.substr(data.find("\n") + 1);
     }
     return tna_found;
@@ -166,6 +184,17 @@ bool Gui::fill_map(std::string data)
 
 void Gui::draw_players()
 {
+    // to remove, put in function draw_map
+    for (size_t i = 0; i < _eggs.size(); i++)
+    {
+        _sprites[ID_EGG].setPosition(
+            (_shift_x + _eggs[i].x * 64 + _eggs[i].y * 64 + 64) * _zoom,
+            (_shift_y + _eggs[i].y * 32 - _eggs[i].x * 32) * _zoom);
+        _textures[ID_EGG].setSmooth(false);
+        _sprites[ID_EGG].setTexture(_textures[ID_EGG]);
+        _sprites[ID_EGG].setScale(_zoom * 0.75, _zoom * 0.75);
+        _window->draw(_sprites[ID_EGG]);
+    }
     for (size_t i = 0; i < _players.size(); i++)
     {
         _sprites[ID_PLAYER].setPosition(
@@ -281,6 +310,21 @@ void Gui::draw_decor_map(void)
                 _sprites[ID_FOOD].setScale(_zoom, _zoom);
                 _window->draw(_sprites[ID_FOOD]);
             }
+
+            // didn't work, don't know why
+            // for (size_t i = 0; i < _eggs.size(); i++)
+            // {
+            //     if (_eggs[i].x == j && _eggs[i].y == i)
+            //     {
+            //         _sprites[ID_EGG].setPosition(
+            //             (_shift_x + _eggs[i].x * 64 + _eggs[i].y * 64 + 64) * _zoom,
+            //             (_shift_y + _eggs[i].y * 32 - _eggs[i].x * 32) * _zoom);
+            //         _textures[ID_EGG].setSmooth(false);
+            //         _sprites[ID_EGG].setTexture(_textures[ID_EGG]);
+            //         _sprites[ID_EGG].setScale(_zoom * 0.75, _zoom * 0.75);
+            //         _window->draw(_sprites[ID_EGG]);
+            //     }
+            // }
         }
     }
 }
@@ -325,6 +369,10 @@ void Gui::load_textures(void)
     _textures[ID_PLAYER].setSmooth(false);
     _sprites[ID_PLAYER].setTexture(_textures[ID_PLAYER]);
     _sprites[ID_PLAYER].setScale(5, 5);
+
+    _textures[ID_EGG].setSmooth(false);
+    _sprites[ID_EGG].setTexture(_textures[ID_EGG]);
+    _sprites[ID_EGG].setScale(5, 5);
 }
 
 #define SPEED_MAX 15
@@ -333,9 +381,9 @@ void Gui::move_map(sf::Event event)
 {
     if (event.type == sf::Event::KeyPressed)
     {
-        if (event.key.code == sf::Keyboard::Left)
-            _move_right = true;
         if (event.key.code == sf::Keyboard::Right)
+            _move_right = true;
+        if (event.key.code == sf::Keyboard::Left)
             _move_left = true;
         if (event.key.code == sf::Keyboard::Down)
             _move_down = true;
@@ -344,9 +392,9 @@ void Gui::move_map(sf::Event event)
     }
     if (event.type == sf::Event::KeyReleased)
     {
-        if (event.key.code == sf::Keyboard::Left)
-            _move_right = false;
         if (event.key.code == sf::Keyboard::Right)
+            _move_right = false;
+        if (event.key.code == sf::Keyboard::Left)
             _move_left = false;
         if (event.key.code == sf::Keyboard::Down)
             _move_down = false;

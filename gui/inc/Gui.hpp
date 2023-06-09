@@ -29,6 +29,14 @@ typedef struct s_player
     std::string team;
 } t_player;
 
+typedef struct s_egg
+{
+    int id;
+    int x;
+    int y;
+    int player_id;
+} t_egg;
+
 class Gui
 {
 public:
@@ -54,6 +62,9 @@ private:
     std::vector<std::string> _map_decor;
     std::vector<std::string> _teams;
     std::vector<t_player> _players;
+
+    // eggs
+    std::vector<t_egg> _eggs;
 
     sf::RenderWindow *_window;
 
