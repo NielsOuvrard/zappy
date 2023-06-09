@@ -8,12 +8,15 @@
 #include "Gui.hpp"
 #include "logger.hpp"
 
+#define MAX_HEIGHT 32
+
 void Gui::run(void)
 {
     sf::RenderWindow win = sf::RenderWindow(sf::VideoMode(1920, 1080), "Zappy");
     _window = &win;
     load_map();
     load_textures();
+    // perlin_noise();
 
     // sf::CircleShape shape(100.f);
     // shape.setFillColor(sf::Color::Green);
@@ -74,6 +77,21 @@ void Gui::run(void)
         draw_decor_map();
         draw_players();
         interface();
+
+        if (_up_selected_tile)
+            _height_selected_tile += 1;
+        else
+            _height_selected_tile -= 1;
+        if (_height_selected_tile > MAX_HEIGHT)
+        {
+            _height_selected_tile = MAX_HEIGHT;
+            _up_selected_tile = false;
+        }
+        else if (_height_selected_tile < 0)
+        {
+            _height_selected_tile = 0;
+            _up_selected_tile = true;
+        }
 
         // _window->draw(shape);
         _window->display();

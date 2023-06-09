@@ -17,11 +17,9 @@ void Gui::interface(void)
         _window->draw(_text);
     }
 
-    int stones[7] = {_map[_selected_tile_y][_selected_tile_x].food, _map[_selected_tile_y][_selected_tile_x].linemate, _map[_selected_tile_y][_selected_tile_x].deraumere, _map[_selected_tile_y][_selected_tile_x].sibur, _map[_selected_tile_y][_selected_tile_x].mendiane, _map[_selected_tile_y][_selected_tile_x].phiras, _map[_selected_tile_y][_selected_tile_x].thystame};
-
     for (int i = 0; i < 7; i++)
     {
-        _text.setString("x" + std::to_string(stones[i]));
+        _text.setString("x" + std::to_string(_map[_selected_tile_y][_selected_tile_x].ressources[i]));
         _text.setPosition(200, i * 50);
         _window->draw(_text);
     }
