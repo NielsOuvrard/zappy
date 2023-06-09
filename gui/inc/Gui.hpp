@@ -62,6 +62,7 @@ private:
     void load_map(void);
     void draw_decor_map(void);
     void move_map(sf::Event event);
+    void interface(void);
 
     float draw_stone(int i, int j, int pos_x, int pos_y);
 
@@ -77,6 +78,13 @@ private:
     std::vector<t_egg> _eggs;
 
     sf::RenderWindow *_window;
+    std::string _ressources[7] = {"food", "linemate", "deraumere", "sibur", "mendiane", "phiras", "thystame"};
+
+    sf::Font _font;
+    sf::Text _text;
+
+    size_t _selected_tile_x;
+    size_t _selected_tile_y;
 
     float _zoom;
 

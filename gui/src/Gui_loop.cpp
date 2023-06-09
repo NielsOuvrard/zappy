@@ -46,6 +46,26 @@ void Gui::run(void)
                     _shift_x /= 1.1;
                     _shift_y /= 1.1;
                 }
+                if (event.key.code == sf::Keyboard::Z)
+                {
+                    if (_selected_tile_y > 0)
+                        _selected_tile_y -= 1;
+                }
+                if (event.key.code == sf::Keyboard::S)
+                {
+                    if (_selected_tile_y < _size_y - 1)
+                        _selected_tile_y += 1;
+                }
+                if (event.key.code == sf::Keyboard::Q)
+                {
+                    if (_selected_tile_x > 0)
+                        _selected_tile_x -= 1;
+                }
+                if (event.key.code == sf::Keyboard::D)
+                {
+                    if (_selected_tile_x < _size_x - 1)
+                        _selected_tile_x += 1;
+                }
             }
         }
         move_map(event);
@@ -53,6 +73,7 @@ void Gui::run(void)
         // draw_map(_window);
         draw_decor_map();
         draw_players();
+        interface();
 
         // _window->draw(shape);
         _window->display();

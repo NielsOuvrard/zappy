@@ -85,6 +85,8 @@ void Gui::draw_decor_map(void)
                 y++;
             }
             _sprites[ID_TILE].setTextureRect(sf::IntRect(x * 256, y * 256, 256, 256));
+            if (i == _selected_tile_y && j == _selected_tile_x)
+                _sprites[ID_TILE].setTextureRect(sf::IntRect(0 * 256, 3 * 256, 256, 256));
             // isometric
             _sprites[ID_TILE].setPosition((_shift_x + j * 64 + i * 64) * _zoom, (_shift_y + i * 32 - j * 32) * _zoom);
             _sprites[ID_TILE].setScale(0.5 * _zoom, 0.5 * _zoom);

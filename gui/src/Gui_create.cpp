@@ -45,12 +45,18 @@ Gui::Gui(std::string data)
     _speed_x = 0;
     _speed_y = 0;
 
+    _selected_tile_x = 0;
+    _selected_tile_y = 0;
+
     _move_right = false;
     _move_up = false;
     _move_left = false;
     _move_down = false;
 
     _eggs = std::vector<t_egg>();
+    _font = sf::Font();
+    _font.loadFromFile("gui/assets/font.ttf");
+    _text = sf::Text("Hello World", _font);
 }
 
 Gui::~Gui()

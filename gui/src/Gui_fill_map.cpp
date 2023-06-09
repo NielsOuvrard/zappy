@@ -48,7 +48,7 @@ bool Gui::fill_map(std::string data)
             std::string phiras = values.substr(0, values.find(" "));
             values = values.substr(values.find(" ") + 1);
             std::string thystame = values.substr(0, values.find(" "));
-            _map[std::stoi(x)][std::stoi(y)] = (t_tile){
+            _map[std::stoi(y)][std::stoi(x)] = (t_tile){
                 std::stoi(food), std::stoi(linemate), std::stoi(deraumere), std::stoi(sibur), std::stoi(mendiane), std::stoi(phiras), std::stoi(thystame)};
         }
         if (line.find("pnw") != std::string::npos)
@@ -117,6 +117,37 @@ bool Gui::fill_map(std::string data)
             std::string y = values.substr(0, values.find(" "));
             _eggs.push_back((t_egg){std::stoi(id), std::stoi(x), std::stoi(y), std::stoi(player_id)});
         }
+        if (line.find("pgt") != std::string::npos)
+        {
+            std::string values = line.substr(line.find(" ") + 1);
+            std::string id = values.substr(0, values.find(" "));
+            values = values.substr(values.find(" ") + 1);
+            std::string resource = values.substr(0, values.find(" "));
+            for (int i = 0; i < _players.size(); i++)
+            {
+                if (_players[i].id == std::stoi(id))
+                {
+                    // TODO put resource in array
+                    // _map[_players[i].x][_players[i].y].food--;
+                    // if (resource == "food")
+                    //     _players[i].food++;
+                    // else if (resource == "linemate")
+                    //     _players[i].linemate++;
+                    // else if (resource == "deraumere")
+                    //     _players[i].deraumere++;
+                    // else if (resource == "sibur")
+                    //     _players[i].sibur++;
+                    // else if (resource == "mendiane")
+                    //     _players[i].mendiane++;
+                    // else if (resource == "phiras")
+                    //     _players[i].phiras++;
+                    // else if (resource == "thystame")
+                    //     _players[i].thystame++;
+                    // break;
+                }
+            }
+        }
+
         data = data.substr(data.find("\n") + 1);
     }
     return tna_found;
