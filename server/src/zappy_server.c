@@ -191,6 +191,8 @@ struct my_string_s *buffer)
             command_ai_look(g, client, buffer);
         else if (string_equals(buffer, "Inventory\n"))
             command_ai_inventory(g, client, buffer);
+        else if (string_startswith(buffer, "Broadcast "))
+            command_ai_broadcast(g, client, buffer);
         else {
             dprintf(client->client_fd, "ko\n"); // unknown command
         }
