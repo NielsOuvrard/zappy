@@ -35,6 +35,8 @@ void map_init(struct my_map_s *this);
 /**
 ** @brief Destroy a map
 ** @param this A pointer to the map to destroy
+** @param destroy_key A pointer to the destroy function
+** @param destroy_value A pointer to the destroy function
 **/
 void map_destroy(struct my_map_s *this, void (*destroy_key)(void *), void (*destroy_value)(void *));
 
@@ -84,9 +86,9 @@ void map_clear(struct my_map_s *this, void (*destroy_key)(void *), void (*destro
 ** @brief Set a value in a map
 ** @param this A pointer to the map
 ** @param key A pointer to the key
+** @param value A pointer to the value
 ** @param cmp A pointer to the compare function
 ** @param destroy_value A pointer to the destroy function
-** @param value A pointer to the value
 **/
 void map_set(struct my_map_s *this, void *key, void *value, bool (*cmp)(void *, void *), void (*destroy_value)(void *));
 

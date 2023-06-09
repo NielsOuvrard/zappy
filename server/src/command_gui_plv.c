@@ -11,8 +11,6 @@
 void command_gui_plv(struct global_struct_s *g, struct client_s *client,
 struct my_string_s *buffer)
 {
-    if (client->is_gui == false || client->team == NULL)
-        return;
     struct my_vector_s *args = string_split(buffer, " ");
     if (vector_length(args) != 2)
         return;

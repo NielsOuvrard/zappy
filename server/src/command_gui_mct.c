@@ -11,8 +11,6 @@
 void command_gui_mct(struct global_struct_s *g, struct client_s *client,
 struct my_string_s *buffer)
 {
-    if (client->is_gui == false || client->team == NULL)
-        return;
     for (int i = 0; i < vector_length(g->map); i++) {
         for (int j = 0; j < vector_length(vector_get(g->map, i)); j++) {
             struct tile_s *tile = vector_get(vector_get(g->map, i), j);

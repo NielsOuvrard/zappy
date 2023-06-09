@@ -145,8 +145,7 @@ void accept_new_client(int select_result, struct global_struct_s *g)
 void manage_command(struct global_struct_s *g, struct client_s *client,
 struct my_string_s *buffer)
 {
-    // connection to a team
-    if (client->team == NULL) {
+    if (client->team == NULL) { // connection to a team
         if (string_equals(buffer, "GRAPHIC\n"))
             command_gui_graphic(g, client, buffer);
         else {
@@ -157,7 +156,7 @@ struct my_string_s *buffer)
                     return;
                 }
             }
-            dprintf(client->client_fd, "ko\n");
+            dprintf(client->client_fd, "ko\n"); // unknown command
         }
     }
     if (client->is_gui) { // commands for gui
@@ -179,10 +178,8 @@ struct my_string_s *buffer)
             command_gui_sgt(g, client, buffer);
         else if (string_startswith(buffer, "sst "))
             command_gui_sst(g, client, buffer);
-        // else if (string_equals(buffer, "quit\n"))
-        //     command_gui_quit(g, client, buffer);
         else
-            dprintf(client->client_fd, "suc\n");
+            dprintf(client->client_fd, "suc\n"); // unknown command
     } else { // commands for ai
         if (string_equals(buffer, "Forward\n"))
             command_ai_forward(g, client, buffer);

@@ -47,10 +47,6 @@ struct client_s *client, int x, int y)
 void command_ai_look(struct global_struct_s *g, struct client_s *client,
 struct my_string_s *buffer)
 {
-    if (client->is_gui || client->team == NULL) {
-        dprintf(client->client_fd, "suc\n");
-        return;
-    }
     struct my_string_s *response = string_create();
     string_append(response, "[ ");
     if (client->orientation == SOUTH)

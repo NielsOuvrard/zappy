@@ -70,12 +70,14 @@ void *vector_pop_back(struct my_vector_s *this)
     return item;
 }
 
-void vector_set(struct my_vector_s *this, int index, void *item)
+void vector_set(struct my_vector_s *this, int index, void *item, void (*destructor)(void *))
 {
     if (index < 0 || index >= this->length) {
         dprintf(2, "Vector: Index out of bounds\n");
         return;
     }
+    if (destructor)
+        destructor(this->items[index]);
     this->items[index] = item;
 }
 
