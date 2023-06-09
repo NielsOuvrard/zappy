@@ -194,6 +194,22 @@ void Gui::load_map(void)
     }
 }
 
+float Gui::good_position_x(int j, int i, int size_x, int size_y)
+{
+    // if (j < 0 || i < 0 || j >= size_x || i >= size_y)
+    //     return sf::IntRect(0, 0, 0, 0);
+    // return sf::IntRect(j * 64, i * 64, 64, 64);
+    return _shift_x + j * 64 + i * 64;
+}
+
+float Gui::good_position_y(int j, int i, int size_x, int size_y)
+{
+    // if (j < 0 || i < 0 || j >= size_x || i >= size_y)
+    //     return sf::IntRect(0, 0, 0, 0);
+    // return sf::IntRect(j * 64, i * 64, 64, 64);
+    return _shift_y + i * 32 - j * 32 + (SIZE_TILE / 2 - SIZE_STONE / 16);
+}
+
 void Gui::draw_decor_map(sf::RenderWindow &window)
 {
     // draw map decor
@@ -214,61 +230,62 @@ void Gui::draw_decor_map(sf::RenderWindow &window)
             window.draw(_sprites[ID_TILE]);
         }
     }
+    // linear interpolation
     // draw map resources
     for (int i = 0; i < _size_x; i++)
     {
         for (int j = _size_y - 1; j >= 0; j--)
         {
-            if (_map[i][j].food > 0)
-            {
-                // food
-                _sprites[ID_FOOD].setPosition(_shift_x + j * 64 + i * 64, _shift_y + i * 32 - j * 32 + (SIZE_TILE / 2 - SIZE_FOOD / 2));
-                _textures[ID_FOOD].setSmooth(false);
-                _sprites[ID_FOOD].setTexture(_textures[ID_FOOD]);
-                _sprites[ID_FOOD].setTextureRect(sf::IntRect(2 * SIZE_FOOD, 1 * SIZE_FOOD, SIZE_FOOD, SIZE_FOOD));
-                window.draw(_sprites[ID_FOOD]);
-            }
             if (_map[i][j].linemate > 0)
             {
                 // green
-                _sprites[ID_STONE].setPosition(_shift_x + j * 64 + i * 64, _shift_y + i * 32 - j * 32 + (SIZE_TILE / 2 - SIZE_STONE / 16));
+                _sprites[ID_STONE].setPosition(_shift_x + j * 64 + i * 64 + 32, _shift_y + i * 32 - j * 32 - 32);
                 _sprites[ID_STONE].setTextureRect(sf::IntRect(1 * SIZE_STONE, 0 * SIZE_STONE, SIZE_STONE, SIZE_STONE));
                 window.draw(_sprites[ID_STONE]);
             }
             if (_map[i][j].deraumere > 0)
             {
                 // purple
-                _sprites[ID_STONE].setPosition(_shift_x + j * 64 + i * 64, _shift_y + i * 32 - j * 32 + (SIZE_TILE / 2 - SIZE_STONE / 16));
+                _sprites[ID_STONE].setPosition(_shift_x + j * 64 + i * 64 + 32, _shift_y + i * 32 - j * 32 - 32);
                 _sprites[ID_STONE].setTextureRect(sf::IntRect(1 * SIZE_STONE, 1 * SIZE_STONE, SIZE_STONE, SIZE_STONE));
                 window.draw(_sprites[ID_STONE]);
             }
             if (_map[i][j].sibur > 0)
             {
                 // blue
-                _sprites[ID_STONE].setPosition(_shift_x + j * 64 + i * 64, _shift_y + i * 32 - j * 32 + (SIZE_TILE / 2 - SIZE_STONE / 16));
+                _sprites[ID_STONE].setPosition(_shift_x + j * 64 + i * 64 + 32, _shift_y + i * 32 - j * 32 - 32);
                 _sprites[ID_STONE].setTextureRect(sf::IntRect(1 * SIZE_STONE, 3 * SIZE_STONE, SIZE_STONE, SIZE_STONE));
                 window.draw(_sprites[ID_STONE]);
             }
             if (_map[i][j].mendiane > 0)
             {
                 // yellow
-                _sprites[ID_STONE].setPosition(_shift_x + j * 64 + i * 64, _shift_y + i * 32 - j * 32 + (SIZE_TILE / 2 - SIZE_STONE / 16));
+                _sprites[ID_STONE].setPosition(_shift_x + j * 64 + i * 64 + 32, _shift_y + i * 32 - j * 32 - 32);
                 _sprites[ID_STONE].setTextureRect(sf::IntRect(1 * SIZE_STONE, 2 * SIZE_STONE, SIZE_STONE, SIZE_STONE));
                 window.draw(_sprites[ID_STONE]);
             }
             if (_map[i][j].phiras > 0)
             {
                 // red
-                _sprites[ID_STONE].setPosition(_shift_x + j * 64 + i * 64, _shift_y + i * 32 - j * 32 + (SIZE_TILE / 2 - SIZE_STONE / 16));
+                _sprites[ID_STONE].setPosition(_shift_x + j * 64 + i * 64 + 32, _shift_y + i * 32 - j * 32 - 32);
                 _sprites[ID_STONE].setTextureRect(sf::IntRect(12 * SIZE_STONE, 5 * SIZE_STONE, SIZE_STONE, SIZE_STONE));
                 window.draw(_sprites[ID_STONE]);
             }
             if (_map[i][j].thystame > 0)
             {
                 // white
-                _sprites[ID_STONE].setPosition(_shift_x + j * 64 + i * 64, _shift_y + i * 32 - j * 32 + (SIZE_TILE / 2 - SIZE_STONE / 16));
+                _sprites[ID_STONE].setPosition(_shift_x + j * 64 + i * 64 + 32, _shift_y + i * 32 - j * 32 - 32);
                 _sprites[ID_STONE].setTextureRect(sf::IntRect(2 * SIZE_STONE, 4 * SIZE_STONE, SIZE_STONE, SIZE_STONE));
                 window.draw(_sprites[ID_STONE]);
+            }
+            if (_map[i][j].food > 0)
+            {
+                // food
+                _sprites[ID_FOOD].setPosition(_shift_x + j * 64 + i * 64 + 32, _shift_y + i * 32 - j * 32 + 16);
+                _textures[ID_FOOD].setSmooth(false);
+                _sprites[ID_FOOD].setTexture(_textures[ID_FOOD]);
+                _sprites[ID_FOOD].setTextureRect(sf::IntRect(2 * SIZE_FOOD, 1 * SIZE_FOOD, SIZE_FOOD, SIZE_FOOD));
+                window.draw(_sprites[ID_FOOD]);
             }
         }
     }
@@ -333,15 +350,26 @@ void Gui::move_map(sf::Event event)
 
     if (event.type == sf::Event::KeyPressed)
     {
-        if (event.key.code == sf::Keyboard::Right)
-            _move_right = true;
         if (event.key.code == sf::Keyboard::Left)
+        {
+            _move_right = true;
+        }
+        if (event.key.code == sf::Keyboard::Right)
             _move_left = true;
-        if (event.key.code == sf::Keyboard::Up)
-            _move_down = true;
         if (event.key.code == sf::Keyboard::Down)
+            _move_down = true;
+        if (event.key.code == sf::Keyboard::Up)
             _move_up = true;
     }
+    // if (event.type == sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
+    //     _move_right = true;
+    // if (event.type == sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
+    //     _move_left = true;
+    // if (event.type == sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
+    //     _move_down = true;
+    // if (event.type == sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
+    //     _move_up = true;
+
     // else
     // {
     //     _move_right = false;
@@ -352,13 +380,13 @@ void Gui::move_map(sf::Event event)
 
     if (event.type == sf::Event::KeyReleased)
     {
-        if (event.key.code == sf::Keyboard::Right)
-            _move_right = false;
         if (event.key.code == sf::Keyboard::Left)
+            _move_right = false;
+        if (event.key.code == sf::Keyboard::Right)
             _move_left = false;
-        if (event.key.code == sf::Keyboard::Up)
-            _move_down = false;
         if (event.key.code == sf::Keyboard::Down)
+            _move_down = false;
+        if (event.key.code == sf::Keyboard::Up)
             _move_up = false;
     }
     if (_move_right)

@@ -45,6 +45,9 @@ private:
     void draw_decor_map(sf::RenderWindow &window);
     void move_map(sf::Event event);
 
+    float good_position_x(int j, int i, int size_x, int size_y);
+    float good_position_y(int j, int i, int size_x, int size_y);
+
     std::vector<sf::Sprite> _sprites;
     std::vector<sf::Texture> _textures;
 
