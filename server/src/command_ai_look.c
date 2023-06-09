@@ -95,6 +95,6 @@ struct my_string_s *buffer)
         }
     string_append(response, " ]\n");
     printf("look: %s", response->str);
-    dprintf(client->client_fd, response->str);
+    dprintf(client->client_fd, "%s", response->str);
     string_destroy(response);
 }
