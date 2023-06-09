@@ -52,8 +52,8 @@ struct my_string_s *buffer)
     if (client->orientation == SOUTH)
         for (int i = 0; i < client->level + 1; i++) {
             for (int j = i; j > -i - 1; j--) {
-                int x = client->posx + i;
-                int y = client->posy + j;
+                int x = client->posx + j;
+                int y = client->posy + i;
                 convert_coordinate(&x, &y);
                 print_tile_content(response, client, x, y);
                 if (!(i == client->level && j == -i))
@@ -63,8 +63,8 @@ struct my_string_s *buffer)
     else if (client->orientation == NORTH)
         for (int i = 0; i < client->level + 1; i++) {
             for (int j = -i; j < i + 1; j++) {
-                int x = client->posx - i;
-                int y = client->posy + j;
+                int x = client->posx + j;
+                int y = client->posy - i;
                 convert_coordinate(&x, &y);
                 print_tile_content(response, client, x, y);
                 if (!(i == client->level && j == i))
@@ -74,8 +74,8 @@ struct my_string_s *buffer)
     else if (client->orientation == EAST)
         for (int i = 0; i < client->level + 1; i++) {
             for (int j = -i; j < i + 1; j++) {
-                int x = client->posx + j;
-                int y = client->posy + i;
+                int x = client->posx + i;
+                int y = client->posy + j;
                 convert_coordinate(&x, &y);
                 print_tile_content(response, client, x, y);
                 if (!(i == client->level && j == i))
@@ -85,8 +85,8 @@ struct my_string_s *buffer)
     else if (client->orientation == WEST)
         for (int i = 0; i < client->level + 1; i++) {
             for (int j = i; j > -i - 1; j--) {
-                int x = client->posx + j;
-                int y = client->posy - i;
+                int x = client->posx - i;
+                int y = client->posy + j;
                 convert_coordinate(&x, &y);
                 print_tile_content(response, client, x, y);
                 if (!(i == client->level && j == -i))

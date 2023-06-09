@@ -138,7 +138,7 @@ void accept_new_client(int select_result, struct global_struct_s *g)
         client->thystame = 0;
         vector_push_back(g->clients, client);
         dprintf(client_fd, "WELCOME\n");
-        printf("new client\n");
+        printf("new client: x: %d, y: %d, orient: %d\n", client->posx, client->posy, client->orientation);
     }
 }
 
@@ -189,6 +189,8 @@ struct my_string_s *buffer)
             command_ai_left(g, client, buffer);
         else if (string_equals(buffer, "Look\n"))
             command_ai_look(g, client, buffer);
+        else if (string_equals(buffer, "Inventory\n"))
+            command_ai_inventory(g, client, buffer);
         else {
             dprintf(client->client_fd, "ko\n"); // unknown command
         }
@@ -236,6 +238,22 @@ void manage_specific_client(struct client_s *client, struct global_struct_s *g)
     }
 }
 
+void close_client(void)
+{
+    struct global_struct_s *g = get_global_struct();
+    for (int i = 0; i < vector_length(g->clients); i++) {
+        struct client_s *client = vector_get(g->clients, i);
+        if (client->is_closed) {
+            struct client_s *tmp = vector_remove(g->clients, i);
+            i--;
+            string_destroy(tmp->buffer);
+            if (tmp->team)
+                string_destroy(tmp->team);
+            free(tmp);
+        }
+    }
+}
+
 void manage_clients(struct global_struct_s *g)
 {
     for (int i = 0; i < vector_length(g->clients); i++) {
@@ -244,6 +262,7 @@ void manage_clients(struct global_struct_s *g)
             continue;
         manage_specific_client(client, g);
     }
+    close_client();
 }
 
 void sigint_handler(int sig)
