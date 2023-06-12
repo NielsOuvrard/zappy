@@ -38,11 +38,14 @@ typedef struct s_egg
 #define ID_FOOD 2
 #define ID_PLAYER 3
 #define ID_EGG 4
+#define ID_HALF_TILE 5
 
 #define SIZE_TILE 64
 #define SIZE_STONE 512
 #define SIZE_FOOD 32
 
+#define SIZE_PX_TILE 256
+#define SIZE_PX_HALF_TILE 192
 class Gui
 {
 public:
@@ -56,6 +59,10 @@ private:
     void draw_players(size_t y, size_t x);
     void load_textures(void);
     void load_map(void);
+    void draw_map_tile(int i, int j, int tile);
+    void draw_map_half_tile(int i, int j, int tile);
+
+    // void create_outdoor_map(void);
     void draw_decor_map(void);
     void move_map(sf::Event event);
     void interface(void);
@@ -89,6 +96,8 @@ private:
     int _freq;
     int _size_x;
     int _size_y;
+
+    size_t _waves;
 
     // window params
     int _shift_x;

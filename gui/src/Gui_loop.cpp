@@ -16,7 +16,11 @@ void Gui::run(void)
     _window = &win;
     load_map();
     load_textures();
+    // create_outdoor_map();
     // perlin_noise();
+    // clock
+    sf::Clock clock;
+    sf::Time time;
 
     // sf::CircleShape shape(100.f);
     // shape.setFillColor(sf::Color::Green);
@@ -98,6 +102,13 @@ void Gui::run(void)
 
         // _window->draw(shape);
         _window->display();
+
+        if (clock.getElapsedTime().asMilliseconds() > 1000)
+        {
+            // sf::sleep(sf::milliseconds(1000 / 60 - clock.getElapsedTime().asMilliseconds()));
+            _waves++;
+            clock.restart();
+        }
     }
     return;
 }

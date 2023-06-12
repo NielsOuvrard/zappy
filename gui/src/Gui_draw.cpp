@@ -71,8 +71,10 @@ void Gui::draw_players(size_t y, size_t x)
 
 void Gui::draw_stone(int i, int j, int pos_x, int pos_y)
 {
+    int i_map = i - 30;
+    int j_map = j - 30;
     int height = 0;
-    if (i == _selected_tile_y && j == _selected_tile_x)
+    if (i_map == _selected_tile_y && j_map == _selected_tile_x)
         height = _height_selected_tile;
     _sprites[ID_STONE].setPosition((_shift_x + j * 64 + i * 64 + 32) * _zoom, (_shift_y + i * 32 - j * 32 - 32 - height) * _zoom);
     _sprites[ID_STONE].setTextureRect(sf::IntRect(pos_x * SIZE_STONE, pos_y * SIZE_STONE, SIZE_STONE, SIZE_STONE));
@@ -94,7 +96,7 @@ void Gui::draw_stones(int i, int j)
     };
     for (int k = 1; k < 7; k++)
     {
-        if (_map[i][j].ressources[k] > 0)
+        if (_map[i - 30][j - 30].ressources[k] > 0)
         {
             draw_stone(i, j, in_sprite_sheet[k].x, in_sprite_sheet[k].y);
             return;
@@ -102,51 +104,88 @@ void Gui::draw_stones(int i, int j)
     }
 }
 
+void Gui::draw_map_tile(int i, int j, int tile)
+{
+    int x = tile - 'a';
+    int y = 0;
+    while (x >= 10)
+    {
+        x -= 10;
+        y++;
+    }
+    _sprites[ID_TILE].setTextureRect(sf::IntRect(x * SIZE_PX_TILE, y * SIZE_PX_TILE, SIZE_PX_TILE, SIZE_PX_TILE));
+    int height = 0;
+    if (i - 30 == _selected_tile_y && j - 30 == _selected_tile_x)
+    {
+        _sprites[ID_TILE].setTextureRect(sf::IntRect(0 * SIZE_PX_TILE, 3 * SIZE_PX_TILE, SIZE_PX_TILE, SIZE_PX_TILE));
+        height = _height_selected_tile;
+    }
+    // isometric
+    _sprites[ID_TILE].setPosition((_shift_x + j * 64 + i * 64) * _zoom, (_shift_y + i * 32 - j * 32 - height) * _zoom);
+    _sprites[ID_TILE].setScale(0.5 * _zoom, 0.5 * _zoom);
+    _window->draw(_sprites[ID_TILE]);
+}
+
+void Gui::draw_map_half_tile(int i, int j, int tile)
+{
+    int x = tile - '0';
+    if (x == 11 && (i % 5 == _waves % 5))
+        x = 18;
+    if (x == 11 && (j + i) % 5 == _waves % 5)
+        x = 13;
+    int y = 0;
+    while (x >= 10)
+    {
+        x -= 10;
+        y++;
+    }
+    _sprites[ID_HALF_TILE].setTexture(_textures[ID_HALF_TILE]);
+    _sprites[ID_HALF_TILE]
+        .setTextureRect(sf::IntRect(x * SIZE_PX_TILE, y * SIZE_PX_HALF_TILE, SIZE_PX_TILE, SIZE_PX_HALF_TILE));
+    // isometric
+    _sprites[ID_HALF_TILE].setPosition(
+        (_shift_x + j * 64 + i * 64) * _zoom,
+        (_shift_y + i * 32 - j * 32 + 32) * _zoom);
+    _sprites[ID_HALF_TILE].setScale(0.5 * _zoom, 0.5 * _zoom);
+    _window->draw(_sprites[ID_HALF_TILE]);
+}
+
 void Gui::draw_decor_map(void)
 {
-    // draw map decor
-    for (int i = 0; i < _size_x; i++)
+    for (int i = 0; i < _size_x + 60; i++)
     {
-        for (int j = _size_y - 1; j >= 0; j--)
+        for (int j = _size_y - 1 + 60; j >= 0; j--)
         {
             // * DRAW TILE
-            int x = _map_decor[i][j] - 'a';
-            int y = 0;
-            while (x >= 10)
+            if (_map_decor[i][j] >= 'a')
+                draw_map_tile(i, j, _map_decor[i][j]);
+            else
+                draw_map_half_tile(i, j, _map_decor[i][j]);
+            if (i >= 30 && i < 30 + _size_y && j >= 30 && j < 30 + _size_x)
             {
-                x -= 10;
-                y++;
-            }
-            _sprites[ID_TILE].setTextureRect(sf::IntRect(x * 256, y * 256, 256, 256));
-            int height = 0;
-            if (i == _selected_tile_y && j == _selected_tile_x)
-            {
-                _sprites[ID_TILE].setTextureRect(sf::IntRect(0 * 256, 3 * 256, 256, 256));
-                height = _height_selected_tile;
-            }
-            // isometric
-            _sprites[ID_TILE].setPosition((_shift_x + j * 64 + i * 64) * _zoom, (_shift_y + i * 32 - j * 32 - height) * _zoom);
-            _sprites[ID_TILE].setScale(0.5 * _zoom, 0.5 * _zoom);
-            _window->draw(_sprites[ID_TILE]);
+                // * DRAW STONES
+                draw_stones(i, j);
 
-            // * DRAW STONES
-            draw_stones(i, j);
-
-            // * DRAW FOOD
-            height = 0;
-            if (i == _selected_tile_y && j == _selected_tile_x)
-                height = _height_selected_tile;
-            if (_map[i][j].ressources[0] > 0)
-            {
-                _sprites[ID_FOOD].setPosition((_shift_x + j * 64 + i * 64 + 32) * _zoom, (_shift_y + i * 32 - j * 32 + 16 - height) * _zoom);
-                _textures[ID_FOOD].setSmooth(false);
-                _sprites[ID_FOOD].setTexture(_textures[ID_FOOD]);
-                _sprites[ID_FOOD].setTextureRect(sf::IntRect(2 * SIZE_FOOD, 1 * SIZE_FOOD, SIZE_FOOD, SIZE_FOOD));
-                _sprites[ID_FOOD].setScale(_zoom, _zoom);
-                _window->draw(_sprites[ID_FOOD]);
+                // * DRAW FOOD
+                int i_map = i - 30;
+                int j_map = j - 30;
+                int height = 0;
+                if (i_map == _selected_tile_y && j_map == _selected_tile_x)
+                    height = _height_selected_tile;
+                if (_map[i_map][j_map].ressources[0] > 0)
+                {
+                    _sprites[ID_FOOD].setPosition(
+                        (_shift_x + j * 64 + i * 64 + 32) * _zoom,
+                        (_shift_y + i * 32 - j * 32 + 16 - height) * _zoom);
+                    _textures[ID_FOOD].setSmooth(false);
+                    _sprites[ID_FOOD].setTexture(_textures[ID_FOOD]);
+                    _sprites[ID_FOOD].setTextureRect(sf::IntRect(2 * SIZE_FOOD, 1 * SIZE_FOOD, SIZE_FOOD, SIZE_FOOD));
+                    _sprites[ID_FOOD].setScale(_zoom, _zoom);
+                    _window->draw(_sprites[ID_FOOD]);
+                }
+                // * DRAW PLAYERS
+                draw_players(i, j);
             }
-            // * DRAW PLAYERS
-            draw_players(i, j);
         }
     }
 }

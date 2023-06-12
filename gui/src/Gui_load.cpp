@@ -7,7 +7,21 @@
 
 #include "Gui.hpp"
 #include "logger.hpp"
+#include <cmath>
 
+/*
+the map
+
+.......
+.......
+..***..
+..***..
+..***..
+..***..
+.......
+.......
+
+*/
 void Gui::load_map(void)
 {
     std::ofstream myfile;
@@ -21,11 +35,57 @@ void Gui::load_map(void)
     }
     std::cout << LOG_GUI("Loading map");
 
-    while (std::getline(ifs, line))
+    // str of 15 * '-11' with memset
+    std::string water_all(60 + _size_x, ';');
+
+    std::string sand(1, 'M');
+    std::string sand_middle(_size_x, 'M');
+
+    std::cout << LOG_GUI("sand: " + sand_middle);
+
+    for (int i = 0; i < 60 + _size_y; i++)
+        _map_decor.push_back(water_all);
+
+    // for (int i = 0; i < 60 + _size_y; i++)
+    //     for (int j = 0; j < 60 + _size_x; j++)
+    //         _map_decor[i][j] += i % 4;
+
+    int middle_x = (60 + _size_x) / 2;
+    int middle_y = (60 + _size_y) / 2;
+
+    for (int i = 0; i < 60 + _size_y; i++)
+        for (int j = 0; j < 60 + _size_x; j++)
+            if (sqrt(pow((j - middle_x), 2) + pow((i - middle_y), 2)) < _size_x * 1.1)
+                _map_decor[i][j] = 'M';
+
+    for (int i = 0; i < 60 + _size_y; i++)
+        for (int j = 0; j < 60 + _size_x; j++)
+            if (sqrt(pow((j - middle_x), 2) + pow((i - middle_y), 2)) < _size_x * 0.8)
+                _map_decor[i][j] = 'a' + 18;
+
+    for (int i = 0; i < _size_y; i++)
     {
-        _map_decor.push_back(line);
-        std::cout << LOG_GUI(line);
+        std::getline(ifs, line);
+        // _map_decor.push_back(line.substr(0, _size_x));
+        for (int j = 0; j < _size_x; j++)
+            _map_decor[30 + i][30 + j] = line[j];
+        // std::cout << LOG_GUI(line);
     }
+
+    // display map
+    for (int i = 0; i < _map_decor.size(); i++)
+    {
+        for (int j = 0; j < _map_decor[i].size(); j++)
+        {
+            std::cout << _map_decor[i][j];
+        }
+        std::cout << std::endl;
+    }
+    std::cout << std::endl;
+
+    // 30 + _size_x
+    // 30 + _size_y
+    // for (int i = 0; )
 }
 
 void Gui::load_textures(void)
@@ -52,7 +112,7 @@ void Gui::load_textures(void)
     }
 
     _sprites[ID_TILE].setTexture(_textures[ID_TILE]);
-    _sprites[ID_TILE].setTextureRect(sf::IntRect(0, 0, 256, 256));
+    _sprites[ID_TILE].setTextureRect(sf::IntRect(0, 0, SIZE_PX_TILE, SIZE_PX_TILE));
     _sprites[ID_TILE].setScale(0.5, 0.5);
 
     _sprites[ID_STONE].setTexture(_textures[ID_STONE]);
@@ -71,4 +131,8 @@ void Gui::load_textures(void)
     _textures[ID_EGG].setSmooth(false);
     _sprites[ID_EGG].setTexture(_textures[ID_EGG]);
     _sprites[ID_EGG].setScale(5, 5);
+
+    _sprites[ID_HALF_TILE].setTexture(_textures[ID_HALF_TILE]);
+    _sprites[ID_HALF_TILE].setTextureRect(sf::IntRect(0, 0, SIZE_PX_TILE, SIZE_PX_HALF_TILE));
+    _sprites[ID_HALF_TILE].setScale(0.5, 0.5);
 }

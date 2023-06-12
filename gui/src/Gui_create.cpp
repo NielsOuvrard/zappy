@@ -86,13 +86,15 @@ Gui::Gui(std::string data)
     }
     // perlin_noise();
 
-    _zoom = 1.0f;
+    _zoom = 0.5f;
+
+    _waves = 0;
 
     _height_selected_tile = 0;
     _up_selected_tile = false;
 
-    _shift_x = 0;
-    _shift_y = 500;
+    _shift_x = -2400;
+    _shift_y = 900;
 
     _speed_x = 0;
     _speed_y = 0;
@@ -114,3 +116,7 @@ Gui::Gui(std::string data)
 Gui::~Gui()
 {
 }
+
+// void Gui::create_outdoor_map(void)
+// {
+// }
