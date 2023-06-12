@@ -5,13 +5,22 @@
 ## Makefile
 ##
 
-all:
+zappy_server:
 	@make -C server
 	@cp server/zappy_server .
+
+zappy_gui:
 	@make -C gui
 	@cp gui/zappy_gui .
+
+zappy_ai:
 	@make -C ai
 	@cp ai/zappy_ai .
+
+all:
+	@zappy_server
+	@zappy_gui
+	@zappy_ai
 
 clean:
 	@make clean -C server

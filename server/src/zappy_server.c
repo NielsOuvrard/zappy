@@ -239,6 +239,8 @@ void manage_specific_client(struct client_s *client, struct global_struct_s *g)
                 else
                     string_append(line, "\n");
             }
+            while (vector_length(lines) > 10)
+                string_destroy(vector_pop_back(lines));
             while (vector_length(lines) > 0 && string_endswith(vector_get(lines, 0), "\n")) {
                 manage_command(g, client, (vector_get(lines, 0)));
                 string_destroy(vector_remove(lines, 0));
