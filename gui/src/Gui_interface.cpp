@@ -10,6 +10,13 @@
 
 void Gui::interface(void)
 {
+
+    sf::RectangleShape shape(sf::Vector2f(250, 500));
+    // opacity = 0.5;
+    shape.setFillColor(sf::Color(0, 0, 0, 128));
+    shape.setPosition(0, 0);
+    _window->draw(shape);
+
     for (int i = 0; i < 7; i++)
     {
         _text.setString(_ressources[i]);

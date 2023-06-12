@@ -101,9 +101,9 @@ Gui::Gui(std::string data)
     _selected_tile_y = 0;
 
     _move_right = false;
-    _move_up = false;
-    _move_left = false;
     _move_down = false;
+    _move_left = false;
+    _move_up = false;
 
     _eggs = std::vector<t_egg>();
     _font = sf::Font();
