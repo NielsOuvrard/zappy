@@ -25,6 +25,14 @@
 #include "my_vector.h"
 #include "my_string.h"
 #include "my_map.h"
+#include "my_tuple.h"
+
+struct base_type_s {
+    int _int;
+    char _char;
+    float _float;
+    double _double;
+};
 
 struct arg_s {
     int port;

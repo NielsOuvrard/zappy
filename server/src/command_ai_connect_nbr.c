@@ -10,13 +10,10 @@
 void command_ai_connect_nbr(struct global_struct_s *g, struct client_s *client,
 struct my_string_s *buffer)
 {
-    struct my_string_s *str = map_get(g->team_slots, client->team, string_equals_str);
+    struct my_tuple_s *slots = map_get(g->team_slots, client->team, string_equals_str);
+    int min = ((struct base_type_s *)tuple_get_first(slots))->_int;
+    int max = ((struct base_type_s *)tuple_get_second(slots))->_int;
 
-    if (str == NULL) {
-        dprintf(client->client_fd, "ko\n");
-        return;
-    }
-    int remaning_slots = string_to_int(str);
+    int remaning_slots = max - min;
     dprintf(client->client_fd, "%d\n", remaning_slots);
-    string_destroy(str);
 }

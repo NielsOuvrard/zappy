@@ -64,9 +64,15 @@ void check_args(int ac, char **av)
     printf("height: %d\n", arg->height);
     for (int i = 0; i < vector_length(arg->names); i++) {
         printf("names %d: %s\n", i, ((struct my_string_s *)vector_get(arg->names, i))->str);
+        struct my_tuple_s *tuple = tuple_create();
+        struct base_type_s *actual = malloc(sizeof(struct base_type_s));
+        actual->_int = 0;
+        struct base_type_s *max = malloc(sizeof(struct base_type_s));
+        max->_int = arg->clientsNb;
+        tuple_set(tuple, actual, max, free, free);
         map_insert(global_struct->team_slots,
         string_copy((struct my_string_s *)vector_get(arg->names, i)),
-        string_from_int(arg->clientsNb));
+        tuple);
     }
     printf("clientsNb: %d\n", arg->clientsNb);
     printf("freq: %d\n", arg->freq);
@@ -88,7 +94,7 @@ void free_all(void)
         free(client);
     }
     vector_destroy(global_struct->clients, NULL);
-    map_destroy(global_struct->team_slots, string_destroy, string_destroy);
+    map_destroy(global_struct->team_slots, string_destroy, tuple_destroy);
     free(global_struct->arg);
     free(global_struct->server);
 }
@@ -223,9 +229,7 @@ void manage_specific_client(struct client_s *client, struct global_struct_s *g)
             client->is_closed = true;
             if (client->team != NULL && !client->is_gui) {
                 struct global_struct_s *g = get_global_struct();
-                int slots = string_to_int(map_get(g->team_slots, client->team, string_equals_str));
-                slots++;
-                map_set(g->team_slots, client->team, string_from_int(slots), string_equals_str, string_destroy);
+                ((struct base_type_s *)tuple_get_first(map_get(g->team_slots, client->team, string_equals_str)))->_int--;
             }
             return;
         }
