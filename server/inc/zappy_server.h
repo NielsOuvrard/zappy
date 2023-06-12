@@ -135,6 +135,8 @@ struct my_string_s *buffer);
 
 void command_ai_take(struct global_struct_s *g, struct client_s *client,
 struct my_string_s *buffer);
+void command_ai_set(struct global_struct_s *g, struct client_s *client,
+struct my_string_s *buffer);
 
 // Initializer
 void initialize_map(void);

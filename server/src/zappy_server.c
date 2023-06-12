@@ -202,8 +202,8 @@ struct my_string_s *buffer)
         //     command_ai_eject(g, client, buffer);
         else if (string_startswith(buffer, "Take "))
             command_ai_take(g, client, buffer);
-        // else if (string_startswith(buffer, "Set "))
-        //     command_ai_set(g, client, buffer);
+        else if (string_startswith(buffer, "Set "))
+            command_ai_set(g, client, buffer);
         // else if (string_equals(buffer, "Incantation\n"))
         //     command_ai_incantation(g, client, buffer);
         else {

@@ -17,7 +17,6 @@ struct my_string_s *buffer)
 
     if (vector_length(arg) != 2) {
         dprintf(client->client_fd, "ko\n");
-        printf("Failed to take\n");
         vector_destroy(arg, string_destroy);
         return;
     }
@@ -52,9 +51,7 @@ struct my_string_s *buffer)
         ((struct tile_s *)vector_get(vector_get(g->map, y), x))->thystame--;
         client->thystame++;
         dprintf(client->client_fd, "ok\n");
-    } else {
+    } else
         dprintf(client->client_fd, "ko\n");
-        printf("Failed to take \"%s\"\n", name->str);
-    }
     vector_destroy(arg, string_destroy);
 }
