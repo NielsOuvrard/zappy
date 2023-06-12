@@ -49,6 +49,7 @@ public:
     Gui(std::string data);
     ~Gui();
     void run(void);
+    void menu_run(void);
     bool fill_map(std::string data);
 
 private:
@@ -62,6 +63,7 @@ private:
     void draw_stones(int i, int j);
     void draw_stone(int i, int j, int pos_x, int pos_y);
     void perlin_noise(void);
+    void menu_texture(void);
 
     sf::RenderWindow *_window;
 
@@ -74,6 +76,8 @@ private:
     std::string _ressources[7] = {"food", "linemate", "deraumere", "sibur", "mendiane", "phiras", "thystame"};
 
     // draw
+    sf::Texture _texture;
+    sf::Sprite _sprite;
     std::vector<sf::Sprite> _sprites;
     std::vector<sf::Texture> _textures;
     sf::Font _font;

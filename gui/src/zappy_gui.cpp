@@ -80,7 +80,9 @@ int zappy_gui(int ac, char **av)
 
     thread_net.create(thread_net_func, &shared);
 
-    gui.run();
+
+    // gui.run();
+    gui.menu_run();
     shared.stop = true;
 
     std::cout << "END" << std::endl;
