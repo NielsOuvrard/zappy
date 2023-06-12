@@ -376,6 +376,7 @@ struct my_vector_s *string_split(struct my_string_s *this, char *delimiter)
     char *token = strtok(str, delimiter);
 
     vector_init(vector, sizeof(struct my_string_s));
+    vector_set_destructor(vector, string_destroy);
     while (token != NULL) {
         vector_push_back(vector, string_from_string(token));
         token = strtok(NULL, delimiter);

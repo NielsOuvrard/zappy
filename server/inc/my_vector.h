@@ -14,6 +14,7 @@ struct my_vector_s {
     int capacity;
     int length;
     size_t item_size;
+    void (*destructor)(void *);
 };
 
 /**
@@ -30,11 +31,17 @@ struct my_vector_s *vector_create(size_t item_size);
 void vector_init(struct my_vector_s *vector, size_t item_size);
 
 /**
+** @brief Sets the destructor of a vector.
+** @param vector The vector to set the destructor of.
+** @param destructor The destructor to set.
+**/
+void vector_set_destructor(struct my_vector_s *vector, void (*destructor)(void *));
+
+/**
 ** @brief Destroys a vector.
 ** @param vector The vector to destroy.
-** @param destroy The function to destroy the items in the vector.
 **/
-void vector_destroy(struct my_vector_s *vector, void (*destroy)(void *));
+void vector_destroy(struct my_vector_s *vector);
 
 /**
 ** @brief Returns the length of a vector.
@@ -69,9 +76,8 @@ void *vector_pop_back(struct my_vector_s *vector);
 ** @param vector The vector to set the item in.
 ** @param index The index of the item to set.
 ** @param item The item to set.
-** @param destroy The function to destroy the item being replaced.
 **/
-void vector_set(struct my_vector_s *vector, int index, void *item, void (*destroy)(void *));
+void vector_set(struct my_vector_s *vector, int index, void *item);
 
 /**
 ** @brief Gets an item from a vector.
@@ -100,9 +106,8 @@ void *vector_remove(struct my_vector_s *vector, int index);
 /**
 ** @brief Clears a vector.
 ** @param vector The vector to clear.
-** @param destroy The function to destroy the items in the vector.
 **/
-void vector_clear(struct my_vector_s *vector, void (*destroy)(void *));
+void vector_clear(struct my_vector_s *vector);
 
 /**
 ** @brief Sorts a vector.

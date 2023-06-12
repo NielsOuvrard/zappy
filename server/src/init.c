@@ -27,6 +27,7 @@ void initialize_map(void)
             tile->thystame = 0;
             vector_push_back(line, tile);
         }
+        vector_set_destructor(line, free);
         vector_push_back(global_struct->map, line);
     }
     int max_food = (arg->width * arg->height) * 0.5;

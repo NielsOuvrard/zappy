@@ -54,11 +54,13 @@ void check_args(int ac, char **av)
                     break;
                 vector_push_back(arg->names, string_from_string(av[i + j + 1]));
             }
+            vector_set_destructor(arg->names, string_destroy);
         }
     }
     struct global_struct_s *global_struct = get_global_struct();
     global_struct->arg = arg;
     global_struct->team_slots = map_create();
+    map_set_destroy(global_struct->team_slots, string_destroy, tuple_destroy);
     printf("port: %d\n", arg->port);
     printf("width: %d\n", arg->width);
     printf("height: %d\n", arg->height);
@@ -82,10 +84,10 @@ void free_all(void)
 {
     struct global_struct_s *global_struct = get_global_struct();
     struct arg_s *arg = global_struct->arg;
-    vector_destroy(arg->names, string_destroy);
+    vector_destroy(arg->names);
     for (int i = 0; i < vector_length(global_struct->map); i++)
-        vector_destroy(vector_get(global_struct->map, i), free);
-    vector_destroy(global_struct->map, NULL);
+        vector_destroy(vector_get(global_struct->map, i));
+    vector_destroy(global_struct->map);
     for (int i = 0; i < vector_length(global_struct->clients); i++) {
         struct client_s *client = vector_get(global_struct->clients, i);
         string_destroy(client->buffer);
@@ -93,8 +95,8 @@ void free_all(void)
             string_destroy(client->team);
         free(client);
     }
-    vector_destroy(global_struct->clients, NULL);
-    map_destroy(global_struct->team_slots, string_destroy, tuple_destroy);
+    vector_destroy(global_struct->clients);
+    map_destroy(global_struct->team_slots);
     free(global_struct->arg);
     free(global_struct->server);
 }
@@ -252,7 +254,7 @@ void manage_specific_client(struct client_s *client, struct global_struct_s *g)
             string_clear(client->buffer);
             if (vector_length(lines) > 0)
                 string_append(client->buffer, vector_get(lines, 0));
-            vector_destroy(lines, string_destroy);
+            vector_destroy(lines);
         } else {
             string_append(client->buffer, buffer);
         }
