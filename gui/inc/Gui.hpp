@@ -39,10 +39,13 @@ typedef struct s_egg
 #define ID_PLAYER 3
 #define ID_EGG 4
 #define ID_HALF_TILE 5
+#define ID_TREE 6
 
 #define SIZE_TILE 64
 #define SIZE_STONE 512
 #define SIZE_FOOD 32
+
+#define DECOR_SIZE 30
 
 #define SIZE_PX_TILE 256
 #define SIZE_PX_HALF_TILE 192
@@ -56,6 +59,7 @@ public:
 
 private:
     void draw_map(void);
+    void draw_players(int y, int x);
     void draw_players(size_t y, size_t x);
     void load_textures(void);
     void load_map(void);

@@ -36,30 +36,33 @@ void Gui::load_map(void)
     std::cout << LOG_GUI("Loading map");
 
     // str of 15 * '-11' with memset
-    std::string water_all(60 + _size_x, ';');
+
+    int size_island = _size_y > _size_x ? _size_y : _size_x;
+
+    std::string water_all((2 * DECOR_SIZE) + _size_x, ';');
 
     std::string sand(1, 'M');
     std::string sand_middle(_size_x, 'M');
 
     std::cout << LOG_GUI("sand: " + sand_middle);
 
-    for (int i = 0; i < 60 + _size_y; i++)
+    for (int i = 0; i < (2 * DECOR_SIZE) + _size_y; i++)
         _map_decor.push_back(water_all);
 
-    // for (int i = 0; i < 60 + _size_y; i++)
-    //     for (int j = 0; j < 60 + _size_x; j++)
+    // for (int i = 0; i < (2 * DECOR_SIZE) + _size_y; i++)
+    //     for (int j = 0; j < (2 * DECOR_SIZE) + _size_x; j++)
     //         _map_decor[i][j] += i % 4;
 
-    int middle_x = (60 + _size_x) / 2;
-    int middle_y = (60 + _size_y) / 2;
+    int middle_x = ((2 * DECOR_SIZE) + _size_x) / 2;
+    int middle_y = ((2 * DECOR_SIZE) + _size_y) / 2;
 
-    for (int i = 0; i < 60 + _size_y; i++)
-        for (int j = 0; j < 60 + _size_x; j++)
+    for (int i = 0; i < (2 * DECOR_SIZE) + _size_y; i++)
+        for (int j = 0; j < (2 * DECOR_SIZE) + _size_x; j++)
             if (sqrt(pow((j - middle_x), 2) + pow((i - middle_y), 2)) < _size_x * 1.1)
                 _map_decor[i][j] = 'M';
 
-    for (int i = 0; i < 60 + _size_y; i++)
-        for (int j = 0; j < 60 + _size_x; j++)
+    for (int i = 0; i < (2 * DECOR_SIZE) + _size_y; i++)
+        for (int j = 0; j < (2 * DECOR_SIZE) + _size_x; j++)
             if (sqrt(pow((j - middle_x), 2) + pow((i - middle_y), 2)) < _size_x * 0.8)
                 _map_decor[i][j] = 'a' + 18;
 
@@ -68,14 +71,14 @@ void Gui::load_map(void)
         std::getline(ifs, line);
         // _map_decor.push_back(line.substr(0, _size_x));
         for (int j = 0; j < _size_x; j++)
-            _map_decor[30 + i][30 + j] = line[j];
+            _map_decor[DECOR_SIZE + i][DECOR_SIZE + j] = line[j];
         // std::cout << LOG_GUI(line);
     }
 
     // display map
-    for (int i = 0; i < _map_decor.size(); i++)
+    for (size_t i = 0; i < _map_decor.size(); i++)
     {
-        for (int j = 0; j < _map_decor[i].size(); j++)
+        for (size_t j = 0; j < _map_decor[i].size(); j++)
         {
             std::cout << _map_decor[i][j];
         }
@@ -135,4 +138,8 @@ void Gui::load_textures(void)
     _sprites[ID_HALF_TILE].setTexture(_textures[ID_HALF_TILE]);
     _sprites[ID_HALF_TILE].setTextureRect(sf::IntRect(0, 0, SIZE_PX_TILE, SIZE_PX_HALF_TILE));
     _sprites[ID_HALF_TILE].setScale(0.5, 0.5);
+
+    _sprites[ID_TREE].setTexture(_textures[ID_TREE]);
+    _sprites[ID_TREE].setTextureRect(sf::IntRect(0, 0, SIZE_PX_TILE, 512));
+    _sprites[ID_TREE].setScale(0.5, 0.5);
 }
