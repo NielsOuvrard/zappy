@@ -17,7 +17,7 @@ struct my_string_s *buffer)
 
     if (vector_length(arg) != 2) {
         dprintf(client->client_fd, "ko\n");
-        vector_destroy(arg, string_destroy);
+        vector_destroy(arg);
         return;
     }
 
@@ -53,5 +53,5 @@ struct my_string_s *buffer)
         dprintf(client->client_fd, "ok\n");
     } else
         dprintf(client->client_fd, "ko\n");
-    vector_destroy(arg, string_destroy);
+    vector_destroy(arg);
 }

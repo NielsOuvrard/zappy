@@ -15,6 +15,7 @@ struct my_vector_s *vector_create(size_t item_size)
     this->length = 0;
     this->item_size = item_size;
     this->items = malloc(sizeof(this->item_size) * this->capacity);
+    this->destructor = NULL;
     return this;
 }
 
@@ -24,13 +25,19 @@ void vector_init(struct my_vector_s *this, size_t item_size)
     this->length = 0;
     this->item_size = item_size;
     this->items = malloc(sizeof(this->item_size) * this->capacity);
+    this->destructor = NULL;
 }
 
-void vector_destroy(struct my_vector_s *this, void (*destructor)(void *))
+void vector_set_destructor(struct my_vector_s *this, void (*destructor)(void *))
 {
-    if (destructor) {
+    this->destructor = destructor;
+}
+
+void vector_destroy(struct my_vector_s *this)
+{
+    if (this->destructor) {
         for (int i = 0; i < this->length; i++)
-            destructor(this->items[i]);
+            this->destructor(this->items[i]);
     }
     free(this->items);
     free(this);
@@ -70,14 +77,14 @@ void *vector_pop_back(struct my_vector_s *this)
     return item;
 }
 
-void vector_set(struct my_vector_s *this, int index, void *item, void (*destructor)(void *))
+void vector_set(struct my_vector_s *this, int index, void *item)
 {
     if (index < 0 || index >= this->length) {
         dprintf(2, "Vector: Index out of bounds\n");
         return;
     }
-    if (destructor)
-        destructor(this->items[index]);
+    if (this->destructor)
+        this->destructor(this->items[index]);
     this->items[index] = item;
 }
 
@@ -127,9 +134,9 @@ void *vector_remove(struct my_vector_s *this, int index)
     return item;
 }
 
-void vector_clear(struct my_vector_s *this, void (*destructor)(void *))
+void vector_clear(struct my_vector_s *this)
 {
-    vector_destroy(this, destructor);
+    vector_destroy(this);
     vector_init(this, this->item_size);
 }
 
