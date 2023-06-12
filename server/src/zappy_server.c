@@ -160,7 +160,7 @@ struct my_string_s *buffer)
             dprintf(client->client_fd, "ko\n"); // unknown command
         }
     }
-    if (client->is_gui) { // commands for gui
+    else if (client->is_gui) { // commands for gui
         if (string_equals(buffer, "msz\n"))
             command_gui_msz(g, client, buffer);
         else if (string_startswith(buffer, "bct "))
@@ -194,6 +194,18 @@ struct my_string_s *buffer)
             command_ai_inventory(g, client, buffer);
         else if (string_startswith(buffer, "Broadcast "))
             command_ai_broadcast(g, client, buffer);
+        // else if (string_equals(buffer, "Connect_nbr\n"))
+        //     command_ai_connect_nbr(g, client, buffer);
+        // else if (string_equals(buffer, "Fork\n"))
+        //     command_ai_fork(g, client, buffer);
+        // else if (string_equals(buffer, "Eject\n"))
+        //     command_ai_eject(g, client, buffer);
+        else if (string_startswith(buffer, "Take "))
+            command_ai_take(g, client, buffer);
+        // else if (string_startswith(buffer, "Set "))
+        //     command_ai_set(g, client, buffer);
+        // else if (string_equals(buffer, "Incantation\n"))
+        //     command_ai_incantation(g, client, buffer);
         else {
             dprintf(client->client_fd, "ko\n"); // unknown command
         }
