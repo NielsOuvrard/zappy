@@ -50,7 +50,6 @@ void Gui::load_textures(void)
         _sprites.push_back(sf::Sprite());
         _textures.push_back(texture);
     }
-    _sprites[8].setOrigin(32, 32);
 
     _sprites[ID_TILE].setTexture(_textures[ID_TILE]);
     _sprites[ID_TILE].setTextureRect(sf::IntRect(0, 0, 256, 256));

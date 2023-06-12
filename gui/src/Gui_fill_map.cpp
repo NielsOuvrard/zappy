@@ -65,7 +65,8 @@ bool Gui::fill_map(std::string data)
             std::string level = values.substr(0, values.find(" "));
             values = values.substr(values.find(" ") + 1);
             std::string team = values.substr(0, values.find(" "));
-            _players.push_back((t_player){std::stoi(id), std::stoi(x) - 1, std::stoi(y) - 1, std::stoi(orientation), std::stoi(level), team});
+            t_player data = {std::stoi(id), std::stoi(x) - 1, std::stoi(y) - 1, std::stoi(orientation), std::stoi(level), team, {0, 0, 0, 0, 0, 0, 0}};
+            _players.push_back(data);
         }
         if (line.find("pdi") != std::string::npos)
         {
@@ -127,23 +128,7 @@ bool Gui::fill_map(std::string data)
             {
                 if (_players[i].id == std::stoi(id))
                 {
-                    // TODO put resource in array
-                    // _map[_players[i].x][_players[i].y].food--;
-                    // if (resource == "food")
-                    //     _players[i].food++;
-                    // else if (resource == "linemate")
-                    //     _players[i].linemate++;
-                    // else if (resource == "deraumere")
-                    //     _players[i].deraumere++;
-                    // else if (resource == "sibur")
-                    //     _players[i].sibur++;
-                    // else if (resource == "mendiane")
-                    //     _players[i].mendiane++;
-                    // else if (resource == "phiras")
-                    //     _players[i].phiras++;
-                    // else if (resource == "thystame")
-                    //     _players[i].thystame++;
-                    // break;
+                    _players[i].inventory[std::stoi(resource) - 1]++;
                 }
             }
         }

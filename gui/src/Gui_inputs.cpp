@@ -48,14 +48,14 @@ void Gui::move_map(sf::Event event)
         if (_speed_x <= -SPEED_MAX)
             _speed_x = -SPEED_MAX;
     }
-    if (_move_up)
+    if (_move_down)
     {
         _speed_y *= 1.1;
         _speed_y -= 1;
         if (_speed_y <= -SPEED_MAX)
             _speed_y = -SPEED_MAX;
     }
-    if (_move_down)
+    if (_move_up)
     {
         _speed_y *= 1.1;
         _speed_y += 1;
@@ -75,13 +75,13 @@ void Gui::move_map(sf::Event event)
         if (_speed_x > -1)
             _speed_x = 0;
     }
-    if (_speed_y > 0 && !_move_down)
+    if (_speed_y > 0 && !_move_up)
     {
         _speed_y *= 0.95;
         if (_speed_y < 1)
             _speed_y = 0;
     }
-    if (_speed_y < 0 && !_move_up)
+    if (_speed_y < 0 && !_move_down)
     {
         _speed_y *= 0.95;
         if (_speed_y > -1)

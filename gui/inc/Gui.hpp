@@ -10,13 +10,8 @@
 
 typedef struct s_tile
 {
-    int food;
-    int linemate;
-    int deraumere;
-    int sibur;
-    int mendiane;
-    int phiras;
-    int thystame;
+    // food, linemate, deraumere, sibur, mendiane, phiras, thystame
+    int ressources[7];
 } t_tile;
 
 typedef struct s_player
@@ -27,6 +22,7 @@ typedef struct s_player
     int orientation;
     int level;
     std::string team;
+    int inventory[7];
 } t_player;
 
 typedef struct s_egg
@@ -57,49 +53,51 @@ public:
 
 private:
     void draw_map(void);
-    void draw_players(void);
+    void draw_players(size_t y, size_t x);
     void load_textures(void);
     void load_map(void);
     void draw_decor_map(void);
     void move_map(sf::Event event);
     void interface(void);
+    void draw_stones(int i, int j);
+    void draw_stone(int i, int j, int pos_x, int pos_y);
+    void perlin_noise(void);
 
-    float draw_stone(int i, int j, int pos_x, int pos_y);
+    sf::RenderWindow *_window;
 
-    std::vector<sf::Sprite> _sprites;
-    std::vector<sf::Texture> _textures;
-
+    // data
     t_tile **_map;
     std::vector<std::string> _map_decor;
     std::vector<std::string> _teams;
     std::vector<t_player> _players;
-
-    // eggs
     std::vector<t_egg> _eggs;
-
-    sf::RenderWindow *_window;
     std::string _ressources[7] = {"food", "linemate", "deraumere", "sibur", "mendiane", "phiras", "thystame"};
 
+    // draw
+    std::vector<sf::Sprite> _sprites;
+    std::vector<sf::Texture> _textures;
     sf::Font _font;
     sf::Text _text;
 
-    size_t _selected_tile_x;
-    size_t _selected_tile_y;
+    int _selected_tile_x;
+    int _selected_tile_y;
 
-    float _zoom;
+    int _height_selected_tile;
+    bool _up_selected_tile;
 
+    // server params
+    int _freq;
     int _size_x;
     int _size_y;
-    int _freq;
 
+    // window params
     int _shift_x;
     int _shift_y;
-
+    float _zoom;
     float _speed_x;
     float _speed_y;
-
     bool _move_right;
-    bool _move_up;
-    bool _move_left;
     bool _move_down;
+    bool _move_left;
+    bool _move_up;
 };
