@@ -194,8 +194,8 @@ struct my_string_s *buffer)
             command_ai_inventory(g, client, buffer);
         else if (string_startswith(buffer, "Broadcast "))
             command_ai_broadcast(g, client, buffer);
-        // else if (string_equals(buffer, "Connect_nbr\n"))
-        //     command_ai_connect_nbr(g, client, buffer);
+        else if (string_equals(buffer, "Connect_nbr\n"))
+            command_ai_connect_nbr(g, client, buffer);
         // else if (string_equals(buffer, "Fork\n"))
         //     command_ai_fork(g, client, buffer);
         // else if (string_equals(buffer, "Eject\n"))
