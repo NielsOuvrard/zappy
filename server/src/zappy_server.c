@@ -64,9 +64,15 @@ void check_args(int ac, char **av)
     printf("height: %d\n", arg->height);
     for (int i = 0; i < vector_length(arg->names); i++) {
         printf("names %d: %s\n", i, ((struct my_string_s *)vector_get(arg->names, i))->str);
+        struct my_tuple_s *tuple = tuple_create();
+        struct base_type_s *actual = malloc(sizeof(struct base_type_s));
+        actual->_int = 0;
+        struct base_type_s *max = malloc(sizeof(struct base_type_s));
+        max->_int = arg->clientsNb;
+        tuple_set(tuple, actual, max, free, free);
         map_insert(global_struct->team_slots,
         string_copy((struct my_string_s *)vector_get(arg->names, i)),
-        string_from_int(arg->clientsNb));
+        tuple);
     }
     printf("clientsNb: %d\n", arg->clientsNb);
     printf("freq: %d\n", arg->freq);
@@ -88,7 +94,7 @@ void free_all(void)
         free(client);
     }
     vector_destroy(global_struct->clients, NULL);
-    map_destroy(global_struct->team_slots, string_destroy, string_destroy);
+    map_destroy(global_struct->team_slots, string_destroy, tuple_destroy);
     free(global_struct->arg);
     free(global_struct->server);
 }
@@ -160,7 +166,7 @@ struct my_string_s *buffer)
             dprintf(client->client_fd, "ko\n"); // unknown command
         }
     }
-    if (client->is_gui) { // commands for gui
+    else if (client->is_gui) { // commands for gui
         if (string_equals(buffer, "msz\n"))
             command_gui_msz(g, client, buffer);
         else if (string_startswith(buffer, "bct "))
@@ -194,6 +200,18 @@ struct my_string_s *buffer)
             command_ai_inventory(g, client, buffer);
         else if (string_startswith(buffer, "Broadcast "))
             command_ai_broadcast(g, client, buffer);
+        else if (string_equals(buffer, "Connect_nbr\n"))
+            command_ai_connect_nbr(g, client, buffer);
+        // else if (string_equals(buffer, "Fork\n"))
+        //     command_ai_fork(g, client, buffer);
+        else if (string_equals(buffer, "Eject\n"))
+            command_ai_eject(g, client, buffer);
+        else if (string_startswith(buffer, "Take "))
+            command_ai_take(g, client, buffer);
+        else if (string_startswith(buffer, "Set "))
+            command_ai_set(g, client, buffer);
+        // else if (string_equals(buffer, "Incantation\n"))
+        //     command_ai_incantation(g, client, buffer);
         else {
             dprintf(client->client_fd, "ko\n"); // unknown command
         }
@@ -211,9 +229,7 @@ void manage_specific_client(struct client_s *client, struct global_struct_s *g)
             client->is_closed = true;
             if (client->team != NULL && !client->is_gui) {
                 struct global_struct_s *g = get_global_struct();
-                int slots = string_to_int(map_get(g->team_slots, client->team, string_equals_str));
-                slots++;
-                map_set(g->team_slots, client->team, string_from_int(slots), string_equals_str, string_destroy);
+                ((struct base_type_s *)tuple_get_first(map_get(g->team_slots, client->team, string_equals_str)))->_int--;
             }
             return;
         }
@@ -227,6 +243,8 @@ void manage_specific_client(struct client_s *client, struct global_struct_s *g)
                 else
                     string_append(line, "\n");
             }
+            while (vector_length(lines) > 10)
+                string_destroy(vector_pop_back(lines));
             while (vector_length(lines) > 0 && string_endswith(vector_get(lines, 0), "\n")) {
                 manage_command(g, client, (vector_get(lines, 0)));
                 string_destroy(vector_remove(lines, 0));

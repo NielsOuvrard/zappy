@@ -25,6 +25,14 @@
 #include "my_vector.h"
 #include "my_string.h"
 #include "my_map.h"
+#include "my_tuple.h"
+
+struct base_type_s {
+    int _int;
+    char _char;
+    float _float;
+    double _double;
+};
 
 struct arg_s {
     int port;
@@ -90,8 +98,10 @@ struct global_struct_s {
     fd_set writeset;
 };
 
+// Getter
 struct global_struct_s *get_global_struct(void);
 
+// GUI command
 void command_gui_graphic(struct global_struct_s *g, struct client_s *client,
 struct my_string_s *buffer);
 void command_gui_msz(struct global_struct_s *g, struct client_s *client,
@@ -113,6 +123,7 @@ struct my_string_s *buffer);
 void command_gui_sst(struct global_struct_s *g, struct client_s *client,
 struct my_string_s *buffer);
 
+// AI command
 void command_ai_team(struct global_struct_s *g, struct client_s *client,
 struct my_string_s *buffer, struct my_string_s *name);
 void command_ai_forward(struct global_struct_s *g, struct client_s *client,
@@ -127,10 +138,22 @@ void command_ai_inventory(struct global_struct_s *g, struct client_s *client,
 struct my_string_s *buffer);
 void command_ai_broadcast(struct global_struct_s *g, struct client_s *client,
 struct my_string_s *buffer);
+void command_ai_connect_nbr(struct global_struct_s *g, struct client_s *client,
+struct my_string_s *buffer);
 
+void command_ai_eject(struct global_struct_s *g, struct client_s *client,
+struct my_string_s *buffer);
+void command_ai_take(struct global_struct_s *g, struct client_s *client,
+struct my_string_s *buffer);
+void command_ai_set(struct global_struct_s *g, struct client_s *client,
+struct my_string_s *buffer);
+
+// Initializer
 void initialize_map(void);
 void initialize_server(void);
 
+// Utils
 void convert_coordinate(int *x, int *y);
 
+// Main function
 int zappy_server(int ac, char **av);
