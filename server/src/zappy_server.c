@@ -198,8 +198,8 @@ struct my_string_s *buffer)
             command_ai_connect_nbr(g, client, buffer);
         // else if (string_equals(buffer, "Fork\n"))
         //     command_ai_fork(g, client, buffer);
-        // else if (string_equals(buffer, "Eject\n"))
-        //     command_ai_eject(g, client, buffer);
+        else if (string_equals(buffer, "Eject\n"))
+            command_ai_eject(g, client, buffer);
         else if (string_startswith(buffer, "Take "))
             command_ai_take(g, client, buffer);
         else if (string_startswith(buffer, "Set "))

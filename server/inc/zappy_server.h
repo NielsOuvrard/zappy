@@ -133,6 +133,8 @@ struct my_string_s *buffer);
 void command_ai_connect_nbr(struct global_struct_s *g, struct client_s *client,
 struct my_string_s *buffer);
 
+void command_ai_eject(struct global_struct_s *g, struct client_s *client,
+struct my_string_s *buffer);
 void command_ai_take(struct global_struct_s *g, struct client_s *client,
 struct my_string_s *buffer);
 void command_ai_set(struct global_struct_s *g, struct client_s *client,
