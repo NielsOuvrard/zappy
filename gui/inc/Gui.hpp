@@ -79,8 +79,8 @@ private:
     sf::Font _font;
     sf::Text _text;
 
-    size_t _selected_tile_x;
-    size_t _selected_tile_y;
+    int _selected_tile_x;
+    int _selected_tile_y;
 
     int _height_selected_tile;
     bool _up_selected_tile;

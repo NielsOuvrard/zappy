@@ -51,23 +51,27 @@ void Gui::run(void)
                 }
                 if (event.key.code == sf::Keyboard::Z)
                 {
-                    if (_selected_tile_y > 0)
-                        _selected_tile_y -= 1;
+                    _selected_tile_y -= 1;
+                    if (_selected_tile_y < 0)
+                        _selected_tile_y = _size_y - 1;
                 }
                 if (event.key.code == sf::Keyboard::S)
                 {
-                    if (_selected_tile_y < _size_y - 1)
-                        _selected_tile_y += 1;
+                    _selected_tile_y += 1;
+                    if (_selected_tile_y > _size_y - 1)
+                        _selected_tile_y = 0;
                 }
                 if (event.key.code == sf::Keyboard::Q)
                 {
-                    if (_selected_tile_x > 0)
-                        _selected_tile_x -= 1;
+                    _selected_tile_x -= 1;
+                    if (_selected_tile_x < 0)
+                        _selected_tile_x = _size_x - 1;
                 }
                 if (event.key.code == sf::Keyboard::D)
                 {
-                    if (_selected_tile_x < _size_x - 1)
-                        _selected_tile_x += 1;
+                    _selected_tile_x += 1;
+                    if (_selected_tile_x > _size_x - 1)
+                        _selected_tile_x = 0;
                 }
             }
         }
