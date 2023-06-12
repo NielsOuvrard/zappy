@@ -3,3 +3,4 @@
 fruits_shadow.png
 player_sprite_sheet.png
 egg.png
+256x192_Tiles.png
