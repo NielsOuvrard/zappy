@@ -53,13 +53,14 @@ public:
 
 private:
     void draw_map(void);
-    void draw_players(void);
+    void draw_players(size_t y, size_t x);
     void load_textures(void);
     void load_map(void);
     void draw_decor_map(void);
     void move_map(sf::Event event);
     void interface(void);
-    float draw_stone(int i, int j, int pos_x, int pos_y);
+    void draw_stones(int i, int j);
+    void draw_stone(int i, int j, int pos_x, int pos_y);
     void perlin_noise(void);
 
     sf::RenderWindow *_window;

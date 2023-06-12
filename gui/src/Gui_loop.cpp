@@ -75,7 +75,6 @@ void Gui::run(void)
         _window->clear();
         // draw_map(_window);
         draw_decor_map();
-        draw_players();
         interface();
 
         if (_up_selected_tile)
