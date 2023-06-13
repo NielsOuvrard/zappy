@@ -5,3 +5,4 @@ player_sprite_sheet.png
 egg.png
 256x192_Tiles.png
 256x512_Trees.png
+background_zappy.png

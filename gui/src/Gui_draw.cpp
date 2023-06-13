@@ -84,7 +84,6 @@ void Gui::draw_stone(int i, int j, int pos_x, int pos_y)
 
 void Gui::draw_stones(int i, int j)
 {
-
     sf::Vector2u in_sprite_sheet[7] = {
         {0, 0},  // food
         {1, 0},  // linemate

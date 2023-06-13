@@ -142,4 +142,7 @@ void Gui::load_textures(void)
     _sprites[ID_TREE].setTexture(_textures[ID_TREE]);
     _sprites[ID_TREE].setTextureRect(sf::IntRect(0, 0, SIZE_PX_TILE, 512));
     _sprites[ID_TREE].setScale(0.5, 0.5);
+
+    _sprites[ID_BACKGROUND].setTexture(_textures[ID_BACKGROUND]);
+    _sprites[ID_BACKGROUND].setScale(0.5, 0.5);
 }
