@@ -61,6 +61,7 @@ struct my_string_s *buffer)
             free(egg);
             success = true;
             i--;
+        }
     }
     if (success)
         dprintf(client->client_fd, "ok\n");
