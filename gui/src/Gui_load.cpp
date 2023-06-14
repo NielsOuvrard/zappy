@@ -39,14 +39,14 @@ void Gui::load_map(void)
 
     int size_island = _size_y > _size_x ? _size_y : _size_x;
 
-    std::string water_all((2 * DECOR_SIZE) + _size_x, ';');
+    std::string water_all((2 * DECOR_SIZE) + size_island, ';');
 
     std::string sand(1, 'M');
     std::string sand_middle(_size_x, 'M');
 
     std::cout << LOG_GUI("sand: " + sand_middle);
 
-    for (int i = 0; i < (2 * DECOR_SIZE) + _size_y; i++)
+    for (int i = 0; i < (2 * DECOR_SIZE) + size_island; i++)
         _map_decor.push_back(water_all);
 
     // for (int i = 0; i < (2 * DECOR_SIZE) + _size_y; i++)
@@ -57,14 +57,26 @@ void Gui::load_map(void)
     int middle_y = ((2 * DECOR_SIZE) + _size_y) / 2;
 
     for (int i = 0; i < (2 * DECOR_SIZE) + _size_y; i++)
+    {
         for (int j = 0; j < (2 * DECOR_SIZE) + _size_x; j++)
-            if (sqrt(pow((j - middle_x), 2) + pow((i - middle_y), 2)) < _size_x * 1.1)
-                _map_decor[i][j] = 'M';
-
-    for (int i = 0; i < (2 * DECOR_SIZE) + _size_y; i++)
-        for (int j = 0; j < (2 * DECOR_SIZE) + _size_x; j++)
-            if (sqrt(pow((j - middle_x), 2) + pow((i - middle_y), 2)) < _size_x * 0.8)
+        {
+            if (middle_x + 0.8 * _size_x > j && middle_x - 0.8 * _size_x < j && middle_y + 0.8 * _size_y > i && middle_y - 0.8 * _size_y < i)
                 _map_decor[i][j] = 'a' + 18;
+            else if (middle_x + 1.1 * _size_x > j && middle_x - 1.1 * _size_x < j && middle_y + 1.1 * _size_y > i && middle_y - 1.1 * _size_y < i)
+                _map_decor[i][j] = 'M';
+        }
+    }
+
+    // * old version of beach
+    // for (int i = 0; i < (2 * DECOR_SIZE) + _size_y; i++)
+    //     for (int j = 0; j < (2 * DECOR_SIZE) + _size_x; j++)
+    //         if (sqrt(pow((j - middle_x), 2) + pow((i - middle_y), 2)) < size_island * 1.1)
+    //             _map_decor[i][j] = 'M';
+
+    // for (int i = 0; i < (2 * DECOR_SIZE) + _size_y; i++)
+    //     for (int j = 0; j < (2 * DECOR_SIZE) + _size_x; j++)
+    //         if (sqrt(pow((j - middle_x), 2) + pow((i - middle_y), 2)) < size_island * 0.8)
+    //             _map_decor[i][j] = 'a' + 18;
 
     for (int i = 0; i < _size_y; i++)
     {

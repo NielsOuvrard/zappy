@@ -21,11 +21,11 @@ void Gui::draw_players(int y, int x)
         if (_players[i].y == y - DECOR_SIZE && _players[i].x == x - DECOR_SIZE)
         {
             _sprites[ID_PLAYER].setPosition(
-                (_shift_x + (_players[i].x + DECOR_SIZE) * 64 + (_players[i].y + DECOR_SIZE) * 64 + 32) * _zoom,
-                (_shift_y + (_players[i].y + DECOR_SIZE) * 32 - (_players[i].x + DECOR_SIZE) * 32 - 32 - height) * _zoom);
+                ((_players[i].x + DECOR_SIZE) * 64 + (_players[i].y + DECOR_SIZE) * 64 + 32),
+                ((_players[i].y + DECOR_SIZE) * 32 - (_players[i].x + DECOR_SIZE) * 32 - 32 - height));
             _textures[ID_PLAYER].setSmooth(false);
             _sprites[ID_PLAYER].setTexture(_textures[ID_PLAYER]);
-            _sprites[ID_PLAYER].setScale(5 * _zoom, 5 * _zoom);
+            _sprites[ID_PLAYER].setScale(5, 5);
             int orientation = _players[i].orientation;
             if (orientation == 2)
                 orientation = 0;
@@ -59,8 +59,8 @@ void Gui::draw_players(int y, int x)
         if (_eggs[i].y == y && _eggs[i].x == x)
         {
             _sprites[ID_EGG].setPosition(
-                (_shift_x + _eggs[i].x * 64 + _eggs[i].y * 64 + 64) * _zoom,
-                (_shift_y + _eggs[i].y * 32 - _eggs[i].x * 32 - height) * _zoom);
+                (_eggs[i].x * 64 + _eggs[i].y * 64 + 64),
+                (_eggs[i].y * 32 - _eggs[i].x * 32 - height));
             _textures[ID_EGG].setSmooth(false);
             _sprites[ID_EGG].setTexture(_textures[ID_EGG]);
             _sprites[ID_EGG].setScale(_zoom * 0.75, _zoom * 0.75);
@@ -76,9 +76,9 @@ void Gui::draw_stone(int i, int j, int pos_x, int pos_y)
     int height = 0;
     if (i_map == _selected_tile_y && j_map == _selected_tile_x)
         height = _height_selected_tile;
-    _sprites[ID_STONE].setPosition((_shift_x + j * 64 + i * 64 + 32) * _zoom, (_shift_y + i * 32 - j * 32 - 32 - height) * _zoom);
+    _sprites[ID_STONE].setPosition((j * 64 + i * 64 + 32), (i * 32 - j * 32 - 32 - height));
     _sprites[ID_STONE].setTextureRect(sf::IntRect(pos_x * SIZE_STONE, pos_y * SIZE_STONE, SIZE_STONE, SIZE_STONE));
-    _sprites[ID_STONE].setScale(0.125 * _zoom, 0.125 * _zoom);
+    _sprites[ID_STONE].setScale(0.125, 0.125);
     _window->draw(_sprites[ID_STONE]);
 }
 
@@ -120,8 +120,8 @@ void Gui::draw_map_tile(int i, int j, int tile)
         height = _height_selected_tile;
     }
     // isometric
-    _sprites[ID_TILE].setPosition((_shift_x + j * 64 + i * 64) * _zoom, (_shift_y + i * 32 - j * 32 - height) * _zoom);
-    _sprites[ID_TILE].setScale(0.5 * _zoom, 0.5 * _zoom);
+    _sprites[ID_TILE].setPosition((j * 64 + i * 64), (i * 32 - j * 32 - height));
+    _sprites[ID_TILE].setScale(0.5, 0.5);
     _window->draw(_sprites[ID_TILE]);
 
     // * TREE
@@ -130,9 +130,9 @@ void Gui::draw_map_tile(int i, int j, int tile)
         _sprites[ID_TREE].setTexture(_textures[ID_TREE]);
         _sprites[ID_TREE].setTextureRect(sf::IntRect(2 * SIZE_PX_TILE, 0, SIZE_PX_TILE, 512));
         _sprites[ID_TREE].setPosition(
-            (_shift_x + j * 64 + i * 64) * _zoom,
-            (_shift_y + i * 32 - j * 32 - 64 - (512 / 4)) * _zoom);
-        _sprites[ID_TREE].setScale(0.5 * _zoom, 0.5 * _zoom);
+            (j * 64 + i * 64),
+            (i * 32 - j * 32 - 64 - (512 / 4)));
+        _sprites[ID_TREE].setScale(0.5, 0.5);
         _window->draw(_sprites[ID_TREE]);
     }
 }
@@ -155,9 +155,9 @@ void Gui::draw_map_half_tile(int i, int j, int tile)
         .setTextureRect(sf::IntRect(x * SIZE_PX_TILE, y * SIZE_PX_HALF_TILE, SIZE_PX_TILE, SIZE_PX_HALF_TILE));
     // isometric
     _sprites[ID_HALF_TILE].setPosition(
-        (_shift_x + j * 64 + i * 64) * _zoom,
-        (_shift_y + i * 32 - j * 32 + 32) * _zoom);
-    _sprites[ID_HALF_TILE].setScale(0.5 * _zoom, 0.5 * _zoom);
+        (j * 64 + i * 64),
+        (i * 32 - j * 32 + 32));
+    _sprites[ID_HALF_TILE].setScale(0.5, 0.5);
     _window->draw(_sprites[ID_HALF_TILE]);
 
     // * TREE
@@ -166,14 +166,14 @@ void Gui::draw_map_half_tile(int i, int j, int tile)
         _sprites[ID_TREE].setTexture(_textures[ID_TREE]);
         _sprites[ID_TREE].setTextureRect(sf::IntRect(2 * SIZE_PX_TILE, 0, SIZE_PX_TILE, 512));
         _sprites[ID_TREE].setPosition(
-            (_shift_x + j * 64 + i * 64) * _zoom,
-            (_shift_y + i * 32 - j * 32 - 32 - (512 / 4)) * _zoom);
-        _sprites[ID_TREE].setScale(0.5 * _zoom, 0.5 * _zoom);
+            (j * 64 + i * 64),
+            (i * 32 - j * 32 - 32 - (512 / 4)));
+        _sprites[ID_TREE].setScale(0.5, 0.5);
         _window->draw(_sprites[ID_TREE]);
     }
 }
 
-void Gui::draw_decor_map(void)
+void Gui::draw_map(void)
 {
     for (int i = 0; i < _size_x + DECOR_SIZE * 2; i++)
     {
@@ -198,8 +198,8 @@ void Gui::draw_decor_map(void)
                 if (_map[i_map][j_map].ressources[0] > 0)
                 {
                     _sprites[ID_FOOD].setPosition(
-                        (_shift_x + j * 64 + i * 64 + 32) * _zoom,
-                        (_shift_y + i * 32 - j * 32 + 16 - height) * _zoom);
+                        (j * 64 + i * 64 + 32),
+                        (i * 32 - j * 32 + 16 - height));
                     _textures[ID_FOOD].setSmooth(false);
                     _sprites[ID_FOOD].setTexture(_textures[ID_FOOD]);
                     _sprites[ID_FOOD].setTextureRect(sf::IntRect(2 * SIZE_FOOD, 1 * SIZE_FOOD, SIZE_FOOD, SIZE_FOOD));

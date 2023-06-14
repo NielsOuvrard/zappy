@@ -59,16 +59,14 @@ public:
     bool fill_map(std::string data);
 
 private:
-    void draw_map(void);
     void draw_players(int y, int x);
-    void draw_players(size_t y, size_t x);
     void load_textures(void);
     void load_map(void);
+    void draw_map(void);
     void draw_map_tile(int i, int j, int tile);
     void draw_map_half_tile(int i, int j, int tile);
 
     // void create_outdoor_map(void);
-    void draw_decor_map(void);
     void move_map(sf::Event event);
     void interface(void);
     void draw_stones(int i, int j);
@@ -90,6 +88,9 @@ private:
     std::vector<sf::Texture> _textures;
     sf::Font _font;
     sf::Text _text;
+
+    sf::View *_view_main;
+    sf::View *_view_interface;
 
     int _selected_tile_x;
     int _selected_tile_y;

@@ -10,6 +10,7 @@
 
 void Gui::interface(void)
 {
+    _window->setView(*_view_interface);
     // * BACKGROUND
     _sprites[ID_BACKGROUND].setPosition(-150, -150);
     _sprites[ID_BACKGROUND].setColor(sf::Color(255, 255, 255, 255 * 0.8));
