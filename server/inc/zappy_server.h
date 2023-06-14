@@ -29,8 +29,6 @@
 
 #define FOOD_TIME 126
 
-#define MAX_LEVEL 8
-
 #define MAX_WIDTH 30
 #define MIN_WIDTH 10
 
@@ -56,6 +54,17 @@ struct arg_s {
 struct server_s {
     int server_sock;
     struct sockaddr_in server_addr;
+};
+
+struct incant_s {
+    int level;
+    int nb_players;
+    int linemate;
+    int deraumere;
+    int sibur;
+    int mendiane;
+    int phiras;
+    int thystame;
 };
 
 struct tile_s {
@@ -115,6 +124,7 @@ struct global_struct_s {
     struct my_vector_s *clients;
     struct my_map_s *team_slots;
     struct my_vector_s *eggs;
+    struct my_vector_s *incant_need;
     int client_id;
     int ai_spawn;
     int maxfd;
@@ -174,6 +184,10 @@ struct my_string_s *buffer);
 void command_ai_take(struct global_struct_s *g, struct client_s *client,
 struct my_string_s *buffer);
 void command_ai_set(struct global_struct_s *g, struct client_s *client,
+struct my_string_s *buffer);
+void command_ai_incantation_start(struct global_struct_s *g, struct client_s *client,
+struct my_string_s *buffer);
+void command_ai_incantation_end(struct global_struct_s *g, struct client_s *client,
 struct my_string_s *buffer);
 
 // Initializer

@@ -105,6 +105,7 @@ void free_all(void)
         free(egg);
     }
     vector_destroy(global_struct->eggs);
+    vector_destroy(global_struct->incant_need);
     free(global_struct->arg);
     free(global_struct->server);
 }
@@ -270,11 +271,12 @@ struct my_string_s *buffer)
             client->exec = command_ai_set;
             client->cmd = string_copy(buffer);
             // command_ai_set(g, client, buffer);
-        // } else if (string_equals(buffer, "Incantation\n")) {
-        //     client->time = 300;
-        //     client->exec = command_ai_incantation;
-        //     client->cmd = string_copy(buffer);
-        //     // command_ai_incantation(g, client, buffer);
+        } else if (string_equals(buffer, "Incantation\n")) {
+            command_ai_incantation_start(g, client, buffer);
+            client->time = 300;
+            client->exec = command_ai_incantation_end;
+            client->cmd = string_copy(buffer);
+            // command_ai_incantation(g, client, buffer);
         } else {
             dprintf(client->client_fd, "ko\n"); // unknown command
         }
