@@ -72,11 +72,11 @@ Gui::Gui(std::string data)
             std::string y = values.substr(values.find(" ") + 1);
             _size_x = std::stoi(x);
             _size_y = std::stoi(y);
-            _map = new t_tile *[_size_x];
-            for (int i = 0; i < _size_x; i++)
+            _map = new t_tile *[_size_y];
+            for (int i = 0; i < _size_y; i++)
             {
-                _map[i] = new t_tile[_size_y];
-                for (int j = 0; j < _size_y; j++)
+                _map[i] = new t_tile[_size_x];
+                for (int j = 0; j < _size_x; j++)
                 {
                     _map[i][j] = (t_tile){0, 0, 0, 0, 0, 0, 0};
                 }
@@ -115,6 +115,11 @@ Gui::Gui(std::string data)
 
 Gui::~Gui()
 {
+    for (int i = 0; i < _size_y; i++)
+    {
+        delete[] _map[i];
+    }
+    delete[] _map;
 }
 
 // void Gui::create_outdoor_map(void)
