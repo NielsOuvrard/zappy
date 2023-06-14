@@ -65,6 +65,7 @@ private:
     void draw_map(void);
     void draw_map_tile(int i, int j, int tile);
     void draw_map_half_tile(int i, int j, int tile);
+    bool is_sand_center(int i, int j, int middle_x, int middle_y, float multiple);
 
     // void create_outdoor_map(void);
     void move_map(sf::Event event);

@@ -9,19 +9,33 @@
 #include "logger.hpp"
 #include <cmath>
 
-/*
-the map
+bool Gui::is_sand_center(int i, int j, int middle_x, int middle_y, float multiple)
+{
+    if (middle_x + multiple * _size_x > j && middle_x - multiple * _size_x < j && middle_y + multiple * _size_y > i && middle_y - multiple * _size_y < i)
+    {
+        // taller than wide
+        if (_size_x > _size_y)
+        {
+            if (j > middle_x + ((_size_y / 2) - (_size_x / 2)) && j < middle_x - ((_size_y / 2) - (_size_x / 2)))
+                return true;
+            else if (std::pow((j - middle_x - ((_size_y / 2) - (_size_x / 2))), 2) + std::pow((i - middle_y), 2) <= std::pow(multiple * _size_y, 2))
+                return true;
+            else if (std::pow((j - middle_x + ((_size_y / 2) - (_size_x / 2))), 2) + std::pow((i - middle_y), 2) <= std::pow(multiple * _size_y, 2))
+                return true;
+        }
+        else
+        {
+            if (i > middle_y + ((_size_x / 2) - (_size_y / 2)) && i < middle_y - ((_size_x / 2) - (_size_y / 2)))
+                return true;
+            else if (std::pow((j - middle_x), 2) + std::pow((i - middle_y - ((_size_x / 2) - (_size_y / 2))), 2) <= std::pow(multiple * _size_x, 2))
+                return true;
+            else if (std::pow((j - middle_x), 2) + std::pow((i - middle_y + ((_size_x / 2) - (_size_y / 2))), 2) <= std::pow(multiple * _size_x, 2))
+                return true;
+        }
+    }
+    return false;
+}
 
-.......
-.......
-..***..
-..***..
-..***..
-..***..
-.......
-.......
-
-*/
 void Gui::load_map(void)
 {
     std::ofstream myfile;
@@ -49,10 +63,6 @@ void Gui::load_map(void)
     for (int i = 0; i < (2 * DECOR_SIZE) + size_island; i++)
         _map_decor.push_back(water_all);
 
-    // for (int i = 0; i < (2 * DECOR_SIZE) + _size_y; i++)
-    //     for (int j = 0; j < (2 * DECOR_SIZE) + _size_x; j++)
-    //         _map_decor[i][j] += i % 4;
-
     int middle_x = ((2 * DECOR_SIZE) + _size_x) / 2;
     int middle_y = ((2 * DECOR_SIZE) + _size_y) / 2;
 
@@ -60,31 +70,18 @@ void Gui::load_map(void)
     {
         for (int j = 0; j < (2 * DECOR_SIZE) + _size_x; j++)
         {
-            if (middle_x + 0.8 * _size_x > j && middle_x - 0.8 * _size_x < j && middle_y + 0.8 * _size_y > i && middle_y - 0.8 * _size_y < i)
-                _map_decor[i][j] = 'a' + 18;
-            else if (middle_x + 1.1 * _size_x > j && middle_x - 1.1 * _size_x < j && middle_y + 1.1 * _size_y > i && middle_y - 1.1 * _size_y < i)
-                _map_decor[i][j] = 'M';
+            if (is_sand_center(i, j, middle_x, middle_y, 0.8))
+                _map_decor[i][j] = 'a' + 18; // sand center
+            else if (is_sand_center(i, j, middle_x, middle_y, 1.1))
+                _map_decor[i][j] = 'M'; // sand borders
         }
     }
-
-    // * old version of beach
-    // for (int i = 0; i < (2 * DECOR_SIZE) + _size_y; i++)
-    //     for (int j = 0; j < (2 * DECOR_SIZE) + _size_x; j++)
-    //         if (sqrt(pow((j - middle_x), 2) + pow((i - middle_y), 2)) < size_island * 1.1)
-    //             _map_decor[i][j] = 'M';
-
-    // for (int i = 0; i < (2 * DECOR_SIZE) + _size_y; i++)
-    //     for (int j = 0; j < (2 * DECOR_SIZE) + _size_x; j++)
-    //         if (sqrt(pow((j - middle_x), 2) + pow((i - middle_y), 2)) < size_island * 0.8)
-    //             _map_decor[i][j] = 'a' + 18;
 
     for (int i = 0; i < _size_y; i++)
     {
         std::getline(ifs, line);
-        // _map_decor.push_back(line.substr(0, _size_x));
         for (int j = 0; j < _size_x; j++)
             _map_decor[DECOR_SIZE + i][DECOR_SIZE + j] = line[j];
-        // std::cout << LOG_GUI(line);
     }
 
     // display map
@@ -97,10 +94,6 @@ void Gui::load_map(void)
         std::cout << std::endl;
     }
     std::cout << std::endl;
-
-    // 30 + _size_x
-    // 30 + _size_y
-    // for (int i = 0; )
 }
 
 void Gui::load_textures(void)

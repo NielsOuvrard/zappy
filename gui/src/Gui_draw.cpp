@@ -63,7 +63,7 @@ void Gui::draw_players(int y, int x)
                 (_eggs[i].y * 32 - _eggs[i].x * 32 - height));
             _textures[ID_EGG].setSmooth(false);
             _sprites[ID_EGG].setTexture(_textures[ID_EGG]);
-            _sprites[ID_EGG].setScale(_zoom * 0.75, _zoom * 0.75);
+            _sprites[ID_EGG].setScale(0.75, 0.75);
             _window->draw(_sprites[ID_EGG]);
         }
     }
@@ -175,9 +175,9 @@ void Gui::draw_map_half_tile(int i, int j, int tile)
 
 void Gui::draw_map(void)
 {
-    for (int i = 0; i < _size_x + DECOR_SIZE * 2; i++)
+    for (int i = 0; i < _map_decor.size(); i++)
     {
-        for (int j = _size_y - 1 + DECOR_SIZE * 2; j >= 0; j--)
+        for (int j = _map_decor[i].size() - 1; j >= 0; j--)
         {
             // * DRAW TILE
             if (_map_decor[i][j] >= 'a')
@@ -203,7 +203,7 @@ void Gui::draw_map(void)
                     _textures[ID_FOOD].setSmooth(false);
                     _sprites[ID_FOOD].setTexture(_textures[ID_FOOD]);
                     _sprites[ID_FOOD].setTextureRect(sf::IntRect(2 * SIZE_FOOD, 1 * SIZE_FOOD, SIZE_FOOD, SIZE_FOOD));
-                    _sprites[ID_FOOD].setScale(_zoom, _zoom);
+                    _sprites[ID_FOOD].setScale(1, 1);
                     _window->draw(_sprites[ID_FOOD]);
                 }
                 // * DRAW PLAYERS
