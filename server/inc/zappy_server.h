@@ -27,6 +27,16 @@
 #include "my_map.h"
 #include "my_tuple.h"
 
+#define FOOD_TIME 126
+
+#define MAX_LEVEL 8
+
+#define MAX_WIDTH 30
+#define MIN_WIDTH 10
+
+#define MAX_HEIGHT 30
+#define MIN_HEIGHT 10
+
 struct base_type_s {
     int _int;
     char _char;
@@ -65,6 +75,15 @@ enum orientation_e {
     WEST = 4
 };
 
+struct egg_s {
+    int posx;
+    int posy;
+    enum orientation_e orientation;
+    struct my_string_s *team;
+};
+
+struct global_struct_s;
+
 struct client_s {
     bool is_closed;
     bool is_gui;
@@ -75,6 +94,10 @@ struct client_s {
     int posy;
     enum orientation_e orientation;
     int client_nb;
+    int food_time;
+    int time;
+    void (*exec)(struct global_struct_s *g, struct client_s *client, struct my_string_s *buffer);
+    struct my_string_s *cmd;
     int level;
     int food;
     int linemate;
@@ -91,11 +114,15 @@ struct global_struct_s {
     struct server_s *server;
     struct my_vector_s *clients;
     struct my_map_s *team_slots;
+    struct my_vector_s *eggs;
     int client_id;
     int ai_spawn;
     int maxfd;
     fd_set readset;
     fd_set writeset;
+    struct timeval timeout;
+    bool null_timeout;
+    int lowest_time;
 };
 
 // Getter
@@ -140,7 +167,8 @@ void command_ai_broadcast(struct global_struct_s *g, struct client_s *client,
 struct my_string_s *buffer);
 void command_ai_connect_nbr(struct global_struct_s *g, struct client_s *client,
 struct my_string_s *buffer);
-
+void command_ai_fork(struct global_struct_s *g, struct client_s *client,
+struct my_string_s *buffer);
 void command_ai_eject(struct global_struct_s *g, struct client_s *client,
 struct my_string_s *buffer);
 void command_ai_take(struct global_struct_s *g, struct client_s *client,

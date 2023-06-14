@@ -17,11 +17,30 @@ struct my_string_s *buffer, struct my_string_s *name)
         dprintf(client->client_fd, "ko\n");
         return;
     }
-    ((struct base_type_s *)tuple_get_first(slots))->_int--;
+    ((struct base_type_s *)tuple_get_first(slots))->_int++;
+    min += 1;
     int remaining_slots = max - min;
     client->team = string_create();
     string_append(client->team, name->str);
     client->is_gui = false;
+    g->ai_spawn = true;
+    client->food = 10;
+    client->food_time = 0;
+    int index = 0;
+    for (int i = 0; i < vector_length(g->eggs); i++) {
+        struct egg_s *egg = vector_get(g->eggs, i);
+        if (string_equals_str(egg->team, client->team)) {
+            index = i;
+            break;
+        }
+    }
+    struct egg_s *egg = vector_remove(g->eggs, index);
+    client->posx = egg->posx;
+    client->posy = egg->posy;
+    client->orientation = egg->orientation;
+    if (egg->team)
+        string_destroy(egg->team);
+    free(egg);
     dprintf(client->client_fd, "%d\n", remaining_slots);
     dprintf(client->client_fd, "%d %d\n", g->arg->width, g->arg->height);
 }

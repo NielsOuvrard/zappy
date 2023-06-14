@@ -93,10 +93,18 @@ void free_all(void)
         string_destroy(client->buffer);
         if (client->team)
             string_destroy(client->team);
+        if (client->cmd)
+            string_destroy(client->cmd);
         free(client);
     }
     vector_destroy(global_struct->clients);
     map_destroy(global_struct->team_slots);
+    for (int i = 0; i < vector_length(global_struct->eggs); i++) {
+        struct egg_s *egg = vector_get(global_struct->eggs, i);
+        string_destroy(egg->team);
+        free(egg);
+    }
+    vector_destroy(global_struct->eggs);
     free(global_struct->arg);
     free(global_struct->server);
 }
@@ -108,6 +116,7 @@ void set_fd_set(struct global_struct_s *g)
     FD_ZERO(&g->writeset);
     FD_SET(g->server->server_sock, &g->readset);
     FD_SET(g->server->server_sock, &g->writeset);
+    g->lowest_time = 0;
     for (int i = 0; i < vector_length(g->clients); i++) {
         struct client_s *client = vector_get(g->clients, i);
         if (client->is_closed)
@@ -115,6 +124,19 @@ void set_fd_set(struct global_struct_s *g)
         FD_SET(client->client_fd, &g->readset);
         if (client->client_fd + 1 > g->maxfd)
             g->maxfd = client->client_fd + 1;
+        if (client->is_gui || client->team == NULL)
+            continue;
+        if (client->time > 0 && (client->time < g->lowest_time || g->lowest_time == 0))
+            g->lowest_time = client->time;
+        if (client->food_time > 0 && (client->food_time < g->lowest_time || g->lowest_time == 0))
+            g->lowest_time = client->food_time;
+    }
+    if (g->lowest_time > 0) {
+        g->timeout.tv_sec = g->lowest_time / g->arg->freq;
+        g->timeout.tv_usec = (g->lowest_time % g->arg->freq) * 1000000 / g->arg->freq;
+    } else {
+        g->timeout.tv_sec = 0;
+        g->timeout.tv_usec = 0;
     }
 }
 
@@ -137,6 +159,9 @@ void accept_new_client(int select_result, struct global_struct_s *g)
         client->posy = rand() % g->arg->height;
         client->orientation = rand() % 4 + 1;
         client->client_nb = g->client_id++;
+        client->time = 0;
+        client->exec = NULL;
+        client->cmd = NULL;
         client->level = 1;
         client->food = 0;
         client->linemate = 0;
@@ -190,31 +215,67 @@ struct my_string_s *buffer)
         else
             dprintf(client->client_fd, "suc\n"); // unknown command
     } else { // commands for ai
-        if (string_equals(buffer, "Forward\n"))
-            command_ai_forward(g, client, buffer);
-        else if (string_equals(buffer, "Right\n"))
-            command_ai_right(g, client, buffer);
-        else if (string_equals(buffer, "Left\n"))
-            command_ai_left(g, client, buffer);
-        else if (string_equals(buffer, "Look\n"))
-            command_ai_look(g, client, buffer);
-        else if (string_equals(buffer, "Inventory\n"))
-            command_ai_inventory(g, client, buffer);
-        else if (string_startswith(buffer, "Broadcast "))
-            command_ai_broadcast(g, client, buffer);
-        else if (string_equals(buffer, "Connect_nbr\n"))
+        if (string_equals(buffer, "Forward\n")) {
+            client->time = 7;
+            client->exec = command_ai_forward;
+            client->cmd = string_copy(buffer);
+            // command_ai_forward(g, client, buffer);
+        } else if (string_equals(buffer, "Right\n")) {
+            client->time = 7;
+            client->exec = command_ai_right;
+            client->cmd = string_copy(buffer);
+            // command_ai_right(g, client, buffer);
+        } else if (string_equals(buffer, "Left\n")) {
+            client->time = 7;
+            client->exec = command_ai_left;
+            client->cmd = string_copy(buffer);
+            // command_ai_left(g, client, buffer);
+        } else if (string_equals(buffer, "Look\n")) {
+            client->time = 7;
+            client->exec = command_ai_look;
+            client->cmd = string_copy(buffer);
+            // command_ai_look(g, client, buffer);
+        } else if (string_equals(buffer, "Inventory\n")) {
+            client->time = 1;
+            client->exec = command_ai_inventory;
+            client->cmd = string_copy(buffer);
+            // command_ai_inventory(g, client, buffer);
+        } else if (string_startswith(buffer, "Broadcast ")) {
+            client->time = 7;
+            client->exec = command_ai_broadcast;
+            client->cmd = string_copy(buffer);
+            // command_ai_broadcast(g, client, buffer);
+        } else if (string_equals(buffer, "Connect_nbr\n")) {
+            // client->time = 0;
+            // client->exec = command_ai_connect_nbr;
+            // client->cmd = string_copy(buffer);
             command_ai_connect_nbr(g, client, buffer);
-        // else if (string_equals(buffer, "Fork\n"))
-        //     command_ai_fork(g, client, buffer);
-        else if (string_equals(buffer, "Eject\n"))
-            command_ai_eject(g, client, buffer);
-        else if (string_startswith(buffer, "Take "))
-            command_ai_take(g, client, buffer);
-        else if (string_startswith(buffer, "Set "))
-            command_ai_set(g, client, buffer);
-        // else if (string_equals(buffer, "Incantation\n"))
-        //     command_ai_incantation(g, client, buffer);
-        else {
+        } else if (string_equals(buffer, "Fork\n")) {
+            client->time = 42;
+            client->exec = command_ai_fork;
+            client->cmd = string_copy(buffer);
+            // command_ai_fork(g, client, buffer);
+        } else if (string_equals(buffer, "Eject\n")) {
+            client->time = 7;
+            client->exec = command_ai_eject;
+            client->cmd = string_copy(buffer);
+            // command_ai_eject(g, client, buffer);
+        } else if (string_startswith(buffer, "Take ")) {
+            client->time = 7;
+            client->exec = command_ai_take;
+            client->cmd = string_copy(buffer);
+            // command_ai_take(g, client, buffer);
+        } else if (string_startswith(buffer, "Set ")) {
+            client->time = 7;
+            client->exec = command_ai_set;
+            client->cmd = string_copy(buffer);
+            // command_ai_set(g, client, buffer);
+        // } else if (string_equals(buffer, "Incantation\n")) {
+        //     client->time = 300;
+        //     client->exec = command_ai_incantation;
+        //     client->cmd = string_copy(buffer);
+        //     // command_ai_incantation(g, client, buffer);
+        } else {
             dprintf(client->client_fd, "ko\n"); // unknown command
         }
     }
@@ -232,11 +293,17 @@ void manage_specific_client(struct client_s *client, struct global_struct_s *g)
             if (client->team != NULL && !client->is_gui) {
                 struct global_struct_s *g = get_global_struct();
                 ((struct base_type_s *)tuple_get_first(map_get(g->team_slots, client->team, string_equals_str)))->_int--;
+                ((struct base_type_s *)tuple_get_second(map_get(g->team_slots, client->team, string_equals_str)))->_int--;
             }
             return;
         }
-        if (strstr(buffer, "\n") != NULL) {
-            string_append(client->buffer, buffer);
+        string_append(client->buffer, buffer);
+        printf("buffer: \"%s\"\n", client->buffer->str);
+        if (strstr(client->buffer->str, "\n") != NULL) {
+            // si ia en attente d'exec
+            if (!client->is_gui && client->team != NULL && client->exec != NULL)
+                return;
+            // "str to line"
             struct my_vector_s *lines = string_split(client->buffer, "\n");
             for (int i = 0; i < vector_length(lines); i++) {
                 struct my_string_s *line = vector_get(lines, i);
@@ -245,18 +312,27 @@ void manage_specific_client(struct client_s *client, struct global_struct_s *g)
                 else
                     string_append(line, "\n");
             }
+            // garde que les 10 premiere commande (sujet)
             while (vector_length(lines) > 10)
                 string_destroy(vector_pop_back(lines));
-            while (vector_length(lines) > 0 && string_endswith(vector_get(lines, 0), "\n")) {
-                manage_command(g, client, (vector_get(lines, 0)));
-                string_destroy(vector_remove(lines, 0));
-            }
+            // si c'est une ia simplement executer une commande
+            // (ou plusieur si la commande n'a pas de délai)
+            if (!client->is_gui && client->team != NULL) {
+                while (client->exec == NULL && vector_length(lines)) {
+                    manage_command(g, client, (vector_get(lines, 0)));
+                    string_destroy(vector_remove(lines, 0));
+                }
+            } else // sinon faire toute les commande reçu
+                while (vector_length(lines) > 0 && string_endswith(vector_get(lines, 0), "\n")) {
+                    manage_command(g, client, (vector_get(lines, 0)));
+                    string_destroy(vector_remove(lines, 0));
+                }
+            // vider le buffer
             string_clear(client->buffer);
-            if (vector_length(lines) > 0)
-                string_append(client->buffer, vector_get(lines, 0));
+            //remplir le buffer avec les commandes restantes
+            for (int i = 0; i < vector_length(lines); i++)
+                string_append(client->buffer, vector_get(lines, i));
             vector_destroy(lines);
-        } else {
-            string_append(client->buffer, buffer);
         }
     }
 }
@@ -272,13 +348,51 @@ void close_client(void)
             string_destroy(tmp->buffer);
             if (tmp->team)
                 string_destroy(tmp->team);
+            if (tmp->cmd)
+                string_destroy(tmp->cmd);
             free(tmp);
         }
     }
 }
 
-void manage_clients(struct global_struct_s *g)
+bool ai_starve_eat(struct global_struct_s *g, struct client_s *client)
 {
+    if (client->food_time <= 0) {
+        if (client->food > 0) {
+            client->food--;
+            client->food_time += FOOD_TIME;
+        } else {
+            dprintf(client->client_fd, "dead\n");
+            close(client->client_fd);
+            client->is_closed = true;
+            ((struct base_type_s *)tuple_get_first(map_get(g->team_slots, client->team, string_equals_str)))->_int--;
+            ((struct base_type_s *)tuple_get_second(map_get(g->team_slots, client->team, string_equals_str)))->_int--;
+            return true;
+        }
+    }
+    return false;
+}
+
+void manage_clients(int select_result, struct global_struct_s *g)
+{
+    if (select_result == 0) { // timeout
+        for (int i = 0; i < vector_length(g->clients); i++) {
+            struct client_s *client = vector_get(g->clients, i);
+            if (client->is_closed || client->is_gui || client->team == NULL)
+                continue;
+            if (ai_starve_eat(g, client))
+                continue;
+            if (client->time <= 0 && client->exec != NULL) {
+                client->exec(g, client, client->cmd);
+                client->exec = NULL;
+                if (client->cmd)
+                    string_destroy(client->cmd);
+                client->cmd = NULL;
+            }
+        }
+        close_client();
+        return;
+    }
     for (int i = 0; i < vector_length(g->clients); i++) {
         struct client_s *client = vector_get(g->clients, i);
         if (client->is_closed)
@@ -295,6 +409,24 @@ void sigint_handler(int sig)
     exit(0);
 }
 
+void remove_past_time(struct global_struct_s *g)
+{
+    int tmp = g->timeout.tv_sec * g->arg->freq;
+    tmp += g->timeout.tv_usec * g->arg->freq / 1000000;
+    for (int i = 0; i < vector_length(g->clients); i++) {
+        struct client_s *client = vector_get(g->clients, i);
+        if (client->is_closed || client->is_gui || client->team == NULL)
+            continue;
+        if (client->time > 0)
+            client->time -= (g->lowest_time - tmp);
+        if (client->food_time > 0)
+            client->food_time -= (g->lowest_time - tmp);
+        ai_starve_eat(g, client);
+        printf("client%d->time: %d\n", client->client_nb, client->time);
+        printf("client%d->food_time: %d\n", client->client_nb, client->food_time);
+    }
+}
+
 int zappy_server(int ac, char **av)
 {
     check_args(ac, av);
@@ -304,10 +436,20 @@ int zappy_server(int ac, char **av)
     struct global_struct_s *g = get_global_struct();
     g->clients = vector_create(sizeof(struct client_s *));
     while (true) {
+        printf("==========loop==========\n");
         set_fd_set(g);
-        int select_result = select(g->maxfd, &g->readset, NULL, NULL, NULL);
+        if (g->timeout.tv_sec == 0 && g->timeout.tv_usec == 0)
+            g->null_timeout = true;
+        printf("maxfd: %d\n", g->maxfd);
+        printf("timeout: %ld s\n", g->timeout.tv_sec);
+        printf("timeout: %ld us\n", g->timeout.tv_usec);
+        printf("null_timeout: %d\n", g->null_timeout);
+        int select_result = select(g->maxfd, &g->readset, NULL, NULL, (g->null_timeout) ? NULL : &g->timeout);
+        g->null_timeout = false;
+        printf("select_result: %d\n", select_result);
+        remove_past_time(g);
         accept_new_client(select_result, g);
-        manage_clients(g);
+        manage_clients(select_result, g);
     }
     free_all();
     return 0;

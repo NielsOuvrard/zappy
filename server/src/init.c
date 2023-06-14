@@ -30,6 +30,16 @@ void initialize_map(void)
         vector_set_destructor(line, free);
         vector_push_back(global_struct->map, line);
     }
+    global_struct->null_timeout = false;
+    global_struct->eggs = vector_create(sizeof(struct egg_s *));
+    for (int i = 0; i < arg->clientsNb * vector_length(arg->names); i++) {
+        struct egg_s *egg = malloc(sizeof(struct egg_s));
+        egg->posx = rand() % arg->width;
+        egg->posy = rand() % arg->height;
+        egg->orientation = rand() % 4 + 1;
+        egg->team = string_copy(vector_get(arg->names, i % vector_length(arg->names)));
+        vector_push_back(global_struct->eggs, egg);
+    }
     int max_food = (arg->width * arg->height) * 0.5;
     int max_linemate = (arg->width * arg->height) * 0.3;
     int max_deraumere = (arg->width * arg->height) * 0.15;

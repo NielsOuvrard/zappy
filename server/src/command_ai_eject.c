@@ -51,6 +51,17 @@ struct my_string_s *buffer)
             }
         }
     }
+    for (int i = 0; i < vector_length(g->eggs); i++) {
+        struct egg_s *tmp = vector_get(g->eggs, i);
+        if (tmp->posx == x && tmp->posy == y) {
+            // destroy egg
+            struct egg_s *egg = vector_remove(g->eggs, i);
+            if (egg->team)
+                string_destroy(egg->team);
+            free(egg);
+            success = true;
+            i--;
+    }
     if (success)
         dprintf(client->client_fd, "ok\n");
     else
