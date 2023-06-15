@@ -10,19 +10,40 @@
 
 #define MAX_HEIGHT 32
 
+// modify interface size ?
+// hide interface ?
+// buffer for network ?
+
 void Gui::run(void)
 {
     sf::RenderWindow win = sf::RenderWindow(sf::VideoMode(1920, 1080), "Zappy");
     _window = &win;
+
+    sf::View view(sf::FloatRect(0, 0, 1920, 1080));
+    _view_main = &view;
+
+    sf::View view_2(sf::FloatRect(0, 0, 1920, 1080));
+    _view_interface = &view_2;
+
+    _view_main->setCenter(sf::Vector2f(DECOR_SIZE + _size_x / 2, DECOR_SIZE + _size_y / 2));
+
     load_map();
     load_textures();
+    // create_outdoor_map();
     // perlin_noise();
+    // clock
+    sf::Clock clock;
+    sf::Time time;
+    _window->setView(*_view_main);
 
     // sf::CircleShape shape(100.f);
     // shape.setFillColor(sf::Color::Green);
     _window->setFramerateLimit(60);
     while (_window->isOpen())
     {
+        _window->clear();
+        _window->setView(*_view_main);
+
         sf::Event event;
         while (_window->pollEvent(event))
         {
@@ -32,22 +53,24 @@ void Gui::run(void)
             }
             if (event.type == sf::Event::Resized)
             {
-                sf::FloatRect visibleArea(0, 0, event.size.width, event.size.height);
-                _window->setView(sf::View(visibleArea));
+                sf::Vector2f pos = _view_main->getCenter();
+                sf::FloatRect visibleArea(pos.x - event.size.width / 2, pos.y - event.size.height / 2, event.size.width, event.size.height);
+                _view_main->reset(visibleArea);
+
+                sf::FloatRect visibleAreaInterface(0, 0, event.size.width, event.size.height);
+                _view_interface->reset(visibleAreaInterface);
             }
             if (event.type == sf::Event::KeyPressed)
             {
                 if (event.key.code == sf::Keyboard::P)
                 {
-                    _zoom *= 1.1;
-                    _shift_x *= 1.1;
-                    _shift_y *= 1.1;
+                    _zoom += 0.1;
+                    _view_main->zoom(0.9f);
                 }
                 if (event.key.code == sf::Keyboard::M)
                 {
-                    _zoom /= 1.1;
-                    _shift_x /= 1.1;
-                    _shift_y /= 1.1;
+                    _zoom -= 0.1;
+                    _view_main->zoom(1.1f);
                 }
                 if (event.key.code == sf::Keyboard::Z)
                 {
@@ -76,11 +99,10 @@ void Gui::run(void)
             }
         }
         move_map(event);
-        _window->clear();
-        // draw_map(_window);
-        draw_decor_map();
+        draw_map();
         interface();
 
+        // * animation up and down
         if (_up_selected_tile)
             _height_selected_tile += 1;
         else
@@ -98,6 +120,13 @@ void Gui::run(void)
 
         // _window->draw(shape);
         _window->display();
+
+        if (clock.getElapsedTime().asMilliseconds() > 1000)
+        {
+            // sf::sleep(sf::milliseconds(1000 / 60 - clock.getElapsedTime().asMilliseconds()));
+            _waves++;
+            clock.restart();
+        }
     }
     return;
 }

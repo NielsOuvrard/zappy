@@ -8,7 +8,7 @@
 #include "Gui.hpp"
 #include "logger.hpp"
 
-#define SPEED_MAX 15
+#define SPEED_MAX 50
 
 void Gui::move_map(sf::Event event)
 {
@@ -40,13 +40,15 @@ void Gui::move_map(sf::Event event)
         _speed_x += 1;
         if (_speed_x >= SPEED_MAX)
             _speed_x = SPEED_MAX;
+        _view_main->move(_speed_x, 0);
     }
-    if (_move_left)
+    else if (_move_left)
     {
         _speed_x *= 1.1;
         _speed_x -= 1;
         if (_speed_x <= -SPEED_MAX)
             _speed_x = -SPEED_MAX;
+        _view_main->move(_speed_x, 0);
     }
     if (_move_down)
     {
@@ -54,13 +56,15 @@ void Gui::move_map(sf::Event event)
         _speed_y -= 1;
         if (_speed_y <= -SPEED_MAX)
             _speed_y = -SPEED_MAX;
+        _view_main->move(0, _speed_y);
     }
-    if (_move_up)
+    else if (_move_up)
     {
         _speed_y *= 1.1;
         _speed_y += 1;
         if (_speed_y >= SPEED_MAX)
             _speed_y = SPEED_MAX;
+        _view_main->move(0, _speed_y);
     }
 
     if (_speed_x > 0 && !_move_right)
@@ -68,25 +72,27 @@ void Gui::move_map(sf::Event event)
         _speed_x *= 0.95;
         if (_speed_x < 1)
             _speed_x = 0;
+        _view_main->move(_speed_x, 0);
     }
-    if (_speed_x < 0 && !_move_left)
+    else if (_speed_x < 0 && !_move_left)
     {
         _speed_x *= 0.95;
         if (_speed_x > -1)
             _speed_x = 0;
+        _view_main->move(_speed_x, 0);
     }
     if (_speed_y > 0 && !_move_up)
     {
         _speed_y *= 0.95;
         if (_speed_y < 1)
             _speed_y = 0;
+        _view_main->move(0, _speed_y);
     }
-    if (_speed_y < 0 && !_move_down)
+    else if (_speed_y < 0 && !_move_down)
     {
         _speed_y *= 0.95;
         if (_speed_y > -1)
             _speed_y = 0;
+        _view_main->move(0, _speed_y);
     }
-    _shift_x -= _speed_x;
-    _shift_y += _speed_y;
 }

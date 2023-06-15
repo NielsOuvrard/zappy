@@ -92,7 +92,7 @@ bool Gui::fill_map(std::string data)
             std::string y = values.substr(0, values.find(" "));
             values = values.substr(values.find(" ") + 1);
             std::string orientation = values.substr(0, values.find(" "));
-            for (int i = 0; i < _players.size(); i++)
+            for (size_t i = 0; i < _players.size(); i++)
             {
                 if (_players[i].id == std::stoi(id))
                 {
@@ -107,7 +107,6 @@ bool Gui::fill_map(std::string data)
         // enw (egg)
         if (line.find("enw") != std::string::npos)
         {
-            std::cout << LOG_GUI("creating egg");
             std::string values = line.substr(line.find(" ") + 1);
             std::string id = values.substr(0, values.find(" "));
             values = values.substr(values.find(" ") + 1);
@@ -124,7 +123,7 @@ bool Gui::fill_map(std::string data)
             std::string id = values.substr(0, values.find(" "));
             values = values.substr(values.find(" ") + 1);
             std::string resource = values.substr(0, values.find(" "));
-            for (int i = 0; i < _players.size(); i++)
+            for (size_t i = 0; i < _players.size(); i++)
             {
                 if (_players[i].id == std::stoi(id))
                 {
@@ -132,7 +131,6 @@ bool Gui::fill_map(std::string data)
                 }
             }
         }
-
         data = data.substr(data.find("\n") + 1);
     }
     return tna_found;

@@ -72,11 +72,11 @@ Gui::Gui(std::string data)
             std::string y = values.substr(values.find(" ") + 1);
             _size_x = std::stoi(x);
             _size_y = std::stoi(y);
-            _map = new t_tile *[_size_x];
-            for (int i = 0; i < _size_x; i++)
+            _map = new t_tile *[_size_y];
+            for (int i = 0; i < _size_y; i++)
             {
-                _map[i] = new t_tile[_size_y];
-                for (int j = 0; j < _size_y; j++)
+                _map[i] = new t_tile[_size_x];
+                for (int j = 0; j < _size_x; j++)
                 {
                     _map[i][j] = (t_tile){0, 0, 0, 0, 0, 0, 0};
                 }
@@ -86,13 +86,15 @@ Gui::Gui(std::string data)
     }
     // perlin_noise();
 
-    _zoom = 1.0f;
+    _zoom = 0.5f;
+
+    _waves = 0;
 
     _height_selected_tile = 0;
     _up_selected_tile = false;
 
-    _shift_x = 0;
-    _shift_y = 500;
+    _shift_x = -2400;
+    _shift_y = 900;
 
     _speed_x = 0;
     _speed_y = 0;
@@ -113,4 +115,13 @@ Gui::Gui(std::string data)
 
 Gui::~Gui()
 {
+    for (int i = 0; i < _size_y; i++)
+    {
+        delete[] _map[i];
+    }
+    delete[] _map;
 }
+
+// void Gui::create_outdoor_map(void)
+// {
+// }
