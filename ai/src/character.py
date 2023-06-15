@@ -417,7 +417,5 @@ class Player:
             self.lvl += 1
         self.parse_response(self.server.recv(1024).decode())
         response = self.next_command.pop(0)
-        # self.parse_response(self.server.recv(1024).decode())
-        # response = self.next_command.pop(0)
         print("LEVEL = ", self.lvl)
         return response
