@@ -7,6 +7,12 @@
 
 #include "zappy_server.h"
 
+void do_nothing(struct global_struct_s *g, struct client_s *client,
+struct my_string_s *buffer)
+{
+    return;
+}
+
 void command_ai_incantation_start(struct global_struct_s *g, struct client_s *client,
 struct my_string_s *buffer)
 {
@@ -35,8 +41,12 @@ struct my_string_s *buffer)
 
     for (int i = 0; i < vector_length(g->clients); i++) {
         struct client_s *tmp = vector_get(g->clients, i);
-        if (tmp->posx == client->posx && tmp->posy == client->posy && tmp->level == client->level && client != tmp && !tmp->is_gui)
+        if (tmp->posx == client->posx && tmp->posy == client->posy && tmp->level == client->level && client != tmp && !tmp->is_gui) {
             dprintf(tmp->client_fd, "Elevation underway\n");
+            tmp->time = 300;
+            tmp->exec = do_nothing;
+            tmp->cmd = string_copy(buffer);
+        }
     }
     dprintf(client->client_fd, "Elevation underway\n");
 }
