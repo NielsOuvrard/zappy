@@ -53,13 +53,11 @@ void Gui::run(void)
     _window = &win;
 
     sf::View view(sf::FloatRect(0, 0, 1920, 1080));
-    view.setCenter(sf::Vector2f(DECOR_SIZE + _size_x / 2, DECOR_SIZE + _size_y / 2));
+    view.setCenter(sf::Vector2f(SIZE_TILE * (DECOR_SIZE + _size_y + DECOR_SIZE), 0));
     _view_main = &view;
 
     sf::View view_2(sf::FloatRect(0, 0, 1920, 1080));
     _view_interface = &view_2;
-
-    _view_main->setCenter(sf::Vector2f(DECOR_SIZE + _size_x / 2, DECOR_SIZE + _size_y / 2));
 
     load_map();
     load_textures();

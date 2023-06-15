@@ -9,7 +9,7 @@
 #include "logger.hpp"
 
 #define SPEED_MAX_X 50
-#define SPEED_MAX_Y 20
+#define SPEED_MAX_Y 40
 
 void Gui::move_map(sf::Event event)
 {
@@ -23,8 +23,6 @@ void Gui::move_map(sf::Event event)
             _move_down = true;
         if (event.key.code == sf::Keyboard::Up)
             _move_up = true;
-        // std::cout << _view_main->getCenter().x << std::endl;
-        // std::cout << _view_main->getCenter().y << std::endl;
     }
     if (event.type == sf::Event::KeyReleased)
     {
@@ -71,5 +69,25 @@ void Gui::move_map(sf::Event event)
     _speed_y *= 0.95;
 
     _view_main->move(_speed_x, _speed_y);
-    // _pos = _view_main->getCenter();
+    _pos = _view_main->getCenter();
+    if (_pos.x < 0)
+    {
+        _view_main->setCenter(sf::Vector2f(0, _pos.y));
+        _speed_x = 0;
+    }
+    if (_pos.y < -(32 * (DECOR_SIZE + _size_x)))
+    {
+        _view_main->setCenter(sf::Vector2f(_pos.x, -(32 * (DECOR_SIZE + _size_x))));
+        _speed_y = 0;
+    }
+    if (_pos.x > 2 * (SIZE_TILE * (2 * DECOR_SIZE + _size_y)))
+    {
+        _view_main->setCenter(sf::Vector2f(2 * (SIZE_TILE * (2 * DECOR_SIZE + _size_y)), _pos.y));
+        _speed_x = 0;
+    }
+    if (_pos.y > 32 * (2 * DECOR_SIZE + _size_x))
+    {
+        _view_main->setCenter(sf::Vector2f(_pos.x, 32 * (2 * DECOR_SIZE + _size_x)));
+        _speed_y = 0;
+    }
 }
