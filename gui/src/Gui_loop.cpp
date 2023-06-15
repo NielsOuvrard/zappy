@@ -13,6 +13,39 @@
 // modify interface size ?
 // hide interface ?
 // buffer for network ?
+// water animation ?
+// smooth zoom
+// move according to zoom
+// begin in the middle of the map
+// differents players by nivel
+
+void Gui::move_tile(sf::Event event)
+{
+    if (event.key.code == sf::Keyboard::Z)
+    {
+        _selected_tile_y -= 1;
+        if (_selected_tile_y < 0)
+            _selected_tile_y = _size_y - 1;
+    }
+    if (event.key.code == sf::Keyboard::S)
+    {
+        _selected_tile_y += 1;
+        if (_selected_tile_y > _size_y - 1)
+            _selected_tile_y = 0;
+    }
+    if (event.key.code == sf::Keyboard::Q)
+    {
+        _selected_tile_x -= 1;
+        if (_selected_tile_x < 0)
+            _selected_tile_x = _size_x - 1;
+    }
+    if (event.key.code == sf::Keyboard::D)
+    {
+        _selected_tile_x += 1;
+        if (_selected_tile_x > _size_x - 1)
+            _selected_tile_x = 0;
+    }
+}
 
 void Gui::run(void)
 {
@@ -20,6 +53,7 @@ void Gui::run(void)
     _window = &win;
 
     sf::View view(sf::FloatRect(0, 0, 1920, 1080));
+    view.setCenter(sf::Vector2f(DECOR_SIZE + _size_x / 2, DECOR_SIZE + _size_y / 2));
     _view_main = &view;
 
     sf::View view_2(sf::FloatRect(0, 0, 1920, 1080));
@@ -65,37 +99,20 @@ void Gui::run(void)
                 if (event.key.code == sf::Keyboard::P)
                 {
                     _zoom += 0.1;
-                    _view_main->zoom(0.9f);
+                    if (ZOOM_MAX < _zoom)
+                        _zoom = ZOOM_MAX;
+                    else
+                        _view_main->zoom(0.9f);
                 }
                 if (event.key.code == sf::Keyboard::M)
                 {
                     _zoom -= 0.1;
-                    _view_main->zoom(1.1f);
+                    if (_zoom < ZOOM_MIN)
+                        _zoom = ZOOM_MIN;
+                    else
+                        _view_main->zoom(1.1f);
                 }
-                if (event.key.code == sf::Keyboard::Z)
-                {
-                    _selected_tile_y -= 1;
-                    if (_selected_tile_y < 0)
-                        _selected_tile_y = _size_y - 1;
-                }
-                if (event.key.code == sf::Keyboard::S)
-                {
-                    _selected_tile_y += 1;
-                    if (_selected_tile_y > _size_y - 1)
-                        _selected_tile_y = 0;
-                }
-                if (event.key.code == sf::Keyboard::Q)
-                {
-                    _selected_tile_x -= 1;
-                    if (_selected_tile_x < 0)
-                        _selected_tile_x = _size_x - 1;
-                }
-                if (event.key.code == sf::Keyboard::D)
-                {
-                    _selected_tile_x += 1;
-                    if (_selected_tile_x > _size_x - 1)
-                        _selected_tile_x = 0;
-                }
+                move_tile(event);
             }
         }
         move_map(event);
@@ -130,3 +147,50 @@ void Gui::run(void)
     }
     return;
 }
+
+// old move diagonal
+// void Gui::move_tile(sf::Event event)
+// {
+//     if (event.key.code == sf::Keyboard::Z)
+//     {
+//         _selected_tile_y -= 1;
+//         _selected_tile_x += 1;
+//     }
+//     if (event.key.code == sf::Keyboard::S)
+//     {
+//         _selected_tile_y += 1;
+//         _selected_tile_x -= 1;
+//     }
+//     if (event.key.code == sf::Keyboard::Q)
+//     {
+//         _selected_tile_x -= 1;
+//         _selected_tile_y -= 1;
+//     }
+//     if (event.key.code == sf::Keyboard::D)
+//     {
+//         _selected_tile_x += 1;
+//         _selected_tile_y += 1;
+//     }
+
+//     //
+//     if (_selected_tile_x > _size_x - 1)
+//     {
+//         _selected_tile_x = _selected_tile_x - _selected_tile_y;
+//         _selected_tile_y = 0;
+//     }
+//     else if (_selected_tile_x < 0)
+//     {
+//         _selected_tile_y = _size_x - _selected_tile_x;
+//         _selected_tile_x = _size_x - 1;
+//     }
+//     if (_selected_tile_y < 0)
+//     {
+//         _selected_tile_x = _size_y - _selected_tile_y;
+//         _selected_tile_y = _size_y - 1;
+//     }
+//     else if (_selected_tile_y > _size_y - 1)
+//     {
+//         _selected_tile_y = _selected_tile_y - _selected_tile_x;
+//         _selected_tile_x = 0;
+//     }
+// }

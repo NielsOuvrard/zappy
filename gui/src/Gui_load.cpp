@@ -47,9 +47,6 @@ void Gui::load_map(void)
         std::cout << "Error opening assets.txt" << std::endl;
         exit(84);
     }
-    std::cout << LOG_GUI("Loading map");
-
-    // str of 15 * '-11' with memset
 
     int size_island = _size_y > _size_x ? _size_y : _size_x;
 
@@ -57,8 +54,6 @@ void Gui::load_map(void)
 
     std::string sand(1, 'M');
     std::string sand_middle(_size_x, 'M');
-
-    std::cout << LOG_GUI("sand: " + sand_middle);
 
     for (int i = 0; i < (2 * DECOR_SIZE) + size_island; i++)
         _map_decor.push_back(water_all);
@@ -130,7 +125,6 @@ void Gui::load_textures(void)
     _textures[ID_FOOD].setSmooth(false);
     _sprites[ID_FOOD].setTexture(_textures[ID_FOOD]);
     _sprites[ID_FOOD].setTextureRect(sf::IntRect(2, 1, SIZE_FOOD, SIZE_FOOD));
-    // _sprites[11].setScale(1, 1);
 
     _textures[ID_PLAYER].setSmooth(false);
     _sprites[ID_PLAYER].setTexture(_textures[ID_PLAYER]);

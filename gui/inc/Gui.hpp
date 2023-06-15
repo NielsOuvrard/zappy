@@ -50,6 +50,10 @@ typedef struct s_egg
 
 #define SIZE_PX_TILE 256
 #define SIZE_PX_HALF_TILE 192
+
+#define ZOOM_MAX 2
+#define ZOOM_MIN 0.2
+
 class Gui
 {
 public:
@@ -73,6 +77,7 @@ private:
     void draw_stones(int i, int j);
     void draw_stone(int i, int j, int pos_x, int pos_y);
     void perlin_noise(void);
+    void move_tile(sf::Event event);
 
     sf::RenderWindow *_window;
 
@@ -112,6 +117,9 @@ private:
     float _zoom;
     float _speed_x;
     float _speed_y;
+
+    sf::Vector2f _pos;
+
     bool _move_right;
     bool _move_down;
     bool _move_left;

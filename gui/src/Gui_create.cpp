@@ -64,7 +64,6 @@ Gui::Gui(std::string data)
     while (std::string::npos != data.find("\n") && !size_found)
     {
         std::string line = data.substr(0, data.find("\n"));
-        // std::cout << "- " << line << std::endl;
         if (line.find("msz") != std::string::npos)
         {
             std::string values = line.substr(line.find(" ") + 1);
@@ -99,6 +98,8 @@ Gui::Gui(std::string data)
     _speed_x = 0;
     _speed_y = 0;
 
+    _pos = sf::Vector2f(4000, 0);
+
     _selected_tile_x = 0;
     _selected_tile_y = 0;
 
@@ -121,7 +122,3 @@ Gui::~Gui()
     }
     delete[] _map;
 }
-
-// void Gui::create_outdoor_map(void)
-// {
-// }
