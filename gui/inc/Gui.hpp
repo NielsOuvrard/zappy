@@ -64,6 +64,8 @@ private:
     void draw_stone(int i, int j, int pos_x, int pos_y);
     void perlin_noise(void);
     void menu_texture(void);
+    void set_pos(void);
+    void draw_help(void);
 
     sf::RenderWindow *_window;
 
@@ -75,13 +77,26 @@ private:
     std::vector<t_egg> _eggs;
     std::string _ressources[7] = {"food", "linemate", "deraumere", "sibur", "mendiane", "phiras", "thystame"};
 
-    // draw
+    //position
+    sf::Vector2f _pos;
+    sf::Vector2i clickPosition;
+
+    // draw menu
     sf::Texture _texture;
     sf::Sprite _sprite;
+    sf::Texture _texture2;
+    sf::Sprite _sprite2;
+    sf::Texture _texture3;
+    sf::Sprite _sprite3;
+
     std::vector<sf::Sprite> _sprites;
     std::vector<sf::Texture> _textures;
     sf::Font _font;
     sf::Text _text;
+
+    sf::Text _text2;
+
+    bool _menuisopen;
 
     int _selected_tile_x;
     int _selected_tile_y;
