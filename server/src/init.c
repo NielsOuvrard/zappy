@@ -91,6 +91,7 @@ void initialize_map(void)
     global_struct->incant_need = generate_incantation_need(global_struct);
     global_struct->client_id = 0;
     global_struct->ai_spawn = false;
+    global_struct->ressources_respawn = RESSOURCES_RESPAWN_TIME;
     global_struct->map = vector_create(sizeof(struct my_vector_s *));
     for (int i = 0; i < arg->height; i++) {
         struct my_vector_s *line = vector_create(sizeof(struct my_string_s *));

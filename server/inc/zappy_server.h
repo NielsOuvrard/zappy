@@ -29,6 +29,8 @@
 
 #define FOOD_TIME 126
 
+#define RESSOURCES_RESPAWN_TIME 20
+
 #define MAX_WIDTH 30
 #define MIN_WIDTH 10
 
@@ -125,6 +127,7 @@ struct global_struct_s {
     struct my_map_s *team_slots;
     struct my_vector_s *eggs;
     struct my_vector_s *incant_need;
+    int ressources_respawn;
     int client_id;
     int ai_spawn;
     int maxfd;
@@ -138,9 +141,13 @@ struct global_struct_s {
 // Getter
 struct global_struct_s *get_global_struct(void);
 
-// GUI command
+// Connect command
 void command_gui_graphic(struct global_struct_s *g, struct client_s *client,
 struct my_string_s *buffer);
+void command_ai_team(struct global_struct_s *g, struct client_s *client,
+struct my_string_s *buffer, struct my_string_s *name);
+
+// GUI command
 void command_gui_msz(struct global_struct_s *g, struct client_s *client,
 struct my_string_s *buffer);
 void command_gui_bct(struct global_struct_s *g, struct client_s *client,
@@ -161,8 +168,6 @@ void command_gui_sst(struct global_struct_s *g, struct client_s *client,
 struct my_string_s *buffer);
 
 // AI command
-void command_ai_team(struct global_struct_s *g, struct client_s *client,
-struct my_string_s *buffer, struct my_string_s *name);
 void command_ai_forward(struct global_struct_s *g, struct client_s *client,
 struct my_string_s *buffer);
 void command_ai_right(struct global_struct_s *g, struct client_s *client,
@@ -189,6 +194,9 @@ void command_ai_incantation_start(struct global_struct_s *g, struct client_s *cl
 struct my_string_s *buffer);
 void command_ai_incantation_end(struct global_struct_s *g, struct client_s *client,
 struct my_string_s *buffer);
+
+// Ressources respawn
+void ressoure_respawn(void);
 
 // Initializer
 void initialize_map(void);

@@ -132,6 +132,8 @@ void set_fd_set(struct global_struct_s *g)
         if (client->food_time > 0 && (client->food_time < g->lowest_time || g->lowest_time == 0))
             g->lowest_time = client->food_time;
     }
+    if (g->ressources_respawn > 0 && (g->ressources_respawn < g->lowest_time || g->lowest_time == 0))
+        g->lowest_time = g->ressources_respawn;
     if (g->lowest_time > 0) {
         g->timeout.tv_sec = g->lowest_time / g->arg->freq;
         g->timeout.tv_usec = (g->lowest_time % g->arg->freq) * 1000000 / g->arg->freq;
@@ -378,6 +380,8 @@ bool ai_starve_eat(struct global_struct_s *g, struct client_s *client)
 void manage_clients(int select_result, struct global_struct_s *g)
 {
     if (select_result == 0) { // timeout
+        if (g->ressources_respawn <= 0)
+            ressoure_respawn();
         for (int i = 0; i < vector_length(g->clients); i++) {
             struct client_s *client = vector_get(g->clients, i);
             if (client->is_closed || client->is_gui || client->team == NULL)
@@ -427,6 +431,7 @@ void remove_past_time(struct global_struct_s *g)
         printf("client%d->time: %d\n", client->client_nb, client->time);
         printf("client%d->food_time: %d\n", client->client_nb, client->food_time);
     }
+    g->ressources_respawn -= (g->lowest_time - tmp);
 }
 
 int zappy_server(int ac, char **av)

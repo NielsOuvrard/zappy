@@ -56,8 +56,10 @@ struct my_string_s *buffer)
         if (tmp->posx == x && tmp->posy == y) {
             // destroy egg
             struct egg_s *egg = vector_remove(g->eggs, i);
-            if (egg->team)
+            if (egg->team) {
+                ((struct base_type_s *)tuple_get_second(map_get(g->team_slots, egg->team, string_equals_str)))->_int--;
                 string_destroy(egg->team);
+            }
             free(egg);
             success = true;
             i--;
