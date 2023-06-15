@@ -7,6 +7,7 @@
 
 import json
 import sys
+import subprocess
 from enum import Enum
 
 LVL1_2 = {
@@ -156,10 +157,10 @@ class Player:
         self.compute_evolve()
         if self.inventory["food"] < self.needed_food:
             self.priority = Priority.Food
+        elif self.lvl > 1 and self.can_evolve:
+            self.priority = Priority.Reproduction
         elif self.can_evolve and self.inventory["food"] >= 6:
             self.priority = Priority.Incantation
-        # elif self.inventory["food"] >= 10:
-        #     self.priority = Priority.Reproduction
         else:
             self.priority = Priority.Stones
 
@@ -251,13 +252,16 @@ class Player:
         elif self.priority == Priority.Stones:
             self.next_move.append(self.get_stone())
             print("SEARCHING FOR STONE", self.get_stone())
+        elif self.priority == Priority.Reproduction:
+            self.next_move.append("Fork")
         elif self.priority == Priority.Incantation:
-            self.next_move.append("Incantation")
+            if self.level_cap[self.lvl - 1]["ally"] != 0:
+                d = 0 #TODO A faire pour le Broadcast
+            else:
+                self.next_move.append("Incantation")
         else:
             self.next_move.append("food")
         print("NEXT COMMAND", self.next_move)
-        # elif self.priority == Priority.Reproduction:
-        #     self.go_to_reproduction()
 
     def parse_response(self, command):
         """
@@ -274,24 +278,6 @@ class Player:
                 self.buffer = self.buffer.split("\n", 1)[1]
         else:
             self.parse_response(self.server.recv(1024).decode())
-
-    # async def parse_response(self):
-    #     """
-    #     Remplit self.next_command avec les commandes à faire
-
-    #     De l'index 0 à len(self.next_command) - 1
-    #     """
-    #     command = await self.server.recv(1024).decode()
-    #     self.buffer += command
-    #     print("PARSED COMMAND = " + command)
-    #     if "\n" in self.buffer:
-    #         while "\n" in self.buffer:
-    #             self.next_command.append(self.buffer.split("\n")[0])
-    #             self.buffer = self.buffer.split("\n", 1)[1]
-    #     else:
-    #         response = await self.server.recv(1024).decode()
-    #         await self.parse_response(response)
-
 
     def look(self):
         self.server.send("Look\n".encode())
@@ -375,10 +361,11 @@ class Player:
         response = self.next_command.pop(0)
         return response
 
-    def fork(self):
+    def fork(self, data: dict):
         self.server.send("Fork\n".encode())
         self.parse_response(self.server.recv(1024).decode())
         response = self.next_command.pop(0)
+        subprocess.Popen(["./zappy_ai", "-p", str(data["port"]), "-n", str(data["team_name"]), "-h", str(data["host"])])
         return response
 
     def eject(self):
