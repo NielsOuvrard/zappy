@@ -57,14 +57,11 @@ void vector_resize(struct my_vector_s *this, int new_capacity)
 
 void vector_push_back(struct my_vector_s *this, void *item)
 {
-    // check if we need to resize
-    // if yes double the capacity until it fits
     while (this->length + 1 > this->capacity) {
         this->capacity *= 2;
         this->items = realloc(this->items,
         sizeof(this->item_size) * this->capacity);
     }
-    // append the item
     this->items[this->length] = item;
     this->length++;
 }
@@ -103,17 +100,13 @@ void vector_insert(struct my_vector_s *this, int index, void *item)
         dprintf(2, "Vector: Index out of bounds\n");
         return;
     }
-    // check if we need to resize
-    // if yes double the capacity until it fits
     while (this->length + 1 > this->capacity) {
         this->capacity *= 2;
         this->items = realloc(this->items,
         sizeof(this->item_size) * this->capacity);
     }
-    // shift all items to the right
     for (int i = this->length; i > index; i--)
         this->items[i] = this->items[i - 1];
-    // insert the item
     this->items[index] = item;
     this->length++;
 }
@@ -127,7 +120,6 @@ void *vector_remove(struct my_vector_s *this, int index)
         return NULL;
     }
     item = this->items[index];
-    // shift all items to the left
     for (int i = index; i < this->length - 1; i++)
         this->items[i] = this->items[i + 1];
     this->length--;

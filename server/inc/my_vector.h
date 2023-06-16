@@ -35,7 +35,8 @@ void vector_init(struct my_vector_s *vector, size_t item_size);
 ** @param vector The vector to set the destructor of.
 ** @param destructor The destructor to set.
 **/
-void vector_set_destructor(struct my_vector_s *vector, void (*destructor)(void *));
+void vector_set_destructor(struct my_vector_s *vector,
+void (*destructor)(void *));
 
 /**
 ** @brief Destroys a vector.

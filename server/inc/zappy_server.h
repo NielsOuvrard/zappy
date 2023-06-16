@@ -109,7 +109,8 @@ struct client_s {
     int client_nb;
     int food_time;
     int time;
-    void (*exec)(struct global_struct_s *g, struct client_s *client, struct my_string_s *buffer);
+    void (*exec)(struct global_struct_s *g, struct client_s *client,
+        struct my_string_s *buffer);
     struct my_string_s *cmd;
     int level;
     int food;
@@ -193,10 +194,10 @@ void command_ai_take(struct global_struct_s *g, struct client_s *client,
 struct my_string_s *buffer);
 void command_ai_set(struct global_struct_s *g, struct client_s *client,
 struct my_string_s *buffer);
-void command_ai_incantation_start(struct global_struct_s *g, struct client_s *client,
-struct my_string_s *buffer);
-void command_ai_incantation_end(struct global_struct_s *g, struct client_s *client,
-struct my_string_s *buffer);
+void command_ai_incantation_start(struct global_struct_s *g,
+struct client_s *client, struct my_string_s *buffer);
+void command_ai_incantation_end(struct global_struct_s *g,
+struct client_s *client, struct my_string_s *buffer);
 
 // Ressources respawn
 void ressoure_respawn(void);
@@ -208,6 +209,23 @@ void initialize_server(void);
 // Utils
 void convert_coordinate(int *x, int *y);
 void send_to_all_gui(struct global_struct_s *global_struct, char *msg);
+
+// Arg management
+void check_args(int ac, char **av);
+
+// Client management
+void accept_new_client(int select_result, struct global_struct_s *g);
+bool ai_starve_eat(struct global_struct_s *g, struct client_s *client);
+void manage_clients(int select_result, struct global_struct_s *g);
+
+// Command management
+void manage_command(struct global_struct_s *g, struct client_s *client,
+struct my_string_s *buffer);
+
+// Memory management
+void free_all(void);
+void close_client(void);
+void sigint_handler(int sig);
 
 // Main function
 int zappy_server(int ac, char **av);
