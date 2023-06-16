@@ -30,8 +30,13 @@ struct my_string_s *buffer)
     for (int i = 0; i < vector_length(g->clients); i++) {
         struct client_s *target = vector_get(g->clients, i);
         if (target->is_gui == false)
-            dprintf(client->client_fd, "pnw %d %d %d %d %d %s\n", i,
+            dprintf(client->client_fd, "pnw %d %d %d %d %d %s\n", target->client_nb,
             target->posx, target->posy, target->orientation, target->level,
             target->team->str);
+    }
+    for (int i = 0; i < vector_length(g->eggs); i++) {
+        struct egg_s *egg = vector_get(g->eggs, i);
+        dprintf(client->client_fd, "enw %d %d %d %d\n", egg->id, 0,
+        egg->posx, egg->posy);
     }
 }

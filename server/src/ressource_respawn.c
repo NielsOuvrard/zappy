@@ -51,6 +51,12 @@ void add_ressource(struct global_struct_s *g, int to_add, int *(*get_ressource)(
         if (*get_ressource(tile) <= 0) {
             *get_ressource(tile) += 1;
             to_add--;
+            // GUI Event
+            struct my_string_s *current_tile = string_from_format("bct %d %d %d %d %d %d %d %d %d\n",
+            x, y, tile->food, tile->linemate, tile->deraumere,
+            tile->sibur, tile->mendiane, tile->phiras, tile->thystame);
+            send_to_all_gui(g, current_tile->str);
+            string_destroy(current_tile);
         }
     }
 }

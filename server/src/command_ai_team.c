@@ -38,9 +38,19 @@ struct my_string_s *buffer, struct my_string_s *name)
     client->posx = egg->posx;
     client->posy = egg->posy;
     client->orientation = egg->orientation;
+    int egg_id = egg->id;
     if (egg->team)
         string_destroy(egg->team);
     free(egg);
     dprintf(client->client_fd, "%d\n", remaining_slots);
     dprintf(client->client_fd, "%d %d\n", g->arg->width, g->arg->height);
+    // GUI Event
+    struct my_string_s *msg = string_from_format("ebo %d\n", egg_id);
+    send_to_all_gui(g, msg->str);
+    string_destroy(msg);
+    msg = string_from_format("pnw %d %d %d %d %d %s\n",
+    client->client_nb, client->posx, client->posy, client->orientation,
+    client->level, client->team->str);
+    send_to_all_gui(g, msg->str);
+    string_destroy(msg);
 }

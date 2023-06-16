@@ -39,15 +39,23 @@ struct my_string_s *buffer)
         return;
     }
 
+    struct my_string_s *msg = string_from_format("pic %d %d %d %d",
+    client->posx, client->posy, client->level, client->client_nb);
     for (int i = 0; i < vector_length(g->clients); i++) {
         struct client_s *tmp = vector_get(g->clients, i);
         if (tmp->posx == client->posx && tmp->posy == client->posy && tmp->level == client->level && client != tmp && !tmp->is_gui) {
+            string_append(msg, " ");
+            string_append_int(msg, tmp->client_nb);
             dprintf(tmp->client_fd, "Elevation underway\n");
             tmp->time = 300;
             tmp->exec = do_nothing;
             tmp->cmd = string_copy(buffer);
         }
     }
+    // GUI Event
+    string_append(msg, "\n");
+    send_to_all_gui(g, msg->str);
+    string_destroy(msg);
     dprintf(client->client_fd, "Elevation underway\n");
 }
 
@@ -56,7 +64,7 @@ struct my_string_s *buffer)
 {
     struct my_vector_s *need = g->incant_need;
     struct incant_s *incant = vector_get(need, client->level - 1);
-    int nb_players = 0;
+    int nb_players = 1;
     for (int i = 0; i < vector_length(g->clients); i++) {
         struct client_s *tmp = vector_get(g->clients, i);
         if (tmp->posx == client->posx && tmp->posy == client->posy && tmp->level == client->level && client != tmp && !tmp->is_gui)
@@ -64,6 +72,11 @@ struct my_string_s *buffer)
     }
     if (nb_players < incant->nb_players) {
         dprintf(client->client_fd, "ko\n");
+        // GUI Event
+        struct my_string_s *msg = string_from_format("pie %d %d 0\n",
+        client->posx, client->posy);
+        send_to_all_gui(g, msg->str);
+        string_destroy(msg);
         return;
     }
     struct tile_s *tile = vector_get(vector_get(g->map, client->posy), client->posx);
@@ -74,6 +87,11 @@ struct my_string_s *buffer)
         tile->phiras < incant->phiras ||
         tile->thystame < incant->thystame) {
         dprintf(client->client_fd, "ko\n");
+        // GUI Event
+        struct my_string_s *msg = string_from_format("pie %d %d 0\n",
+        client->posx, client->posy);
+        send_to_all_gui(g, msg->str);
+        string_destroy(msg);
         return;
     }
     tile->linemate -= incant->linemate;
@@ -91,6 +109,12 @@ struct my_string_s *buffer)
     }
     client->level++;
     dprintf(client->client_fd, "Current level: %d\n", client->level);
+
+    // GUI Event
+    struct my_string_s *msg = string_from_format("pie %d %d 1\n",
+    client->posx, client->posy);
+    send_to_all_gui(g, msg->str);
+    string_destroy(msg);
 
     // check if a team win
     bool a_team_win = false;

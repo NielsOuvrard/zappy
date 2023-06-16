@@ -295,7 +295,10 @@ struct my_string_s *string_from_double(double nb)
 
 void string_append_format(struct my_string_s *this, char *format, va_list args)
 {
-    int size = vsnprintf(NULL, 0, format, args);
+    va_list args_copy;
+    va_copy(args_copy, args);
+    int size = vsnprintf(NULL, 0, format, args_copy);
+    va_end(args_copy);
 
     while (this->length + size + 1 > this->capacity) {
         this->capacity *= 2;

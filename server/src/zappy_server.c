@@ -258,6 +258,11 @@ struct my_string_s *buffer)
             client->exec = command_ai_fork;
             client->cmd = string_copy(buffer);
             // command_ai_fork(g, client, buffer);
+            // GUI Event
+            struct my_string_s *msg = string_from_format("pfk %d\n",
+            client->client_nb);
+            send_to_all_gui(g, msg->str);
+            string_destroy(msg);
         } else if (string_equals(buffer, "Eject\n")) {
             client->time = 7;
             client->exec = command_ai_eject;
@@ -295,9 +300,13 @@ void manage_specific_client(struct client_s *client, struct global_struct_s *g)
             close(client->client_fd);
             client->is_closed = true;
             if (client->team != NULL && !client->is_gui) {
-                struct global_struct_s *g = get_global_struct();
                 ((struct base_type_s *)tuple_get_first(map_get(g->team_slots, client->team, string_equals_str)))->_int--;
                 ((struct base_type_s *)tuple_get_second(map_get(g->team_slots, client->team, string_equals_str)))->_int--;
+                // GUI Event
+                struct my_string_s *msg = string_from_format("pdi %d\n",
+                client->client_nb);
+                send_to_all_gui(g, msg->str);
+                string_destroy(msg);
             }
             return;
         }
@@ -371,6 +380,11 @@ bool ai_starve_eat(struct global_struct_s *g, struct client_s *client)
             client->is_closed = true;
             ((struct base_type_s *)tuple_get_first(map_get(g->team_slots, client->team, string_equals_str)))->_int--;
             ((struct base_type_s *)tuple_get_second(map_get(g->team_slots, client->team, string_equals_str)))->_int--;
+            // GUI Event
+            struct my_string_s *msg = string_from_format("pdi %d\n",
+            client->client_nb);
+            send_to_all_gui(g, msg->str);
+            string_destroy(msg);
             return true;
         }
     }
@@ -437,6 +451,7 @@ void remove_past_time(struct global_struct_s *g)
 int zappy_server(int ac, char **av)
 {
     check_args(ac, av);
+    srand(time(NULL));
     initialize_map();
     initialize_server();
     signal(SIGINT, sigint_handler);

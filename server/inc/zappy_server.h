@@ -12,6 +12,7 @@
 #include <errno.h>
 #include <signal.h>
 #include <math.h>
+#include <time.h>
 
 #include <sys/types.h>
 #include <sys/select.h>
@@ -87,6 +88,7 @@ enum orientation_e {
 };
 
 struct egg_s {
+    int id;
     int posx;
     int posy;
     enum orientation_e orientation;
@@ -129,6 +131,7 @@ struct global_struct_s {
     struct my_vector_s *incant_need;
     int ressources_respawn;
     int client_id;
+    int egg_id;
     int ai_spawn;
     int maxfd;
     fd_set readset;
@@ -204,6 +207,7 @@ void initialize_server(void);
 
 // Utils
 void convert_coordinate(int *x, int *y);
+void send_to_all_gui(struct global_struct_s *global_struct, char *msg);
 
 // Main function
 int zappy_server(int ac, char **av);
