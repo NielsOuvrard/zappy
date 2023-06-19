@@ -7,6 +7,7 @@
 
 #include "Gui.hpp"
 #include "logger.hpp"
+#include "PerlinNoise.hpp"
 #include <cmath>
 
 bool Gui::is_sand_center(int i, int j, int middle_x, int middle_y, float multiple)
@@ -38,27 +39,12 @@ bool Gui::is_sand_center(int i, int j, int middle_x, int middle_y, float multipl
 
 void Gui::load_map(void)
 {
-    std::ofstream myfile;
-    std::ifstream ifs;
-    std::string line;
-    ifs.open("gui/assets/map.txt", std::ifstream::in);
-    if (!ifs.good())
-    {
-        std::cout << "Error opening assets.txt" << std::endl;
-        exit(84);
-    }
-    std::cout << LOG_GUI("Loading map");
-
-    // str of 15 * '-11' with memset
-
     int size_island = _size_y > _size_x ? _size_y : _size_x;
 
     std::string water_all((2 * DECOR_SIZE) + size_island, ';');
 
     std::string sand(1, 'M');
     std::string sand_middle(_size_x, 'M');
-
-    std::cout << LOG_GUI("sand: " + sand_middle);
 
     for (int i = 0; i < (2 * DECOR_SIZE) + size_island; i++)
         _map_decor.push_back(water_all);
@@ -77,11 +63,14 @@ void Gui::load_map(void)
         }
     }
 
+    Perlin per = Perlin::getInstance(_size_x, _size_y);
     for (int i = 0; i < _size_y; i++)
     {
-        std::getline(ifs, line);
         for (int j = 0; j < _size_x; j++)
-            _map_decor[DECOR_SIZE + i][DECOR_SIZE + j] = line[j];
+        {
+            int val = 'a' + (int)(per.get_color((float)j / (float)_size_x, (float)i / (float)_size_y) * 10);
+            _map_decor[DECOR_SIZE + i][DECOR_SIZE + j] = val;
+        }
     }
 
     // display map
@@ -130,7 +119,6 @@ void Gui::load_textures(void)
     _textures[ID_FOOD].setSmooth(false);
     _sprites[ID_FOOD].setTexture(_textures[ID_FOOD]);
     _sprites[ID_FOOD].setTextureRect(sf::IntRect(2, 1, SIZE_FOOD, SIZE_FOOD));
-    // _sprites[11].setScale(1, 1);
 
     _textures[ID_PLAYER].setSmooth(false);
     _sprites[ID_PLAYER].setTexture(_textures[ID_PLAYER]);

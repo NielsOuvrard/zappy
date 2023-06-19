@@ -8,7 +8,8 @@
 #include "Gui.hpp"
 #include "logger.hpp"
 
-#define SPEED_MAX 50
+#define SPEED_MAX_X 50
+#define SPEED_MAX_Y 40
 
 void Gui::move_map(sf::Event event)
 {
@@ -34,65 +35,59 @@ void Gui::move_map(sf::Event event)
         if (event.key.code == sf::Keyboard::Up)
             _move_up = false;
     }
-    if (_move_right)
-    {
-        _speed_x *= 1.1;
-        _speed_x += 1;
-        if (_speed_x >= SPEED_MAX)
-            _speed_x = SPEED_MAX;
-        _view_main->move(_speed_x, 0);
-    }
-    else if (_move_left)
-    {
-        _speed_x *= 1.1;
-        _speed_x -= 1;
-        if (_speed_x <= -SPEED_MAX)
-            _speed_x = -SPEED_MAX;
-        _view_main->move(_speed_x, 0);
-    }
-    if (_move_down)
-    {
-        _speed_y *= 1.1;
-        _speed_y -= 1;
-        if (_speed_y <= -SPEED_MAX)
-            _speed_y = -SPEED_MAX;
-        _view_main->move(0, _speed_y);
-    }
-    else if (_move_up)
-    {
-        _speed_y *= 1.1;
-        _speed_y += 1;
-        if (_speed_y >= SPEED_MAX)
-            _speed_y = SPEED_MAX;
-        _view_main->move(0, _speed_y);
-    }
 
-    if (_speed_x > 0 && !_move_right)
+    // * BOOLEAN MOVEMENTS
+    if (_move_right && _speed_x >= -1)
     {
-        _speed_x *= 0.95;
-        if (_speed_x < 1)
-            _speed_x = 0;
-        _view_main->move(_speed_x, 0);
+        _speed_x += 1;
+        _speed_x *= 1.1;
+        if (_speed_x >= SPEED_MAX_X)
+            _speed_x = SPEED_MAX_X;
     }
-    else if (_speed_x < 0 && !_move_left)
+    else if (_move_left && _speed_x <= 1)
     {
-        _speed_x *= 0.95;
-        if (_speed_x > -1)
-            _speed_x = 0;
-        _view_main->move(_speed_x, 0);
+        _speed_x -= 1;
+        _speed_x *= 1.1;
+        if (_speed_x <= -SPEED_MAX_X)
+            _speed_x = -SPEED_MAX_X;
     }
-    if (_speed_y > 0 && !_move_up)
+    if (_move_down && _speed_y >= -1)
     {
-        _speed_y *= 0.95;
-        if (_speed_y < 1)
-            _speed_y = 0;
-        _view_main->move(0, _speed_y);
+        _speed_y += 1;
+        _speed_y *= 1.1;
+        if (_speed_y >= SPEED_MAX_Y)
+            _speed_y = SPEED_MAX_Y;
     }
-    else if (_speed_y < 0 && !_move_down)
+    else if (_move_up && _speed_y <= 1)
     {
-        _speed_y *= 0.95;
-        if (_speed_y > -1)
-            _speed_y = 0;
-        _view_main->move(0, _speed_y);
+        _speed_y -= 1;
+        _speed_y *= 1.1;
+        if (_speed_y <= -SPEED_MAX_Y)
+            _speed_y = -SPEED_MAX_Y;
+    }
+    _speed_x *= 0.95;
+    _speed_y *= 0.95;
+
+    _view_main->move(_speed_x, _speed_y);
+    _pos = _view_main->getCenter();
+    if (_pos.x < 0)
+    {
+        _view_main->setCenter(sf::Vector2f(0, _pos.y));
+        _speed_x = 0;
+    }
+    if (_pos.y < -(32 * (DECOR_SIZE + _size_x)))
+    {
+        _view_main->setCenter(sf::Vector2f(_pos.x, -(32 * (DECOR_SIZE + _size_x))));
+        _speed_y = 0;
+    }
+    if (_pos.x > 2 * (SIZE_TILE * (2 * DECOR_SIZE + _size_y)))
+    {
+        _view_main->setCenter(sf::Vector2f(2 * (SIZE_TILE * (2 * DECOR_SIZE + _size_y)), _pos.y));
+        _speed_x = 0;
+    }
+    if (_pos.y > 32 * (2 * DECOR_SIZE + _size_x))
+    {
+        _view_main->setCenter(sf::Vector2f(_pos.x, 32 * (2 * DECOR_SIZE + _size_x)));
+        _speed_y = 0;
     }
 }

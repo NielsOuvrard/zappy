@@ -13,6 +13,16 @@
 
 void Gui::draw_players(int y, int x)
 {
+    sf::Color color_according_to_level[8] = {
+        sf::Color(255, 255, 255),
+        sf::Color(255, 255, 0),
+        sf::Color(255, 0, 0),
+        sf::Color(0, 255, 0),
+        sf::Color(0, 0, 255),
+        sf::Color(255, 0, 255),
+        sf::Color(0, 255, 255),
+        sf::Color(10, 10, 10),
+    };
     int height = 0;
     if (y - DECOR_SIZE == _selected_tile_y && x - DECOR_SIZE == _selected_tile_x)
         height = _height_selected_tile;
@@ -47,7 +57,7 @@ void Gui::draw_players(int y, int x)
             // 0 = E
             // 3 = N
             // 2 = W
-
+            _sprites[ID_PLAYER].setColor(color_according_to_level[_players[i].level]);
             _sprites[ID_PLAYER].setTextureRect(sf::IntRect(
                 SIZE_PLAYER_X + (2 * orientation * SIZE_PLAYER_X),
                 1 * SIZE_PLAYER_Y, SIZE_PLAYER_X, SIZE_PLAYER_Y));

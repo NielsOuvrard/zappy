@@ -9,23 +9,63 @@
 #include "logger.hpp"
 
 #define MAX_HEIGHT 32
+#define DISPLAY_WIDTH 1920
+#define DISPLAY_HEIGHT 1080
 
+// * Mandatory
+// frequency move GUI side
+// incantation
+// broadcast
 // modify interface size ?
-// hide interface ?
-// buffer for network ?
+
+// * Optional
+// water animation ?
+// smooth zoom
+// move according to zoom
+
+void Gui::move_tile(sf::Event event)
+{
+    if (event.key.code == sf::Keyboard::Z)
+    {
+        _selected_tile_y -= 1;
+        if (_selected_tile_y < 0)
+            _selected_tile_y = _size_y - 1;
+    }
+    if (event.key.code == sf::Keyboard::S)
+    {
+        _selected_tile_y += 1;
+        if (_selected_tile_y > _size_y - 1)
+            _selected_tile_y = 0;
+    }
+    if (event.key.code == sf::Keyboard::Q)
+    {
+        _selected_tile_x -= 1;
+        if (_selected_tile_x < 0)
+            _selected_tile_x = _size_x - 1;
+    }
+    if (event.key.code == sf::Keyboard::D)
+    {
+        _selected_tile_x += 1;
+        if (_selected_tile_x > _size_x - 1)
+            _selected_tile_x = 0;
+    }
+}
+
+#define INTERFACE_HIDE 430
+#define INTERFACE_SHOW 0
 
 void Gui::run(void)
 {
-    sf::RenderWindow win = sf::RenderWindow(sf::VideoMode(1920, 1080), "Zappy");
+    sf::RenderWindow win = sf::RenderWindow(sf::VideoMode(DISPLAY_WIDTH, DISPLAY_HEIGHT), "Zappy");
     _window = &win;
 
     sf::View view(sf::FloatRect(0, 0, 1920, 1080));
+    view.setCenter(sf::Vector2f(SIZE_TILE * (DECOR_SIZE + _size_y + DECOR_SIZE), 0));
+    view.zoom(_zoom);
     _view_main = &view;
 
-    sf::View view_2(sf::FloatRect(0, 0, 1920, 1080));
+    sf::View view_2(sf::FloatRect(0, 0, DISPLAY_WIDTH, DISPLAY_HEIGHT));
     _view_interface = &view_2;
-
-    _view_main->setCenter(sf::Vector2f(DECOR_SIZE + _size_x / 2, DECOR_SIZE + _size_y / 2));
 
     load_map();
     load_textures();
@@ -35,6 +75,8 @@ void Gui::run(void)
     sf::Clock clock;
     sf::Time time;
     _window->setView(*_view_main);
+    _view_height = _view_main->getSize().y;
+    _view_width = _view_main->getSize().x;
 
     // sf::CircleShape shape(100.f);
     // shape.setFillColor(sf::Color::Green);
@@ -62,41 +104,47 @@ void Gui::run(void)
             }
             if (event.type == sf::Event::KeyPressed)
             {
-                if (event.key.code == sf::Keyboard::P)
+                if (event.key.code == sf::Keyboard::P && _zoom < ZOOM_MAX)
                 {
                     _zoom += 0.1;
-                    _view_main->zoom(0.9f);
+                    // std::cout << _view_main->getSize().x << _view_main->getSize().y << std::endl;
+                    // _view_main->getTransform();
+                    // std::cout << _view_main->getTransform().transformPoint(0, 0).x << _view_main->getTransform().transformPoint(0, 0).y << std::endl;
+                    // _view_main->getViewport();
+                    // std::cout << _view_main->getViewport().width << _view_main->getViewport().height << std::endl;
+                    // _view_main->zoom(0.9f);
+                    _view_main->setSize(_view_width * _zoom, _view_height * _zoom);
                 }
-                if (event.key.code == sf::Keyboard::M)
+                if (event.key.code == sf::Keyboard::M && _zoom > ZOOM_MIN)
                 {
                     _zoom -= 0.1;
-                    _view_main->zoom(1.1f);
+                    // _view_main->zoom(1.1f);
+                    _view_main->setSize(_view_width * _zoom, _view_height * _zoom);
                 }
-                if (event.key.code == sf::Keyboard::Z)
+                if (event.key.code == sf::Keyboard::O)
                 {
-                    _selected_tile_y -= 1;
-                    if (_selected_tile_y < 0)
-                        _selected_tile_y = _size_y - 1;
+                    _view_interface->zoom(0.9f);
                 }
-                if (event.key.code == sf::Keyboard::S)
+                if (event.key.code == sf::Keyboard::L)
                 {
-                    _selected_tile_y += 1;
-                    if (_selected_tile_y > _size_y - 1)
-                        _selected_tile_y = 0;
+                    _view_interface->zoom(1.1f);
                 }
-                if (event.key.code == sf::Keyboard::Q)
+                if (event.key.code == sf::Keyboard::I)
                 {
-                    _selected_tile_x -= 1;
-                    if (_selected_tile_x < 0)
-                        _selected_tile_x = _size_x - 1;
+                    _interface_show = !_interface_show;
                 }
-                if (event.key.code == sf::Keyboard::D)
-                {
-                    _selected_tile_x += 1;
-                    if (_selected_tile_x > _size_x - 1)
-                        _selected_tile_x = 0;
-                }
+                move_tile(event);
             }
+        }
+        if (_interface_show && _interface_center_value > INTERFACE_SHOW)
+        {
+            _interface_center_value -= 10;
+            _view_interface->setCenter(DISPLAY_WIDTH / 2 + _interface_center_value, DISPLAY_HEIGHT / 2);
+        }
+        else if (!_interface_show && _interface_center_value < INTERFACE_HIDE)
+        {
+            _interface_center_value += 10;
+            _view_interface->setCenter(DISPLAY_WIDTH / 2 + _interface_center_value, DISPLAY_HEIGHT / 2);
         }
         move_map(event);
         draw_map();
@@ -130,3 +178,50 @@ void Gui::run(void)
     }
     return;
 }
+
+// old move diagonal
+// void Gui::move_tile(sf::Event event)
+// {
+//     if (event.key.code == sf::Keyboard::Z)
+//     {
+//         _selected_tile_y -= 1;
+//         _selected_tile_x += 1;
+//     }
+//     if (event.key.code == sf::Keyboard::S)
+//     {
+//         _selected_tile_y += 1;
+//         _selected_tile_x -= 1;
+//     }
+//     if (event.key.code == sf::Keyboard::Q)
+//     {
+//         _selected_tile_x -= 1;
+//         _selected_tile_y -= 1;
+//     }
+//     if (event.key.code == sf::Keyboard::D)
+//     {
+//         _selected_tile_x += 1;
+//         _selected_tile_y += 1;
+//     }
+
+//     //
+//     if (_selected_tile_x > _size_x - 1)
+//     {
+//         _selected_tile_x = _selected_tile_x - _selected_tile_y;
+//         _selected_tile_y = 0;
+//     }
+//     else if (_selected_tile_x < 0)
+//     {
+//         _selected_tile_y = _size_x - _selected_tile_x;
+//         _selected_tile_x = _size_x - 1;
+//     }
+//     if (_selected_tile_y < 0)
+//     {
+//         _selected_tile_x = _size_y - _selected_tile_y;
+//         _selected_tile_y = _size_y - 1;
+//     }
+//     else if (_selected_tile_y > _size_y - 1)
+//     {
+//         _selected_tile_y = _selected_tile_y - _selected_tile_x;
+//         _selected_tile_x = 0;
+//     }
+// }

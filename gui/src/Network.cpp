@@ -37,25 +37,61 @@ void Network::send_data(std::string data)
     send(_sock, data.c_str(), data.length(), 0);
 }
 
+// std::string Network::receive_data()
+// {
+//     char buffer[4096];
+//     memset(buffer, 0, 4096);
+//     int valread = read(_sock, buffer, 4095);
+//     std::string data = "";
+//     if (valread < 0)
+//     {
+//         std::cout << "Read failed" << std::endl;
+//         std::cout << errno << std::endl; // 9 = bad file descriptor
+//     }
+//     else if (valread == 0)
+//     {
+//         std::cout << "Server disconnected" << std::endl;
+//         close(_sock);
+//         exit(84);
+//     }
+//     if (buffer[0] == '\0')
+//         return "";
+//     data = buffer;
+//     return data;
+// }
+
 std::string Network::receive_data()
 {
-    char buffer[4096];
-    memset(buffer, 0, 4096);
-    int valread = read(_sock, buffer, 4095);
-    if (valread < 0)
+    int size_str = 0, len = 0;
+    char buff[4096];
+    memset(buff, 0, 4096);
+    std::string data = "";
+    while (size_str == 0 || buff[size_str - 1] != '\n')
     {
-        std::cout << "Read failed" << std::endl;
-        std::cout << errno << std::endl;
-        // 9 = bad file descriptor
+        len = read(_sock, buff + size_str, 1);
+        if (len == 0)
+        {
+            std::cout << "Server disconnected" << std::endl;
+            close(_sock);
+            exit(84);
+        }
+        else if (len < 0)
+        {
+            usleep(1000);
+            if (errno == 9)
+            {
+                std::cout << "Server disconnected" << std::endl;
+                close(_sock);
+                exit(0);
+            }
+        }
+        else
+        {
+            size_str += len;
+        }
     }
-    if (valread == 0)
-    {
-        std::cout << "Server disconnected" << std::endl;
-        close(_sock);
-        exit(84);
-    }
-    if (buffer[0] == '\0')
+    if (len < 0 || buff[0] == '\0')
         return "";
-    std::string data = buffer;
+    data = buff;
     return data;
 }
