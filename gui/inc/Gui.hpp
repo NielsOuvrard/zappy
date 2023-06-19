@@ -51,8 +51,8 @@ typedef struct s_egg
 #define SIZE_PX_TILE 256
 #define SIZE_PX_HALF_TILE 192
 
-#define ZOOM_MAX 4
-#define ZOOM_MIN (double)(0.2000000000000000111)
+#define ZOOM_MAX 2
+#define ZOOM_MIN (double)(0.4000000000000000111)
 
 class Gui
 {
@@ -117,6 +117,8 @@ private:
     float _zoom;
     float _speed_x;
     float _speed_y;
+    int _view_width;
+    int _view_height;
 
     sf::Vector2f _pos;
 
