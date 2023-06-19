@@ -38,6 +38,8 @@
 #define MAX_HEIGHT 30
 #define MIN_HEIGHT 10
 
+#define HATCH_TIME 600
+
 struct base_type_s {
     int _int;
     char _char;
@@ -50,6 +52,7 @@ struct arg_s {
     int width;
     int height;
     struct my_vector_s *names;
+    int *team_slots_server;
     int clientsNb;
     int freq;
 };
@@ -91,6 +94,9 @@ struct egg_s {
     int id;
     int posx;
     int posy;
+    int hatch_time;
+    bool is_hatched;
+    bool is_forked;
     enum orientation_e orientation;
     struct my_string_s *team;
 };

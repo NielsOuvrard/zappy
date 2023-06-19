@@ -14,6 +14,9 @@ struct my_string_s *buffer)
     egg->id = g->egg_id++;
     egg->posx = client->posx;
     egg->posy = client->posy;
+    egg->hatch_time = HATCH_TIME;
+    egg->is_hatched = false;
+    egg->is_forked = true;
     egg->orientation = client->orientation;
     egg->team = string_copy(client->team);
     vector_push_back(g->eggs, egg);

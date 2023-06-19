@@ -91,7 +91,7 @@ void initialize_map(void)
     global_struct->incant_need = generate_incantation_need(global_struct);
     global_struct->client_id = 0;
     global_struct->egg_id = 0;
-    global_struct->ai_spawn = true;
+    global_struct->ai_spawn = false;
     global_struct->ressources_respawn = RESSOURCES_RESPAWN_TIME;
     global_struct->map = vector_create(sizeof(struct my_vector_s *));
     for (int i = 0; i < arg->height; i++) {
@@ -117,6 +117,9 @@ void initialize_map(void)
         egg->id = global_struct->egg_id++;
         egg->posx = rand() % arg->width;
         egg->posy = rand() % arg->height;
+        egg->hatch_time = 0;
+        egg->is_hatched = true;
+        egg->is_forked = false;
         egg->orientation = rand() % 4 + 1;
         egg->team = string_copy(vector_get(arg->names, i % vector_length(arg->names)));
         vector_push_back(global_struct->eggs, egg);

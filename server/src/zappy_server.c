@@ -22,15 +22,22 @@ void set_fd_set(struct global_struct_s *g)
         FD_SET(client->client_fd, &g->readset);
         if (client->client_fd + 1 > g->maxfd)
             g->maxfd = client->client_fd + 1;
-        if (client->is_gui || client->team == NULL)
+        if (client->is_gui)
             continue;
         if (client->time > 0 && (client->time < g->lowest_time || g->lowest_time == 0))
             g->lowest_time = client->time;
+        if (client->team == NULL)
+            continue;
         if (client->food_time > 0 && (client->food_time < g->lowest_time || g->lowest_time == 0))
             g->lowest_time = client->food_time;
     }
     if (g->ressources_respawn > 0 && (g->ressources_respawn < g->lowest_time || g->lowest_time == 0))
         g->lowest_time = g->ressources_respawn;
+    for (int i = 0; i < vector_length(g->eggs); i++) {
+        struct egg_s *egg = vector_get(g->eggs, i);
+        if (egg->hatch_time > 0 && (egg->hatch_time < g->lowest_time || g->lowest_time == 0))
+            g->lowest_time = egg->hatch_time;
+    }
     if (g->lowest_time > 0) {
         g->timeout.tv_sec = g->lowest_time / g->arg->freq;
         g->timeout.tv_usec = (g->lowest_time % g->arg->freq) * 1000000 / g->arg->freq;
@@ -46,17 +53,29 @@ void remove_past_time(struct global_struct_s *g)
     tmp += g->timeout.tv_usec * g->arg->freq / 1000000;
     for (int i = 0; i < vector_length(g->clients); i++) {
         struct client_s *client = vector_get(g->clients, i);
-        if (client->is_closed || client->is_gui || client->team == NULL)
+        if (client->is_closed || client->is_gui)
             continue;
         if (client->time > 0)
             client->time -= (g->lowest_time - tmp);
+        printf("client%d->time: %d\n", client->client_nb, client->time);
+        if (client->team == NULL)
+            continue;
         if (client->food_time > 0)
             client->food_time -= (g->lowest_time - tmp);
-        ai_starve_eat(g, client);
-        printf("client%d->time: %d\n", client->client_nb, client->time);
         printf("client%d->food_time: %d\n", client->client_nb, client->food_time);
+        ai_starve_eat(g, client);
     }
     g->ressources_respawn -= (g->lowest_time - tmp);
+    for (int i = 0; i < vector_length(g->eggs); i++) {
+        struct egg_s *egg = vector_get(g->eggs, i);
+        egg->hatch_time -= (g->lowest_time - tmp);
+        if (egg->hatch_time <= 0 && !egg->is_hatched) {
+            egg->is_hatched = true;
+            struct my_string_s *msg = string_from_format("eht %d\n", egg->id);
+            send_to_all_gui(g, msg->str);
+            string_destroy(msg);
+        }
+    }
 }
 
 int zappy_server(int ac, char **av)

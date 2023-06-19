@@ -29,7 +29,7 @@ struct my_string_s *buffer)
     if (client->orientation == NORTH) {
         for (int i = 0; i < vector_length(g->clients); i++) {
             struct client_s *tmp = vector_get(g->clients, i);
-            if (tmp->posx == x && tmp->posy == y) {
+            if (tmp->posx == x && tmp->posy == y && tmp != client) {
                 tmp->posy = (tmp->posy - 1 + g->arg->height) % g->arg->height;
                 dprintf(tmp->client_fd, "eject: %d\n", SOUTH);
                 success = true;
@@ -39,7 +39,7 @@ struct my_string_s *buffer)
     } else if (client->orientation == SOUTH) {
         for (int i = 0; i < vector_length(g->clients); i++) {
             struct client_s *tmp = vector_get(g->clients, i);
-            if (tmp->posx == x && tmp->posy == y) {
+            if (tmp->posx == x && tmp->posy == y && tmp != client) {
                 tmp->posy = (tmp->posy + 1) % g->arg->height;
                 dprintf(tmp->client_fd, "eject: %d\n", NORTH);
                 success = true;
@@ -49,7 +49,7 @@ struct my_string_s *buffer)
     } else if (client->orientation == EAST) {
         for (int i = 0; i < vector_length(g->clients); i++) {
             struct client_s *tmp = vector_get(g->clients, i);
-            if (tmp->posx == x && tmp->posy == y) {
+            if (tmp->posx == x && tmp->posy == y && tmp != client) {
                 tmp->posx = (tmp->posx + 1) % g->arg->width;
                 dprintf(tmp->client_fd, "eject: %d\n", WEST);
                 success = true;
@@ -59,7 +59,7 @@ struct my_string_s *buffer)
     } else if (client->orientation == WEST) {
         for (int i = 0; i < vector_length(g->clients); i++) {
             struct client_s *tmp = vector_get(g->clients, i);
-            if (tmp->posx == x && tmp->posy == y) {
+            if (tmp->posx == x && tmp->posy == y && tmp != client) {
                 tmp->posx = (tmp->posx - 1 + g->arg->width) % g->arg->width;
                 dprintf(tmp->client_fd, "eject: %d\n", EAST);
                 success = true;
@@ -69,7 +69,7 @@ struct my_string_s *buffer)
     }
     for (int i = 0; i < vector_length(g->eggs); i++) {
         struct egg_s *tmp = vector_get(g->eggs, i);
-        if (tmp->posx == x && tmp->posy == y) {
+        if (tmp->posx == x && tmp->posy == y && tmp->is_forked) {
             // destroy egg
             struct egg_s *egg = vector_remove(g->eggs, i);
             // GUI Event

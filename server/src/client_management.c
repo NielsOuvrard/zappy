@@ -7,6 +7,29 @@
 
 #include "zappy_server.h"
 
+void generate_missing_eggs(struct global_struct_s *g)
+{
+    for (int i = 0; i < vector_length(g->arg->names); i++) {
+        struct my_string_s *name = vector_get(g->arg->names, i);
+        // if slot nb is less than the number of client allowed by team
+        // recreate an egg for this team
+        while (g->arg->team_slots_server[i] < g->arg->clientsNb) {
+            g->arg->team_slots_server[i]++;
+            ((struct base_type_s *)tuple_get_first(map_get(g->team_slots, name, string_equals_str)))->_int++;
+            struct egg_s *egg = malloc(sizeof(struct egg_s));
+            egg->id = g->egg_id++;
+            egg->posx = rand() % g->arg->width;
+            egg->posy = rand() % g->arg->height;
+            egg->hatch_time = 0;
+            egg->is_hatched = true;
+            egg->is_forked = false;
+            egg->orientation = rand() % 4 + 1;
+            egg->team = string_copy(name);
+            vector_push_back(g->eggs, egg);
+        }
+    }
+}
+
 void accept_new_client(int select_result, struct global_struct_s *g)
 {
     if (select_result > 0 && FD_ISSET(g->server->server_sock, &g->readset)) {
@@ -50,6 +73,7 @@ void client_disconnection(struct client_s *client, struct global_struct_s *g)
     if (client->team != NULL && !client->is_gui) {
         ((struct base_type_s *)tuple_get_first(map_get(g->team_slots, client->team, string_equals_str)))->_int--;
         ((struct base_type_s *)tuple_get_second(map_get(g->team_slots, client->team, string_equals_str)))->_int--;
+        generate_missing_eggs(g);
         // GUI Event
         struct my_string_s *msg = string_from_format("pdi %d\n",
         client->client_nb);
@@ -128,6 +152,7 @@ bool ai_starve_eat(struct global_struct_s *g, struct client_s *client)
             client->is_closed = true;
             ((struct base_type_s *)tuple_get_first(map_get(g->team_slots, client->team, string_equals_str)))->_int--;
             ((struct base_type_s *)tuple_get_second(map_get(g->team_slots, client->team, string_equals_str)))->_int--;
+            generate_missing_eggs(g);
             // GUI Event
             struct my_string_s *msg = string_from_format("pdi %d\n",
             client->client_nb);
@@ -146,10 +171,11 @@ void manage_clients(int select_result, struct global_struct_s *g)
             ressoure_respawn();
         for (int i = 0; i < vector_length(g->clients); i++) {
             struct client_s *client = vector_get(g->clients, i);
-            if (client->is_closed || client->is_gui || client->team == NULL)
+            if (client->is_closed || client->is_gui)
                 continue;
-            if (ai_starve_eat(g, client))
-                continue;
+            if (client->team != NULL)
+                if (ai_starve_eat(g, client))
+                    continue;
             if (client->time <= 0 && client->exec != NULL) {
                 client->exec(g, client, client->cmd);
                 client->exec = NULL;

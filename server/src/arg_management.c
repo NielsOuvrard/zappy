@@ -57,6 +57,7 @@ void check_args(int ac, char **av)
             vector_set_destructor(arg->names, string_destroy);
         }
     }
+    arg->team_slots_server = malloc(sizeof(int) * vector_length(arg->names));
     struct global_struct_s *global_struct = get_global_struct();
     global_struct->arg = arg;
     global_struct->team_slots = map_create();
@@ -75,6 +76,7 @@ void check_args(int ac, char **av)
         map_insert(global_struct->team_slots,
         string_copy((struct my_string_s *)vector_get(arg->names, i)),
         tuple);
+        global_struct->arg->team_slots_server[i] = global_struct->arg->clientsNb;
     }
     printf("clientsNb: %d\n", arg->clientsNb);
     printf("freq: %d\n", arg->freq);

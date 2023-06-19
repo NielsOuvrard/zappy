@@ -21,6 +21,7 @@ void free_all(void)
 {
     struct global_struct_s *global_struct = get_global_struct();
     struct arg_s *arg = global_struct->arg;
+    free(arg->team_slots_server);
     vector_destroy(arg->names);
     for (int i = 0; i < vector_length(global_struct->map); i++)
         vector_destroy(vector_get(global_struct->map, i));
