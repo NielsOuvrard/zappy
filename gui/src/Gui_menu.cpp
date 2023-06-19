@@ -34,20 +34,20 @@ void Gui::menu_texture(void)
 
     _sprite.setTexture(_texture);
     _sprite2.setTexture(_texture2);
-    if (!_font.loadFromFile("gui/assets/font.ttf"))
+    if (!_font.loadFromFile("gui/assets/tiki.ttf"))
         exit(84);
 
     _text.setFont(_font);
     _text.setString("Press Enter to start");
     _text.setCharacterSize(50);
     _text.setFillColor(sf::Color::White);
-    _text.setPosition(700, 800);
+    _text.setPosition(750, 800);
 
     _text2.setFont(_font);
     _text2.setString("ZAPPY");
     _text2.setCharacterSize(250);
     _text2.setFillColor(sf::Color::White);
-    _text2.setPosition(650, 100);
+    _text2.setPosition(600, 100);
 
     _window->draw(_sprite);
     _window->draw(_sprite2);
