@@ -9,20 +9,22 @@
 #include "logger.hpp"
 
 #define MAX_HEIGHT 32
+#define DISPLAY_WIDTH 1920
+#define DISPLAY_HEIGHT 1080
+
+// * Mandatory
+// frequency move GUI side
+// incantation
+// broadcast
 
 // modify interface size ?
 // hide interface ?
 // buffer for network ?
+
+// * Optional
 // water animation ?
 // smooth zoom
 // move according to zoom
-// differents players by nivel
-// frequency move GUI side
-
-// incantation
-// broadcast
-
-// void Gui::incantation
 
 void Gui::move_tile(sf::Event event)
 {
@@ -52,12 +54,12 @@ void Gui::move_tile(sf::Event event)
     }
 }
 
-#define INTERFACE_HIDE -500
+#define INTERFACE_HIDE 430
 #define INTERFACE_SHOW 0
 
 void Gui::run(void)
 {
-    sf::RenderWindow win = sf::RenderWindow(sf::VideoMode(1920, 1080), "Zappy");
+    sf::RenderWindow win = sf::RenderWindow(sf::VideoMode(DISPLAY_WIDTH, DISPLAY_HEIGHT), "Zappy");
     _window = &win;
 
     sf::View view(sf::FloatRect(0, 0, 1920, 1080));
@@ -65,7 +67,7 @@ void Gui::run(void)
     view.zoom(_zoom);
     _view_main = &view;
 
-    sf::View view_2(sf::FloatRect(0, 0, 1920, 1080));
+    sf::View view_2(sf::FloatRect(0, 0, DISPLAY_WIDTH, DISPLAY_HEIGHT));
     _view_interface = &view_2;
 
     load_map();
@@ -106,7 +108,6 @@ void Gui::run(void)
                 if (event.key.code == sf::Keyboard::P && _zoom < ZOOM_MAX)
                 {
                     _zoom += 0.1;
-                    // _view_main->getSize();
                     std::cout << _view_main->getSize().x << _view_main->getSize().y << std::endl;
                     _view_main->getTransform();
                     std::cout << _view_main->getTransform().transformPoint(0, 0).x << _view_main->getTransform().transformPoint(0, 0).y << std::endl;
@@ -134,15 +135,15 @@ void Gui::run(void)
                 move_tile(event);
             }
         }
-        if (_interface_show && _interface_center_value < INTERFACE_SHOW)
-        {
-            _interface_center_value += 10;
-            _view_interface->setCenter(0, 0);
-        }
-        else if (!_interface_show && _interface_center_value > INTERFACE_HIDE)
+        if (_interface_show && _interface_center_value > INTERFACE_SHOW)
         {
             _interface_center_value -= 10;
-            _view_interface->setCenter(_interface_center_value, 0);
+            _view_interface->setCenter(DISPLAY_WIDTH / 2 + _interface_center_value, DISPLAY_HEIGHT / 2);
+        }
+        else if (!_interface_show && _interface_center_value < INTERFACE_HIDE)
+        {
+            _interface_center_value += 10;
+            _view_interface->setCenter(DISPLAY_WIDTH / 2 + _interface_center_value, DISPLAY_HEIGHT / 2);
         }
         move_map(event);
         draw_map();
