@@ -93,8 +93,9 @@ private:
     std::vector<sf::Texture> _textures;
     sf::Font _font;
     sf::Text _text;
-
+    sf::Font _font2;
     sf::Text _text2;
+    sf::Text _text3;
 
     bool _menuisopen;
 
