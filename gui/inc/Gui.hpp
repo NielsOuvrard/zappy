@@ -51,8 +51,8 @@ typedef struct s_egg
 #define SIZE_PX_TILE 256
 #define SIZE_PX_HALF_TILE 192
 
-#define ZOOM_MAX 2
-#define ZOOM_MIN 0.2
+#define ZOOM_MAX 4
+#define ZOOM_MIN (double)(0.2000000000000000111)
 
 class Gui
 {
@@ -124,4 +124,7 @@ private:
     bool _move_down;
     bool _move_left;
     bool _move_up;
+
+    bool _interface_show;
+    int _interface_center_value;
 };

@@ -85,7 +85,7 @@ Gui::Gui(std::string data)
     }
     // perlin_noise();
 
-    _zoom = 0.5f;
+    _zoom = 1.0f;
 
     _waves = 0;
 
@@ -107,6 +107,9 @@ Gui::Gui(std::string data)
     _move_down = false;
     _move_left = false;
     _move_up = false;
+
+    _interface_show = true;
+    _interface_center_value = 0;
 
     _eggs = std::vector<t_egg>();
     _font = sf::Font();

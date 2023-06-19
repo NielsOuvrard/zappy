@@ -16,8 +16,13 @@
 // water animation ?
 // smooth zoom
 // move according to zoom
-// begin in the middle of the map
 // differents players by nivel
+// frequency move GUI side
+
+// incantation
+// broadcast
+
+// void Gui::incantation
 
 void Gui::move_tile(sf::Event event)
 {
@@ -47,6 +52,9 @@ void Gui::move_tile(sf::Event event)
     }
 }
 
+#define INTERFACE_HIDE -500
+#define INTERFACE_SHOW 0
+
 void Gui::run(void)
 {
     sf::RenderWindow win = sf::RenderWindow(sf::VideoMode(1920, 1080), "Zappy");
@@ -54,6 +62,7 @@ void Gui::run(void)
 
     sf::View view(sf::FloatRect(0, 0, 1920, 1080));
     view.setCenter(sf::Vector2f(SIZE_TILE * (DECOR_SIZE + _size_y + DECOR_SIZE), 0));
+    view.zoom(_zoom);
     _view_main = &view;
 
     sf::View view_2(sf::FloatRect(0, 0, 1920, 1080));
@@ -94,24 +103,46 @@ void Gui::run(void)
             }
             if (event.type == sf::Event::KeyPressed)
             {
-                if (event.key.code == sf::Keyboard::P)
+                if (event.key.code == sf::Keyboard::P && _zoom < ZOOM_MAX)
                 {
                     _zoom += 0.1;
-                    if (ZOOM_MAX < _zoom)
-                        _zoom = ZOOM_MAX;
-                    else
-                        _view_main->zoom(0.9f);
+                    // _view_main->getSize();
+                    std::cout << _view_main->getSize().x << _view_main->getSize().y << std::endl;
+                    _view_main->getTransform();
+                    std::cout << _view_main->getTransform().transformPoint(0, 0).x << _view_main->getTransform().transformPoint(0, 0).y << std::endl;
+                    _view_main->getViewport();
+                    std::cout << _view_main->getViewport().width << _view_main->getViewport().height << std::endl;
+                    _view_main->zoom(0.9f);
                 }
-                if (event.key.code == sf::Keyboard::M)
+                if (event.key.code == sf::Keyboard::M && _zoom > ZOOM_MIN)
                 {
                     _zoom -= 0.1;
-                    if (_zoom < ZOOM_MIN)
-                        _zoom = ZOOM_MIN;
-                    else
-                        _view_main->zoom(1.1f);
+                    _view_main->zoom(1.1f);
+                }
+                if (event.key.code == sf::Keyboard::O)
+                {
+                    _view_interface->zoom(0.9f);
+                }
+                if (event.key.code == sf::Keyboard::L)
+                {
+                    _view_interface->zoom(1.1f);
+                }
+                if (event.key.code == sf::Keyboard::I)
+                {
+                    _interface_show = !_interface_show;
                 }
                 move_tile(event);
             }
+        }
+        if (_interface_show && _interface_center_value < INTERFACE_SHOW)
+        {
+            _interface_center_value += 10;
+            _view_interface->setCenter(0, 0);
+        }
+        else if (!_interface_show && _interface_center_value > INTERFACE_HIDE)
+        {
+            _interface_center_value -= 10;
+            _view_interface->setCenter(_interface_center_value, 0);
         }
         move_map(event);
         draw_map();
