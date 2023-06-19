@@ -7,6 +7,7 @@
 
 #include "Gui.hpp"
 #include "logger.hpp"
+#include "PerlinNoise.hpp"
 #include <cmath>
 
 bool Gui::is_sand_center(int i, int j, int middle_x, int middle_y, float multiple)
@@ -38,16 +39,6 @@ bool Gui::is_sand_center(int i, int j, int middle_x, int middle_y, float multipl
 
 void Gui::load_map(void)
 {
-    std::ofstream myfile;
-    std::ifstream ifs;
-    std::string line;
-    ifs.open("gui/assets/map.txt", std::ifstream::in);
-    if (!ifs.good())
-    {
-        std::cout << "Error opening assets.txt" << std::endl;
-        exit(84);
-    }
-
     int size_island = _size_y > _size_x ? _size_y : _size_x;
 
     std::string water_all((2 * DECOR_SIZE) + size_island, ';');
@@ -72,11 +63,14 @@ void Gui::load_map(void)
         }
     }
 
+    Perlin per = Perlin::getInstance(_size_x, _size_y);
     for (int i = 0; i < _size_y; i++)
     {
-        std::getline(ifs, line);
         for (int j = 0; j < _size_x; j++)
-            _map_decor[DECOR_SIZE + i][DECOR_SIZE + j] = line[j];
+        {
+            int val = 'a' + (int)(per.get_color((float)j / (float)_size_x, (float)i / (float)_size_y) * 10);
+            _map_decor[DECOR_SIZE + i][DECOR_SIZE + j] = val;
+        }
     }
 
     // display map
