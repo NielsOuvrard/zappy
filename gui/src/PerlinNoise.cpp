@@ -44,15 +44,15 @@ Perlin::Perlin(int size_x, int size_y)
             Image[x + y * width] = Vec3f(result, result, result);
         }
     }
-    // write image to file for debugging
-    std::ofstream file("noise.ppm");
-    file << "P3\n"
-         << width << " " << height << "\n255\n";
-    for (int i = 0; i < width * height; i++)
-    {
-        file << (int)(Image[i].x * 255) << " " << (int)(Image[i].y * 255) << " " << (int)(Image[i].z * 255) << "\n";
-    }
-    file.close();
+    // // write image to file for debugging
+    // std::ofstream file("noise.ppm");
+    // file << "P3\n"
+    //      << width << " " << height << "\n255\n";
+    // for (int i = 0; i < width * height; i++)
+    // {
+    //     file << (int)(Image[i].x * 255) << " " << (int)(Image[i].y * 255) << " " << (int)(Image[i].z * 255) << "\n";
+    // }
+    // file.close();
 }
 
 // reseed the class
