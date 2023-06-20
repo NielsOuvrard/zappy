@@ -27,7 +27,7 @@ Gui::Gui(std::string data, Network *network) : _network(network)
                 _map[i] = new t_tile[_size_x];
                 for (int j = 0; j < _size_x; j++)
                 {
-                    _map[i][j] = (t_tile){0, 0, 0, 0, 0, 0, 0};
+                    _map[i][j] = (t_tile){{0, 0, 0, 0, 0, 0, 0}, 0};
                 }
             }
             size_found = true;

@@ -222,4 +222,18 @@ void Gui::draw_map(void)
         }
     }
 }
+
+void Gui::draw_particles(void)
+{
+    for (size_t i = 0; i < _particles.size(); i++)
+    {
+        // TODO height ?
+        sf::CircleShape circle(7 + _particles[i].lifetime * 0.5);
+        std::cout << "part [" << i << "] pos: " << _particles[i].pos.x << " " << _particles[i].pos.y << std::endl;
+        circle.setPosition(_particles[i].pos.x, _particles[i].pos.y);
+        circle.setFillColor(_particles[i].color);
+        _window->draw(circle);
+    }
+}
+
 // linear interpolation

@@ -13,6 +13,7 @@ typedef struct s_tile
 {
     // food, linemate, deraumere, sibur, mendiane, phiras, thystame
     int ressources[7];
+    int is_incanting;
 } t_tile;
 
 typedef struct s_player
@@ -24,6 +25,7 @@ typedef struct s_player
     int level;
     std::string team;
     int inventory[7];
+    bool is_incanting;
 } t_player;
 
 typedef struct s_egg
@@ -33,6 +35,13 @@ typedef struct s_egg
     int y;
     int player_id;
 } t_egg;
+
+typedef struct s_particle
+{
+    sf::Vector2f pos;
+    sf::Color color;
+    int lifetime;
+} t_particle;
 
 #define ID_TILE 0
 #define ID_STONE 1
@@ -69,6 +78,7 @@ private:
     void load_map(void);
     void draw_map(void);
     void draw_map_tile(int i, int j, int tile);
+    void draw_particles(void);
     void draw_map_half_tile(int i, int j, int tile);
     bool is_sand_center(int i, int j, int middle_x, int middle_y, float multiple);
     void event_slider(sf::Event event);
@@ -90,6 +100,7 @@ private:
     std::vector<std::string> _teams;
     std::vector<t_player> _players;
     std::vector<t_egg> _eggs;
+    std::vector<t_particle> _particles;
     std::string _ressources[7] = {"food", "linemate", "deraumere", "sibur", "mendiane", "phiras", "thystame"};
 
     // draw
