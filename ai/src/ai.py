@@ -143,6 +143,8 @@ def main():
                     player.right()
                 elif action == "Incantation":
                     player.incantation()
+                elif action == "Fork":
+                    player.fork(data)
                 else:
                     player.take(action)
         # response = player.server.recv(1024).decode()

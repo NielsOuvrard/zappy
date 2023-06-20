@@ -53,6 +53,7 @@ struct my_string_s *buffer)
     client->food = 10;
     client->food_time = 0;
 
+    bool is_forked_egg = egg->is_forked;
     client->posx = egg->posx;
     client->posy = egg->posy;
     client->orientation = egg->orientation;
@@ -64,7 +65,8 @@ struct my_string_s *buffer)
     dprintf(client->client_fd, "%d %d\n", g->arg->width, g->arg->height);
     // GUI Event
     struct my_string_s *msg = string_from_format("ebo %d\n", egg_id);
-    send_to_all_gui(g, msg->str);
+    if (is_forked_egg)
+        send_to_all_gui(g, msg->str);
     string_destroy(msg);
     msg = string_from_format("pnw %d %d %d %d %d %s\n",
     client->client_nb, client->posx, client->posy, client->orientation,

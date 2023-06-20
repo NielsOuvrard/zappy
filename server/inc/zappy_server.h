@@ -13,6 +13,7 @@
 #include <signal.h>
 #include <math.h>
 #include <time.h>
+#include <fcntl.h>
 
 #include <sys/types.h>
 #include <sys/select.h>
@@ -118,6 +119,7 @@ struct client_s {
     void (*exec)(struct global_struct_s *g, struct client_s *client,
         struct my_string_s *buffer);
     struct my_string_s *cmd;
+    int is_incanting;
     int level;
     int food;
     int linemate;

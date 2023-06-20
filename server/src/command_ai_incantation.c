@@ -21,7 +21,9 @@ struct my_string_s *buffer)
     int nb_players = 1;
     for (int i = 0; i < vector_length(g->clients); i++) {
         struct client_s *tmp = vector_get(g->clients, i);
-        if (tmp->posx == client->posx && tmp->posy == client->posy && tmp->level == client->level && client != tmp && !tmp->is_gui)
+        if (tmp->is_closed || tmp->is_gui)
+            continue;
+        if (tmp->posx == client->posx && tmp->posy == client->posy && tmp->level == client->level && client != tmp && tmp->is_incanting == -1)
             nb_players++;
     }
     if (nb_players < incant->nb_players) {
@@ -43,13 +45,22 @@ struct my_string_s *buffer)
     client->posx, client->posy, client->level, client->client_nb);
     for (int i = 0; i < vector_length(g->clients); i++) {
         struct client_s *tmp = vector_get(g->clients, i);
-        if (tmp->posx == client->posx && tmp->posy == client->posy && tmp->level == client->level && client != tmp && !tmp->is_gui) {
+        if (tmp->is_closed || tmp->is_gui)
+            continue;
+        if (tmp->posx == client->posx && tmp->posy == client->posy && tmp->level == client->level && client != tmp && tmp->is_incanting == -1) {
+            tmp->is_incanting = client->client_nb;
             string_append(msg, " ");
             string_append_int(msg, tmp->client_nb);
             dprintf(tmp->client_fd, "Elevation underway\n");
-            tmp->time = 300;
-            tmp->exec = do_nothing;
-            tmp->cmd = string_copy(buffer);
+            if (tmp->exec == NULL) {
+                tmp->time = 300;
+                tmp->exec = do_nothing;
+                if (tmp->cmd)
+                    string_destroy(tmp->cmd);
+                tmp->cmd = string_copy(buffer);
+            } else {
+                tmp->time += 300;
+            }
         }
     }
     // GUI Event
@@ -67,26 +78,29 @@ struct my_string_s *buffer)
     int nb_players = 1;
     for (int i = 0; i < vector_length(g->clients); i++) {
         struct client_s *tmp = vector_get(g->clients, i);
-        if (tmp->posx == client->posx && tmp->posy == client->posy && tmp->level == client->level && client != tmp && !tmp->is_gui)
+        if (tmp->is_closed || tmp->is_gui)
+            continue;
+        if (tmp->posx == client->posx && tmp->posy == client->posy && tmp->level == client->level && client != tmp && tmp->is_incanting == client->client_nb)
             nb_players++;
     }
-    if (nb_players < incant->nb_players) {
-        dprintf(client->client_fd, "ko\n");
-        // GUI Event
-        struct my_string_s *msg = string_from_format("pie %d %d 0\n",
-        client->posx, client->posy);
-        send_to_all_gui(g, msg->str);
-        string_destroy(msg);
-        return;
-    }
     struct tile_s *tile = vector_get(vector_get(g->map, client->posy), client->posx);
-    if (tile->linemate < incant->linemate ||
+    if (nb_players < incant->nb_players ||
+        tile->linemate < incant->linemate ||
         tile->deraumere < incant->deraumere ||
         tile->sibur < incant->sibur ||
         tile->mendiane < incant->mendiane ||
         tile->phiras < incant->phiras ||
         tile->thystame < incant->thystame) {
         dprintf(client->client_fd, "ko\n");
+        for (int i = 0; i < vector_length(g->clients); i++) {
+            struct client_s *tmp = vector_get(g->clients, i);
+            if (tmp->is_closed || tmp->is_gui)
+                continue;
+            if (tmp->posx == client->posx && tmp->posy == client->posy && tmp->level == client->level && client != tmp && tmp->is_incanting == client->client_nb) {
+                tmp->is_incanting = -1;
+                dprintf(tmp->client_fd, "ko\n");
+            }
+        }
         // GUI Event
         struct my_string_s *msg = string_from_format("pie %d %d 0\n",
         client->posx, client->posy);
@@ -102,9 +116,12 @@ struct my_string_s *buffer)
     tile->thystame -= incant->thystame;
     for (int i = 0; i < vector_length(g->clients); i++) {
         struct client_s *tmp = vector_get(g->clients, i);
-        if (tmp->posx == client->posx && tmp->posy == client->posy && tmp->level == client->level && client != tmp && !tmp->is_gui) {
+        if (tmp->is_closed || tmp->is_gui)
+            continue;
+        if (tmp->posx == client->posx && tmp->posy == client->posy && tmp->level == client->level && client != tmp && tmp->is_incanting == client->client_nb) {
             tmp->level++;
             dprintf(tmp->client_fd, "Current level: %d\n", client->level);
+            tmp->is_incanting = -1;
         }
     }
     client->level++;
@@ -122,7 +139,7 @@ struct my_string_s *buffer)
     struct my_string_s *team = NULL;
     for (int i = 0; i < vector_length(g->clients); i++) {
         struct client_s *tmp = vector_get(g->clients, i);
-        if (tmp->is_gui || tmp->level != 8)
+        if (tmp->is_gui || tmp->level != 8 || tmp->is_closed)
             continue;
         if (map_get(team_lvl8, tmp->team, string_equals_str) == NULL) {
             struct base_type_s *base = malloc(sizeof(struct base_type_s));

@@ -52,6 +52,7 @@ void accept_new_client(int select_result, struct global_struct_s *g)
         client->time = 0;
         client->exec = NULL;
         client->cmd = NULL;
+        client->is_incanting = -1;
         client->level = 1;
         client->food = 0;
         client->linemate = 0;
