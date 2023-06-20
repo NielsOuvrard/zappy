@@ -40,7 +40,8 @@ void map_init(struct my_map_s *this);
 ** @param destroy_key A pointer to the destroy function
 ** @param destroy_value A pointer to the destroy function
 **/
-void map_set_destroy(struct my_map_s *this, void (*destroy_key)(void *), void (*destroy_value)(void *));
+void map_set_destroy(struct my_map_s *this, void (*destroy_key)(void *),
+void (*destroy_value)(void *));
 
 /*
 ** @brief Set the destroy function of a map
@@ -54,7 +55,8 @@ void map_set_destroy_key(struct my_map_s *this, void (*destroy_key)(void *));
 ** @param this A pointer to the map
 ** @param destroy_value A pointer to the destroy function
 **/
-void map_set_destroy_value(struct my_map_s *this, void (*destroy_value)(void *));
+void map_set_destroy_value(struct my_map_s *this,
+void (*destroy_value)(void *));
 
 /**
 ** @brief Destroy a map
@@ -107,7 +109,8 @@ void map_clear(struct my_map_s *this);
 ** @param value A pointer to the value
 ** @param cmp A pointer to the compare function
 **/
-void map_set(struct my_map_s *this, void *key, void *value, bool (*cmp)(void *, void *));
+void map_set(struct my_map_s *this, void *key, void *value,
+bool (*cmp)(void *, void *));
 
 /**
 ** @brief Check if a map contains a key
@@ -116,4 +119,5 @@ void map_set(struct my_map_s *this, void *key, void *value, bool (*cmp)(void *, 
 ** @param cmp A pointer to the compare function
 ** @return true if the map contains the key, false otherwise
 **/
-bool map_contains(struct my_map_s *this, void *key, bool (*cmp)(void *, void *));
+bool map_contains(struct my_map_s *this, void *key,
+bool (*cmp)(void *, void *));

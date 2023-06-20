@@ -16,7 +16,7 @@ struct my_string_s *buffer)
         return;
     int id = atoi(((struct my_string_s *)vector_get(args, 1))->str);
     struct client_s *target = vector_get(g->clients, id);
-    if (target == NULL)
+    if (target == NULL || target->is_gui || target->team == NULL)
         return;
     dprintf(client->client_fd, "plv %d %d\n", id, target->level);
 }

@@ -22,7 +22,8 @@ void map_init(struct my_map_s *this)
     this->root = vector_create(sizeof(struct my_map_node_s));
 }
 
-void map_set_destroy(struct my_map_s *this, void (*destroy_key)(void *), void (*destroy_value)(void *))
+void map_set_destroy(struct my_map_s *this, void (*destroy_key)(void *),
+void (*destroy_value)(void *))
 {
     this->destroy_key = destroy_key;
     this->destroy_value = destroy_value;
@@ -38,7 +39,8 @@ void map_set_destroy_value(struct my_map_s *this, void (*destroy_value)(void *))
     this->destroy_value = destroy_value;
 }
 
-void node_destroy(void *this, void (*destroy_key)(void *), void (*destroy_value)(void *))
+void node_destroy(void *this, void (*destroy_key)(void *),
+void (*destroy_value)(void *))
 {
     struct my_map_node_s *node = this;
 
@@ -54,7 +56,8 @@ void node_destroy(void *this, void (*destroy_key)(void *), void (*destroy_value)
 void map_destroy(struct my_map_s *this)
 {
     for (int i = 0; i < this->root->length; i++)
-        node_destroy(this->root->items[i], this->destroy_key, this->destroy_value);
+        node_destroy(this->root->items[i], this->destroy_key,
+        this->destroy_value);
     free(this->root->items);
     free(this->root);
     free(this);
@@ -103,21 +106,22 @@ void map_remove(struct my_map_s *this, void *key, bool (*cmp)(void *, void *))
 void map_clear(struct my_map_s *this)
 {
     for (int i = 0; i < this->root->length; i++)
-        node_destroy(this->root->items[i], this->destroy_key, this->destroy_value);
+        node_destroy(this->root->items[i], this->destroy_key,
+        this->destroy_value);
     free(this->root->items);
     free(this->root);
     this->root = vector_create(sizeof(struct my_map_node_s));
 }
 
-void map_set(struct my_map_s *this, void *key, void *value, bool (*cmp)(void *, void *))
+void map_set(struct my_map_s *this, void *key, void *value,
+bool (*cmp)(void *, void *))
 {
     struct my_map_node_s *node = NULL;
 
     for (int i = 0; i < this->root->length; i++) {
         node = vector_get(this->root, i);
         if (cmp(node->key, key)) {
-            if (this->destroy_value)
-                this->destroy_value(node->value);
+            (this->destroy_value) ? this->destroy_value(node->value) : 0;
             node->value = value;
             return;
         }

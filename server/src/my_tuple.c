@@ -35,7 +35,8 @@ void tuple_destroy(void *this)
     free(tuple);
 }
 
-void tuple_set(struct my_tuple_s *this, void *first, void *second, void (*destroy_first)(void *), void (*destroy_second)(void *))
+void tuple_set(struct my_tuple_s *this, void *first, void *second,
+void (*destroy_first)(void *), void (*destroy_second)(void *))
 {
     if (this->destroy_first)
         this->destroy_first(this->first);
@@ -61,12 +62,14 @@ void tuple_set_second(struct my_tuple_s *this, void *second)
     this->second = second;
 }
 
-void tuple_set_destroy_first(struct my_tuple_s *this, void (*destroy_first)(void *))
+void tuple_set_destroy_first(struct my_tuple_s *this,
+void (*destroy_first)(void *))
 {
     this->destroy_first = destroy_first;
 }
 
-void tuple_set_destroy_second(struct my_tuple_s *this, void (*destroy_second)(void *))
+void tuple_set_destroy_second(struct my_tuple_s *this,
+void (*destroy_second)(void *))
 {
     this->destroy_second = destroy_second;
 }
@@ -89,7 +92,8 @@ void tuple_swap(struct my_tuple_s *this)
     this->second = tmp;
 }
 
-void tuple_print(struct my_tuple_s *this, void (*print_first)(void *), void (*print_second)(void *))
+void tuple_print(struct my_tuple_s *this, void (*print_first)(void *),
+void (*print_second)(void *))
 {
     if (print_first)
         print_first(this->first);
