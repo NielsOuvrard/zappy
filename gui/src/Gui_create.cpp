@@ -8,7 +8,7 @@
 #include "Gui.hpp"
 #include "logger.hpp"
 
-Gui::Gui(std::string data)
+Gui::Gui(std::string data, Network *network) : _network(network)
 {
     bool size_found = false;
     while (std::string::npos != data.find("\n") && !size_found)

@@ -57,7 +57,7 @@ void Gui::draw_players(int y, int x)
             // 0 = E
             // 3 = N
             // 2 = W
-            _sprites[ID_PLAYER].setColor(color_according_to_level[_players[i].level]);
+            _sprites[ID_PLAYER].setColor(color_according_to_level[_players[i].level - 1]);
             _sprites[ID_PLAYER].setTextureRect(sf::IntRect(
                 SIZE_PLAYER_X + (2 * orientation * SIZE_PLAYER_X),
                 1 * SIZE_PLAYER_Y, SIZE_PLAYER_X, SIZE_PLAYER_Y));

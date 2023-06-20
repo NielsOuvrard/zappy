@@ -37,28 +37,7 @@ void Network::send_data(std::string data)
     send(_sock, data.c_str(), data.length(), 0);
 }
 
-// std::string Network::receive_data()
-// {
-//     char buffer[4096];
-//     memset(buffer, 0, 4096);
-//     int valread = read(_sock, buffer, 4095);
-//     std::string data = "";
-//     if (valread < 0)
-//     {
-//         std::cout << "Read failed" << std::endl;
-//         std::cout << errno << std::endl; // 9 = bad file descriptor
-//     }
-//     else if (valread == 0)
-//     {
-//         std::cout << "Server disconnected" << std::endl;
-//         close(_sock);
-//         exit(84);
-//     }
-//     if (buffer[0] == '\0')
-//         return "";
-//     data = buffer;
-//     return data;
-// }
+// faire select
 
 std::string Network::receive_data()
 {

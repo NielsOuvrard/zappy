@@ -7,6 +7,7 @@
 
 #pragma once
 #include "zappy_gui.hpp"
+#include "Network.hpp"
 
 typedef struct s_tile
 {
@@ -57,7 +58,7 @@ typedef struct s_egg
 class Gui
 {
 public:
-    Gui(std::string data);
+    Gui(std::string data, Network *network);
     ~Gui();
     void run(void);
     bool fill_map(std::string data);
@@ -70,6 +71,7 @@ private:
     void draw_map_tile(int i, int j, int tile);
     void draw_map_half_tile(int i, int j, int tile);
     bool is_sand_center(int i, int j, int middle_x, int middle_y, float multiple);
+    void event_slider(sf::Event event);
 
     // void create_outdoor_map(void);
     void move_map(sf::Event event);
@@ -80,6 +82,7 @@ private:
     void move_tile(sf::Event event);
 
     sf::RenderWindow *_window;
+    Network *_network;
 
     // data
     t_tile **_map;
@@ -92,6 +95,7 @@ private:
     // draw
     std::vector<sf::Sprite> _sprites;
     std::vector<sf::Texture> _textures;
+    sf::RectangleShape _slider;
     sf::Font _font;
     sf::Text _text;
 
@@ -126,6 +130,9 @@ private:
     bool _move_down;
     bool _move_left;
     bool _move_up;
+
+    bool _slider_selected = false;
+    unsigned char _slider_value = 100;
 
     bool _interface_show;
     int _interface_center_value;

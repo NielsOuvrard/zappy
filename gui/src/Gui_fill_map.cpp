@@ -21,6 +21,9 @@ bool Gui::fill_map(std::string data)
         {
             std::string values = line.substr(line.find(" ") + 1);
             _freq = std::stoi(values);
+            _slider_value = _freq / 10;
+            _slider_value = _slider_value < 10 ? 10 : _slider_value;
+            _slider_value = _slider_value > 1000 ? 1000 : _slider_value;
         }
         else if (line.find("tna") != std::string::npos)
         {
@@ -175,6 +178,14 @@ bool Gui::fill_map(std::string data)
                     // incantation
                 }
             }
+        }
+        else if (line.find("sbp") != std::string::npos)
+        {
+            std::cout << LOG_GUI("Command success");
+        }
+        else if (line.find("suc") != std::string::npos)
+        {
+            std::cout << LOG_ERR_GUI("Command failed");
         }
         else
         {

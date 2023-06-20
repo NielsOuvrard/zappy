@@ -73,8 +73,7 @@ int zappy_gui(int ac, char **av)
     shared.data = shared.net->receive_data(); // WELECOME
     shared.net->send_data("GRAPHIC\n");
     shared.data = shared.net->receive_data();
-
-    Gui gui(shared.data);
+    Gui gui(shared.data, &net);
     shared.gui = &gui;
     shared.stop = false;
 
