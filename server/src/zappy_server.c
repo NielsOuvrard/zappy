@@ -85,6 +85,7 @@ int zappy_server(int ac, char **av)
     initialize_map();
     initialize_server();
     signal(SIGINT, sigint_handler);
+    signal(SIGPIPE, SIG_IGN);
     struct global_struct_s *g = get_global_struct();
     g->clients = vector_create(sizeof(struct client_s *));
     while (true) {

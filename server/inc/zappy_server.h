@@ -13,6 +13,7 @@
 #include <signal.h>
 #include <math.h>
 #include <time.h>
+#include <fcntl.h>
 
 #include <sys/types.h>
 #include <sys/select.h>
