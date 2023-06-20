@@ -284,7 +284,7 @@ class Player:
         self.parse_response(self.server.recv(1024).decode())
         response = self.next_command.pop(0)
         try:
-            response = response[1:-2] #! A FIX AVANT LA FIN DU PROJET
+            response = response[1:-1]
         except:
             print("error")
             return []
