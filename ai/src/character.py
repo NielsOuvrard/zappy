@@ -338,7 +338,7 @@ class Player:
         if response == "dead\n":
             sys.exit(84)
             return response
-        response = response[1:-2] #! A FIX AVANT LA FIN DU PROJET
+        response = response[1:-1]
         response = response.split(",")
         for i in range(len(response)):
             response[i] = response[i].split(" ")
