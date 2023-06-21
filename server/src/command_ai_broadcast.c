@@ -11,26 +11,12 @@ void calc_shortest_path(struct global_struct_s *g, struct client_s *client,
 struct client_s *tmp, int *x, int *y)
 {
     int x1 = client->posx - tmp->posx;
-    int x2 = client->posx - (tmp->posx + g->arg->width);
+    int x2 = (client->posx - g->arg->width) - tmp->posx;
     int y1 = client->posy - tmp->posy;
-    int y2 = client->posy - (tmp->posy + g->arg->height);
+    int y2 = (client->posy - g->arg->height) - tmp->posy;
 
-    *x = x1;
-    *y = y1;
-
-    int dist1 = sqrt(pow(x1, 2) + pow(y1, 2));
-    int dist2 = sqrt(pow(x2, 2) + pow(y1, 2));
-    int dist3 = sqrt(pow(x1, 2) + pow(y2, 2));
-    int dist4 = sqrt(pow(x2, 2) + pow(y2, 2));
-
-    if (dist2 < dist1)
-        *x = x2;
-    if (dist3 < dist1)
-        *y = y2;
-    if (dist4 < dist1) {
-        *x = x2;
-        *y = y2;
-    }
+    *x = (abs(x1) > abs(x2) ? x2 : x1);
+    *y = (abs(y1) > abs(y2) ? y2 : y1);
 }
 
 int calc_orientation(struct global_struct_s *g, struct client_s *client,
@@ -48,8 +34,8 @@ struct client_s *tmp)
 
     // calculate angle of rotation between the two clients (in degrees)
     // considering the origin is tmp and the target is client
-    // 0° is north, 90° is east, 180° is south, 270° is west, etc...
-    double angle = atan2(y, x) * 180 / M_PI;
+    // 0° is east, 90° is north, 180° is west, 270° is south, etc...
+    double angle = atan2(-y, x) * 180 / M_PI;
 
     // convert angle to positive value
     if (angle < 0)
@@ -58,21 +44,21 @@ struct client_s *tmp)
     // convert angle to orientation
     // N = 1, NW = 2, W = 3, SW = 4, S = 5, SE = 6, E = 7, NE = 8
     if (angle >= 337.5 || angle < 22.5)
-        orientation = 1; // north
+        orientation = 7; // E
     else if (angle >= 22.5 && angle < 67.5)
-        orientation = 8; // north-east
+        orientation = 8; // NE
     else if (angle >= 67.5 && angle < 112.5)
-        orientation = 7; // east
+        orientation = 1; // N
     else if (angle >= 112.5 && angle < 157.5)
-        orientation = 6; // south-east
+        orientation = 2; // NW
     else if (angle >= 157.5 && angle < 202.5)
-        orientation = 5; // south
+        orientation = 3; // W
     else if (angle >= 202.5 && angle < 247.5)
-        orientation = 4; // south-west
+        orientation = 4; // SW
     else if (angle >= 247.5 && angle < 292.5)
-        orientation = 3; // west
+        orientation = 5; // S
     else if (angle >= 292.5 && angle < 337.5)
-        orientation = 2; // north-west
+        orientation = 6; // SE
 
     // rotate orientation to match tmp's orientation
     if (tmp->orientation == NORTH)
