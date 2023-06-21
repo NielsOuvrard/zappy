@@ -8,9 +8,6 @@
 #include "Gui.hpp"
 #include "logger.hpp"
 
-#define SIZE_PLAYER_X 16
-#define SIZE_PLAYER_Y 22
-
 void Gui::draw_players(int y, int x)
 {
     sf::Color color_according_to_level[8] = {
@@ -58,19 +55,20 @@ void Gui::draw_players(int y, int x)
             // 3 = N
             // 2 = W
             _sprites[ID_PLAYER].setColor(color_according_to_level[_players[i].level - 1]);
+            int team_shift = (_players[i].team % 3) * 4;
             _sprites[ID_PLAYER].setTextureRect(sf::IntRect(
                 SIZE_PLAYER_X + (2 * orientation * SIZE_PLAYER_X),
-                1 * SIZE_PLAYER_Y, SIZE_PLAYER_X, SIZE_PLAYER_Y));
+                1 * SIZE_PLAYER_Y + team_shift * SIZE_PLAYER_Y, SIZE_PLAYER_X, SIZE_PLAYER_Y));
             _window->draw(_sprites[ID_PLAYER]);
         }
     }
     for (size_t i = 0; i < _eggs.size(); i++)
     {
-        if (_eggs[i].y == y && _eggs[i].x == x)
+        if (_eggs[i].y == y - DECOR_SIZE && _eggs[i].x == x - DECOR_SIZE)
         {
             _sprites[ID_EGG].setPosition(
-                (_eggs[i].x * 64 + _eggs[i].y * 64 + 64),
-                (_eggs[i].y * 32 - _eggs[i].x * 32 - height));
+                ((_eggs[i].x + DECOR_SIZE) * 64 + (_eggs[i].y + DECOR_SIZE) * 64 + 64),
+                ((_eggs[i].y + DECOR_SIZE) * 32 - (_eggs[i].x + DECOR_SIZE) * 32 - height));
             _textures[ID_EGG].setSmooth(false);
             _sprites[ID_EGG].setTexture(_textures[ID_EGG]);
             _sprites[ID_EGG].setScale(0.75, 0.75);
@@ -229,7 +227,6 @@ void Gui::draw_particles(void)
     {
         // TODO height ?
         sf::CircleShape circle(7 + _particles[i].lifetime * 0.5);
-        std::cout << "part [" << i << "] pos: " << _particles[i].pos.x << " " << _particles[i].pos.y << std::endl;
         circle.setPosition(_particles[i].pos.x, _particles[i].pos.y);
         circle.setFillColor(_particles[i].color);
         _window->draw(circle);

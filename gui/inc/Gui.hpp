@@ -23,7 +23,7 @@ typedef struct s_player
     int y;
     int orientation;
     int level;
-    std::string team;
+    int team;
     int inventory[7];
     bool is_incanting;
 } t_player;
@@ -64,6 +64,8 @@ typedef struct s_particle
 #define ZOOM_MAX 2
 #define ZOOM_MIN (double)(0.4000000000000000111)
 
+#define SIZE_PLAYER_X 16
+#define SIZE_PLAYER_Y 22
 class Gui
 {
 public:
@@ -86,10 +88,12 @@ private:
     // void create_outdoor_map(void);
     void move_map(sf::Event event);
     void interface(void);
+    void player(void);
     void draw_stones(int i, int j);
     void draw_stone(int i, int j, int pos_x, int pos_y);
     void perlin_noise(void);
     void move_tile(sf::Event event);
+    void handle_clocks(sf::Clock *clock, sf::Clock *clock_particules);
 
     sf::RenderWindow *_window;
     Network *_network;
@@ -112,6 +116,7 @@ private:
 
     sf::View *_view_main;
     sf::View *_view_interface;
+    sf::View *_view_player;
 
     int _selected_tile_x;
     int _selected_tile_y;

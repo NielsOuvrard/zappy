@@ -70,13 +70,22 @@ bool Gui::fill_map(std::string data)
             std::string level = values.substr(0, values.find(" "));
             values = values.substr(values.find(" ") + 1);
             std::string team = values.substr(0, values.find(" "));
+            int team_index = 0;
+            for (int i = 0; _teams.size() > 0 && i < _teams.size(); i++)
+            {
+                if (_teams[i] == team)
+                {
+                    team_index = i;
+                    break;
+                }
+            }
             t_player data = {
                 std::stoi(id),
                 std::stoi(x),
                 std::stoi(y),
                 std::stoi(orientation),
                 std::stoi(level),
-                team,
+                team_index,
                 {0, 0, 0, 0, 0, 0, 0},
                 false};
             _players.push_back(data);
@@ -139,7 +148,7 @@ bool Gui::fill_map(std::string data)
             {
                 if (_players[i].id == std::stoi(id))
                 {
-                    _players[i].inventory[std::stoi(resource) - 1]++;
+                    _players[i].inventory[std::stoi(resource)]++;
                 }
             }
         }

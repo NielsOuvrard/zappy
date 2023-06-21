@@ -57,6 +57,61 @@ void Gui::move_tile(sf::Event event)
 #define INTERFACE_HIDE 430
 #define INTERFACE_SHOW 0
 
+void Gui::handle_clocks(sf::Clock *clock, sf::Clock *clock_particules)
+{
+    if (clock_particules->getElapsedTime().asMilliseconds() > 100)
+    {
+        // add particles
+        for (size_t i = 0; i < _size_y; i++)
+        {
+            for (size_t j = 0; j < _size_x; j++)
+            {
+                if (_map[i][j].is_incanting)
+                {
+                    std::cout << "incanting in " << i << " " << j << std::endl;
+                    sf::Color color_according_to_level[8] = {
+                        sf::Color(255, 255, 255, 140),
+                        sf::Color(255, 255, 0, 140),
+                        sf::Color(255, 0, 0, 140),
+                        sf::Color(0, 255, 0, 140),
+                        sf::Color(0, 0, 255, 140),
+                        sf::Color(255, 0, 255, 140),
+                        sf::Color(0, 255, 255, 140),
+                        sf::Color(10, 10, 10, 140),
+                    };
+                    std::cout << "pos x " << ((DECOR_SIZE + j) * 64) + ((DECOR_SIZE + i) * 64) + 42 << std::endl;
+                    std::cout << "pos y " << (int)((int)(DECOR_SIZE + i) * 32) - (int)((int)(DECOR_SIZE + j) * 32) + 16 << std::endl;
+                    _particles.push_back((s_particle){
+                        sf::Vector2f(
+                            ((DECOR_SIZE + j) * 64) + ((DECOR_SIZE + i) * 64) + 42,
+                            (int)((int)(DECOR_SIZE + i) * 32) - (int)((int)(DECOR_SIZE + j) * 32) + 16),
+                        color_according_to_level[_map[i][j].is_incanting], 15});
+                }
+            }
+        }
+        for (size_t i = 0; i < _particles.size(); i++)
+        {
+            _particles[i].lifetime -= 1;
+            int rand_y = rand() % 14;
+            int rand_x = rand() % 14;
+            _particles[i].pos.y += 2 - rand_y;
+            _particles[i].pos.x += 7 - rand_x;
+
+            if (_particles[i].lifetime <= 0)
+            {
+                _particles.erase(_particles.begin() + i);
+            }
+        }
+        clock_particules->restart();
+    }
+
+    if (clock->getElapsedTime().asMilliseconds() > 1000)
+    {
+        _waves++;
+        clock->restart();
+    }
+}
+
 void Gui::event_slider(sf::Event event)
 {
     _slider.setSize(sf::Vector2f(200, 20));
@@ -108,6 +163,9 @@ void Gui::run(void)
     sf::View view_2(sf::FloatRect(0, 0, DISPLAY_WIDTH, DISPLAY_HEIGHT));
     _view_interface = &view_2;
 
+    sf::View view_3(sf::FloatRect(0, 0, DISPLAY_WIDTH, DISPLAY_HEIGHT));
+    _view_player = &view_3;
+
     load_map();
     load_textures();
     // create_outdoor_map();
@@ -115,7 +173,6 @@ void Gui::run(void)
     // clock
     sf::Clock clock;
     sf::Clock clock_particules;
-    sf::Time time;
     _window->setView(*_view_main);
     _view_height = _view_main->getSize().y;
     _view_width = _view_main->getSize().x;
@@ -189,6 +246,7 @@ void Gui::run(void)
         draw_map();
         draw_particles();
         interface();
+        // player();
 
         // * animation up and down
         if (_up_selected_tile)
@@ -208,61 +266,7 @@ void Gui::run(void)
 
         // _window->draw(shape);
         _window->display();
-
-        if (clock_particules.getElapsedTime().asMilliseconds() > 100)
-        {
-            // add particles
-            for (size_t i = 0; i < _size_y; i++)
-            {
-                for (size_t j = 0; j < _size_x; j++)
-                {
-                    if (_map[i][j].is_incanting)
-                    {
-                        std::cout << "incanting in " << i << " " << j << std::endl;
-                        sf::Color color_according_to_level[8] = {
-                            sf::Color(255, 255, 255, 140),
-                            sf::Color(255, 255, 0, 140),
-                            sf::Color(255, 0, 0, 140),
-                            sf::Color(0, 255, 0, 140),
-                            sf::Color(0, 0, 255, 140),
-                            sf::Color(255, 0, 255, 140),
-                            sf::Color(0, 255, 255, 140),
-                            sf::Color(10, 10, 10, 140),
-                        };
-                        // (j * 64 + i * 64 + 32),
-                        // (i * 32 - j * 32 + 16 - height));
-                        std::cout << "pos x " << ((DECOR_SIZE + j) * 64) + ((DECOR_SIZE + i) * 64) + 42 << std::endl;
-                        std::cout << "pos y " << (int)((int)(DECOR_SIZE + i) * 32) - (int)((int)(DECOR_SIZE + j) * 32) + 16 << std::endl;
-                        _particles.push_back((s_particle){
-                            sf::Vector2f(
-                                ((DECOR_SIZE + j) * 64) + ((DECOR_SIZE + i) * 64) + 42,
-                                (int)((int)(DECOR_SIZE + i) * 32) - (int)((int)(DECOR_SIZE + j) * 32) + 16),
-                            color_according_to_level[_map[i][j].is_incanting], 15});
-                        // (sf::Vector2f(_map[i][j].x, _map[i][j].y), sf::Vector2f(0, -1), sf::Color::Yellow));
-                    }
-                }
-            }
-            for (size_t i = 0; i < _particles.size(); i++)
-            {
-                _particles[i].lifetime -= 1;
-                int rand_y = rand() % 14;
-                int rand_x = rand() % 14;
-                _particles[i].pos.y += 2 - rand_y;
-                _particles[i].pos.x += 7 - rand_x;
-
-                if (_particles[i].lifetime <= 0)
-                {
-                    _particles.erase(_particles.begin() + i);
-                }
-            }
-            clock_particules.restart();
-        }
-
-        if (clock.getElapsedTime().asMilliseconds() > 1000)
-        {
-            _waves++;
-            clock.restart();
-        }
+        handle_clocks(&clock, &clock_particules);
     }
     return;
 }
