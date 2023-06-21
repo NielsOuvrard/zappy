@@ -138,6 +138,8 @@ void manage_specific_client(struct client_s *client, struct global_struct_s *g)
         string_append(client->buffer, buffer);
         if (strstr(client->buffer->str, "\n") != NULL)
             manage_command_in_buffer(client, g);
+        else if (strlen(client->buffer->str) > 10000)
+            client_disconnection(client, g);
     }
 }
 
