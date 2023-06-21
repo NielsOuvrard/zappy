@@ -12,10 +12,10 @@ void Gui::interface(void)
 {
     _window->setView(*_view_interface);
     // * BACKGROUND
-    _sprites[ID_BACKGROUND].setPosition(-150, -150);
+    _sprites[ID_BACKGROUND].setPosition(-150, -180);
     _sprites[ID_BACKGROUND].setColor(sf::Color(255, 255, 255, 255 * 0.8));
     _sprites[ID_BACKGROUND].setTexture(_textures[ID_BACKGROUND]);
-    _sprites[ID_BACKGROUND].setScale(1.2, 1.2);
+    _sprites[ID_BACKGROUND].setScale(1.2, 1.5);
     _window->draw(_sprites[ID_BACKGROUND]);
 
     sf::Vector2u in_sprite_sheet[7] = {
@@ -84,4 +84,22 @@ void Gui::interface(void)
     _text.setString("y = " + std::to_string(_selected_tile_y));
     _text.setPosition(0, 500);
     _window->draw(_text);
+
+    _text.setString("Frequency: " + std::to_string(10 * _slider_value));
+    _text.setPosition(0, 600);
+    _window->draw(_text);
+
+    _slider.setFillColor(sf::Color(180, 255, 180));
+    _slider.setSize(sf::Vector2f(200, 20));
+    _slider.setPosition(50, 650);
+    _window->draw(_slider);
+
+    _slider.setFillColor(sf::Color(0, 200, 0));
+    _slider.setSize(sf::Vector2f(2 * _slider_value, 20));
+    _window->draw(_slider);
+
+    sf::CircleShape cursor(16);
+    cursor.setPosition(50 + 2 * _slider_value - 16, 650 - 16 / 2);
+    cursor.setFillColor(sf::Color(0, 230, 0));
+    _window->draw(cursor);
 }

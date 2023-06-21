@@ -21,6 +21,9 @@ bool Gui::fill_map(std::string data)
         {
             std::string values = line.substr(line.find(" ") + 1);
             _freq = std::stoi(values);
+            _slider_value = _freq / 10;
+            _slider_value = _slider_value < 1 ? 1 : _slider_value;
+            _slider_value = _slider_value > 100 ? 100 : _slider_value;
         }
         else if (line.find("tna") != std::string::npos)
         {
@@ -49,7 +52,8 @@ bool Gui::fill_map(std::string data)
             values = values.substr(values.find(" ") + 1);
             std::string thystame = values.substr(0, values.find(" "));
             _map[std::stoi(y)][std::stoi(x)] = (t_tile){
-                std::stoi(food), std::stoi(linemate), std::stoi(deraumere), std::stoi(sibur), std::stoi(mendiane), std::stoi(phiras), std::stoi(thystame)};
+                {std::stoi(food), std::stoi(linemate), std::stoi(deraumere), std::stoi(sibur), std::stoi(mendiane), std::stoi(phiras), std::stoi(thystame)},
+                _map[std::stoi(y)][std::stoi(x)].is_incanting};
         }
         // data player
         else if (line.find("pnw") != std::string::npos)
@@ -66,7 +70,24 @@ bool Gui::fill_map(std::string data)
             std::string level = values.substr(0, values.find(" "));
             values = values.substr(values.find(" ") + 1);
             std::string team = values.substr(0, values.find(" "));
-            t_player data = {std::stoi(id), std::stoi(x), std::stoi(y), std::stoi(orientation), std::stoi(level), team, {0, 0, 0, 0, 0, 0, 0}};
+            int team_index = 0;
+            for (int i = 0; _teams.size() > 0 && i < _teams.size(); i++)
+            {
+                if (_teams[i] == team)
+                {
+                    team_index = i;
+                    break;
+                }
+            }
+            t_player data = {
+                std::stoi(id),
+                std::stoi(x),
+                std::stoi(y),
+                std::stoi(orientation),
+                std::stoi(level),
+                team_index,
+                {0, 0, 0, 0, 0, 0, 0},
+                false};
             _players.push_back(data);
         }
         else if (line.find("pdi") != std::string::npos)
@@ -127,7 +148,61 @@ bool Gui::fill_map(std::string data)
             {
                 if (_players[i].id == std::stoi(id))
                 {
-                    _players[i].inventory[std::stoi(resource) - 1]++;
+                    _players[i].inventory[std::stoi(resource)]++;
+                }
+            }
+        }
+        // pic (incantation)
+        else if (line.find("pic") != std::string::npos)
+        {
+            std::string values = line.substr(line.find(" ") + 1);
+            std::string x = values.substr(0, values.find(" "));
+            values = values.substr(values.find(" ") + 1);
+            std::string y = values.substr(0, values.find(" "));
+            values = values.substr(values.find(" ") + 1);
+            // TODO
+            std::string level = values.substr(0, values.find(" "));
+            std::vector<int> players;
+            while (values.find(" ") != std::string::npos)
+            {
+                values = values.substr(values.find(" ") + 1);
+                players.push_back(std::stoi(values.substr(0, values.find(" "))));
+            }
+            for (size_t i = 0; i < _players.size(); i++)
+            {
+                for (size_t j = 0; j < players.size(); j++)
+                {
+                    if (_players[i].id == players[j])
+                    {
+                        _players[i].is_incanting = true;
+                    }
+                }
+            }
+            std::cout << "Incantation started at " << x << " " << y << " level " << level << std::endl;
+            _map[std::stoi(y)][std::stoi(x)].is_incanting = std::stoi(level);
+        }
+        // pie
+        else if (line.find("pie") != std::string::npos)
+        {
+            std::string values = line.substr(line.find(" ") + 1);
+            std::string x = values.substr(0, values.find(" "));
+            values = values.substr(values.find(" ") + 1);
+            std::string y = values.substr(0, values.find(" "));
+            values = values.substr(values.find(" ") + 1);
+            std::string result = values.substr(0, values.find(" "));
+            // result = 1 when incantation success
+            // result = 0 when incantation fail
+            if (_map[std::stoi(y)][std::stoi(x)].is_incanting == 0)
+                std::cout << "!!! Incantation already stopped at " << x << " " << y << std::endl;
+            _map[std::stoi(y)][std::stoi(x)].is_incanting = 0;
+            std::cout << "Incantation stopped at " << x << " " << y << " result " << result << std::endl;
+            for (size_t i = 0; i < _players.size(); i++)
+            {
+                if (_players[i].x == std::stoi(x) && _players[i].y == std::stoi(y))
+                {
+                    if (std::stoi(result) == 1)
+                        _players[i].level++;
+                    _players[i].is_incanting = false;
                 }
             }
         }
@@ -175,6 +250,14 @@ bool Gui::fill_map(std::string data)
                     // incantation
                 }
             }
+        }
+        else if (line.find("sbp") != std::string::npos)
+        {
+            std::cout << LOG_GUI("Command success");
+        }
+        else if (line.find("suc") != std::string::npos)
+        {
+            std::cout << LOG_ERR_GUI("Command failed");
         }
         else
         {

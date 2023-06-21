@@ -8,7 +8,7 @@
 #include "Gui.hpp"
 #include "logger.hpp"
 
-Gui::Gui(std::string data)
+Gui::Gui(std::string data, Network *network) : _network(network)
 {
     bool size_found = false;
     while (std::string::npos != data.find("\n") && !size_found)
@@ -27,7 +27,7 @@ Gui::Gui(std::string data)
                 _map[i] = new t_tile[_size_x];
                 for (int j = 0; j < _size_x; j++)
                 {
-                    _map[i][j] = (t_tile){0, 0, 0, 0, 0, 0, 0};
+                    _map[i][j] = (t_tile){{0, 0, 0, 0, 0, 0, 0}, 0};
                 }
             }
             size_found = true;

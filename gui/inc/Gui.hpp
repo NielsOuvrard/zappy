@@ -7,11 +7,13 @@
 
 #pragma once
 #include "zappy_gui.hpp"
+#include "Network.hpp"
 
 typedef struct s_tile
 {
     // food, linemate, deraumere, sibur, mendiane, phiras, thystame
     int ressources[7];
+    int is_incanting;
 } t_tile;
 
 typedef struct s_player
@@ -21,8 +23,9 @@ typedef struct s_player
     int y;
     int orientation;
     int level;
-    std::string team;
+    int team;
     int inventory[7];
+    bool is_incanting;
 } t_player;
 
 typedef struct s_egg
@@ -32,6 +35,13 @@ typedef struct s_egg
     int y;
     int player_id;
 } t_egg;
+
+typedef struct s_particle
+{
+    sf::Vector2f pos;
+    sf::Color color;
+    int lifetime;
+} t_particle;
 
 #define ID_TILE 0
 #define ID_STONE 1
@@ -54,10 +64,12 @@ typedef struct s_egg
 #define ZOOM_MAX 2
 #define ZOOM_MIN (double)(0.4000000000000000111)
 
+#define SIZE_PLAYER_X 16
+#define SIZE_PLAYER_Y 22
 class Gui
 {
 public:
-    Gui(std::string data);
+    Gui(std::string data, Network *network);
     ~Gui();
     void run(void);
     bool fill_map(std::string data);
@@ -68,18 +80,23 @@ private:
     void load_map(void);
     void draw_map(void);
     void draw_map_tile(int i, int j, int tile);
+    void draw_particles(void);
     void draw_map_half_tile(int i, int j, int tile);
     bool is_sand_center(int i, int j, int middle_x, int middle_y, float multiple);
+    void event_slider(sf::Event event);
 
     // void create_outdoor_map(void);
     void move_map(sf::Event event);
     void interface(void);
+    void player(void);
     void draw_stones(int i, int j);
     void draw_stone(int i, int j, int pos_x, int pos_y);
     void perlin_noise(void);
     void move_tile(sf::Event event);
+    void handle_clocks(sf::Clock *clock, sf::Clock *clock_particules);
 
     sf::RenderWindow *_window;
+    Network *_network;
 
     // data
     t_tile **_map;
@@ -87,16 +104,19 @@ private:
     std::vector<std::string> _teams;
     std::vector<t_player> _players;
     std::vector<t_egg> _eggs;
+    std::vector<t_particle> _particles;
     std::string _ressources[7] = {"food", "linemate", "deraumere", "sibur", "mendiane", "phiras", "thystame"};
 
     // draw
     std::vector<sf::Sprite> _sprites;
     std::vector<sf::Texture> _textures;
+    sf::RectangleShape _slider;
     sf::Font _font;
     sf::Text _text;
 
     sf::View *_view_main;
     sf::View *_view_interface;
+    sf::View *_view_player;
 
     int _selected_tile_x;
     int _selected_tile_y;
@@ -126,6 +146,9 @@ private:
     bool _move_down;
     bool _move_left;
     bool _move_up;
+
+    bool _slider_selected = false;
+    unsigned char _slider_value = 100;
 
     bool _interface_show;
     int _interface_center_value;
