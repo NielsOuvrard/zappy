@@ -13,6 +13,8 @@ import json
 from parse_arg import setup_data
 from character import Player
 
+from network import Network
+
 # One unit of food allows them to live for 126 units of time
 
 # It is not necessary for the players to be on the same team; they only need to be of the same level
@@ -30,38 +32,29 @@ from character import Player
 # so...
 
 def connect_to_server(data):
-    server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    try:
-        server.connect((data["host"], data["port"]))
-    except ConnectionRefusedError:
-        print("Error: Connection refused to: " + data["host"] + ":" + str(data["port"]))
-        sys.exit(84)
+    server = Network(data)
 
-    response = server.recv(1024).decode() # WELCOME\n
-    server.send((data["team_name"] + "\n").encode())
-    response = server.recv(1024).decode()
+    response = server.recv() # WELCOME\n
+    server.send(data["team_name"] + "\n")
+    response = server.recv()
     print("recieve '" + response + "'")
 
     if response == "ko\n":
         print("Error: Invalid team name")
         sys.exit(84)
-    lines = response.split("\n")
-    id = int(response.split("\n")[0])
 
     size_x = 0
     size_y = 0
-    if len(lines) >= 2 and lines[1] != "":
-        size_x = int(response.split("\n")[1].split(" ")[0])
-        size_y = int(response.split("\n")[1].split(" ")[1])
+    response = server.recv()
+    print("recieve '" + response + "'")
+    if response == "ko\n":
+        print("Error: Invalid map size")
+        sys.exit(84)
     else:
-        response = server.recv(1024).decode()
-        if response == "ko\n":
-            print("Error: Invalid team name")
-            sys.exit(84)
-        size_x = int(response.split("\n")[0].split(" ")[0])
-        size_y = int(response.split("\n")[0].split(" ")[1])
+        size_x = int(response.split(" ")[0])
+        size_y = int(response.split(" ")[1])
 
-    player = Player(size_x, size_y, id, server)
+    player = Player(size_x, size_y, random.randint(0, 1000000000), server)
     return player
 
 # 1
@@ -145,6 +138,9 @@ def main():
                     player.incantation()
                 elif action == "Fork":
                     player.fork(data)
+                elif action.startswith("Broadcast"):
+                    messsage = action.split(" ")[0]
+                    player.broadcast(action[len(messsage) + 1:])
                 else:
                     player.take(action)
         # response = player.server.recv(1024).decode()
