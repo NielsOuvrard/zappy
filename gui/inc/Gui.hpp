@@ -43,6 +43,14 @@ typedef struct s_particle
     int lifetime;
 } t_particle;
 
+typedef struct s_incant
+{
+    std::vector<int> players;
+    int level;
+    int x;
+    int y;
+} t_incant;
+
 #define ID_TILE 0
 #define ID_STONE 1
 #define ID_FOOD 2
@@ -105,6 +113,7 @@ private:
     std::vector<t_player> _players;
     std::vector<t_egg> _eggs;
     std::vector<t_particle> _particles;
+    std::vector<t_incant> _list_incants;
     std::string _ressources[7] = {"food", "linemate", "deraumere", "sibur", "mendiane", "phiras", "thystame"};
 
     // draw

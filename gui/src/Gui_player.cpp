@@ -38,10 +38,13 @@ void Gui::player(void)
         orientation = 1;
     _sprites[ID_PLAYER].setPosition(0, 0);
     _sprites[ID_PLAYER].setTexture(_textures[ID_PLAYER]);
+    int team_shift = (_players[id].team % 3) * 4;
+    std::cout << "Y = " << ((1 + (_waves % 3)) * SIZE_PLAYER_Y) + (team_shift * SIZE_PLAYER_Y) << std::endl;
     _sprites[ID_PLAYER].setTextureRect(sf::IntRect(
         SIZE_PLAYER_X + (2 * orientation * SIZE_PLAYER_X),
-        1 * SIZE_PLAYER_Y, SIZE_PLAYER_X, SIZE_PLAYER_Y));
+        ((1 + (_waves % 3)) * SIZE_PLAYER_Y) + (team_shift * SIZE_PLAYER_Y), SIZE_PLAYER_X, SIZE_PLAYER_Y));
     _sprites[ID_PLAYER].setScale(5, 5);
     _window->draw(_sprites[ID_PLAYER]);
     _view_player->setCenter(250, 350);
 }
+// 110 - 132 - 154

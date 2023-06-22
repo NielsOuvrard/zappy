@@ -68,7 +68,6 @@ void Gui::handle_clocks(sf::Clock *clock, sf::Clock *clock_particules)
             {
                 if (_map[i][j].is_incanting)
                 {
-                    std::cout << "incanting in " << i << " " << j << std::endl;
                     sf::Color color_according_to_level[8] = {
                         sf::Color(255, 255, 255, 140),
                         sf::Color(255, 255, 0, 140),
@@ -79,8 +78,6 @@ void Gui::handle_clocks(sf::Clock *clock, sf::Clock *clock_particules)
                         sf::Color(0, 255, 255, 140),
                         sf::Color(10, 10, 10, 140),
                     };
-                    std::cout << "pos x " << ((DECOR_SIZE + j) * 64) + ((DECOR_SIZE + i) * 64) + 42 << std::endl;
-                    std::cout << "pos y " << (int)((int)(DECOR_SIZE + i) * 32) - (int)((int)(DECOR_SIZE + j) * 32) + 16 << std::endl;
                     _particles.push_back((s_particle){
                         sf::Vector2f(
                             ((DECOR_SIZE + j) * 64) + ((DECOR_SIZE + i) * 64) + 42,
