@@ -160,7 +160,6 @@ bool Gui::fill_map(std::string data)
             values = values.substr(values.find(" ") + 1);
             std::string y = values.substr(0, values.find(" "));
             values = values.substr(values.find(" ") + 1);
-            // TODO
             std::string level = values.substr(0, values.find(" "));
             std::vector<int> players;
             while (values.find(" ") != std::string::npos)
@@ -168,6 +167,7 @@ bool Gui::fill_map(std::string data)
                 values = values.substr(values.find(" ") + 1);
                 players.push_back(std::stoi(values.substr(0, values.find(" "))));
             }
+            _list_incants.push_back((t_incant){players, std::stoi(level), std::stoi(x), std::stoi(y)});
             for (size_t i = 0; i < _players.size(); i++)
             {
                 for (size_t j = 0; j < players.size(); j++)
@@ -181,7 +181,7 @@ bool Gui::fill_map(std::string data)
             std::cout << "Incantation started at " << x << " " << y << " level " << level << std::endl;
             _map[std::stoi(y)][std::stoi(x)].is_incanting = std::stoi(level);
         }
-        // pie
+        // pie (incantation end)
         else if (line.find("pie") != std::string::npos)
         {
             std::string values = line.substr(line.find(" ") + 1);
@@ -193,16 +193,32 @@ bool Gui::fill_map(std::string data)
             // result = 1 when incantation success
             // result = 0 when incantation fail
             if (_map[std::stoi(y)][std::stoi(x)].is_incanting == 0)
-                std::cout << "!!! Incantation already stopped at " << x << " " << y << std::endl;
+                std::cout << LOG_ERR_GUI("!!! Incantation already stopped at " << x << " " << y);
             _map[std::stoi(y)][std::stoi(x)].is_incanting = 0;
-            std::cout << "Incantation stopped at " << x << " " << y << " result " << result << std::endl;
-            for (size_t i = 0; i < _players.size(); i++)
+
+            // for each incantation
+            for (size_t i_incant = 0; i_incant < _list_incants.size(); i_incant++)
             {
-                if (_players[i].x == std::stoi(x) && _players[i].y == std::stoi(y))
+                if (_list_incants[i_incant].x == std::stoi(x) && _list_incants[i_incant].y == std::stoi(y))
                 {
-                    if (std::stoi(result) == 1)
-                        _players[i].level++;
-                    _players[i].is_incanting = false;
+                    // for each id_player in incantation
+                    for (size_t i_pla_inc = 0; i_pla_inc < _list_incants[i_incant].players.size(); i_pla_inc++)
+                    {
+                        // for each player
+                        for (size_t i_pla = 0; i_pla < _players.size(); i_pla++)
+                        {
+                            if (_players[i_pla].id == _list_incants[i_incant].players[i_pla_inc])
+                            {
+                                _players[i_pla].is_incanting = false;
+                                if (result == "1")
+                                {
+                                    _players[i_pla].level++;
+                                }
+                            }
+                        }
+                    }
+                    _list_incants.erase(_list_incants.begin() + i_incant);
+                    break;
                 }
             }
         }
