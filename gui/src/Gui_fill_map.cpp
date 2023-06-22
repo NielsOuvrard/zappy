@@ -71,7 +71,7 @@ bool Gui::fill_map(std::string data)
             values = values.substr(values.find(" ") + 1);
             std::string team = values.substr(0, values.find(" "));
             int team_index = 0;
-            for (int i = 0; _teams.size() > 0 && i < _teams.size(); i++)
+            for (size_t i = 0; _teams.size() > 0 && i < _teams.size(); i++)
             {
                 if (_teams[i] == team)
                 {

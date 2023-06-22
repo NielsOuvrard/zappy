@@ -62,9 +62,9 @@ void Gui::handle_clocks(sf::Clock *clock, sf::Clock *clock_particules)
     if (clock_particules->getElapsedTime().asMilliseconds() > 100)
     {
         // add particles
-        for (size_t i = 0; i < _size_y; i++)
+        for (int i = 0; i < _size_y; i++)
         {
-            for (size_t j = 0; j < _size_x; j++)
+            for (int j = 0; j < _size_x; j++)
             {
                 if (_map[i][j].is_incanting)
                 {
