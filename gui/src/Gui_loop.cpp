@@ -20,6 +20,7 @@
 // disp player inventory
 // disp nmb player by team
 // disp nmb player by tile
+// an arrow on selected player
 
 // * Optional
 // water animation ?
