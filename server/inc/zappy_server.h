@@ -39,6 +39,18 @@
 #define MAX_HEIGHT 30
 #define MIN_HEIGHT 10
 
+#define MAX_CLIENTS_NB 1000
+#define MIN_CLIENTS_NB 1
+
+#define MAX_FREQ 10000
+#define MIN_FREQ 1
+
+#define MAX_TEAMS_NB 100
+#define MIN_TEAMS_NB 1
+
+#define MAX_PORT 65535
+#define MIN_PORT 1025
+
 #define HATCH_TIME 600
 
 struct base_type_s {
