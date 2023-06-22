@@ -23,26 +23,21 @@ void Gui::draw_players(int y, int x)
     int height = 0;
     if (y - DECOR_SIZE == _selected_tile_y && x - DECOR_SIZE == _selected_tile_x)
         height = _height_selected_tile;
+    bool player_find = false;
+    int level = 0;
+    int orientation = 0;
+    int team_shift = 0;
+    int id = 0;
     for (size_t i = 0; i < _players.size(); i++)
     {
         if (_players[i].y == y - DECOR_SIZE && _players[i].x == x - DECOR_SIZE)
         {
-            _sprites[ID_PLAYER].setPosition(
-                ((_players[i].x + DECOR_SIZE) * 64 + (_players[i].y + DECOR_SIZE) * 64 + 32),
-                ((_players[i].y + DECOR_SIZE) * 32 - (_players[i].x + DECOR_SIZE) * 32 - 32 - height));
-            _textures[ID_PLAYER].setSmooth(false);
-            _sprites[ID_PLAYER].setTexture(_textures[ID_PLAYER]);
-            _sprites[ID_PLAYER].setScale(5, 5);
-            int orientation = _players[i].orientation;
-            if (orientation == 2)
-                orientation = 0;
-            else if (orientation == 4)
-                orientation = 2;
-            else if (orientation == 3)
-                orientation = 3;
-            else if (orientation == 1)
-                orientation = 1;
-
+            player_find = true;
+            if (_players[i].level < level)
+                continue;
+            id = i;
+            level = _players[i].level;
+            team_shift = (_players[i].team % 3) * 4;
             // recive orientation is oriented like this:
             // 1 = S
             // 2 = E
@@ -54,12 +49,41 @@ void Gui::draw_players(int y, int x)
             // 0 = E
             // 3 = N
             // 2 = W
-            _sprites[ID_PLAYER].setColor(color_according_to_level[_players[i].level - 1]);
-            int team_shift = (_players[i].team % 3) * 4;
-            _sprites[ID_PLAYER].setTextureRect(sf::IntRect(
-                SIZE_PLAYER_X + (2 * orientation * SIZE_PLAYER_X),
-                1 * SIZE_PLAYER_Y + team_shift * SIZE_PLAYER_Y, SIZE_PLAYER_X, SIZE_PLAYER_Y));
-            _window->draw(_sprites[ID_PLAYER]);
+            orientation = _players[i].orientation;
+            if (orientation == 2)
+                orientation = 0;
+            else if (orientation == 4)
+                orientation = 2;
+            else if (orientation == 3)
+                orientation = 3;
+            else if (orientation == 1)
+                orientation = 1;
+        }
+    }
+    if (player_find)
+    {
+        _sprites[ID_PLAYER].setPosition(
+            ((_players[id].x + DECOR_SIZE) * 64 + (_players[id].y + DECOR_SIZE) * 64 + 32),
+            ((_players[id].y + DECOR_SIZE) * 32 - (_players[id].x + DECOR_SIZE) * 32 - 32 - height));
+        _textures[ID_PLAYER].setSmooth(false);
+        _sprites[ID_PLAYER].setTexture(_textures[ID_PLAYER]);
+        _sprites[ID_PLAYER].setScale(5, 5);
+
+        _sprites[ID_PLAYER].setColor(color_according_to_level[_players[id].level - 1]);
+        team_shift = (_players[id].team % 3) * 4;
+        _sprites[ID_PLAYER].setTextureRect(sf::IntRect(
+            SIZE_PLAYER_X + (2 * orientation * SIZE_PLAYER_X),
+            1 * SIZE_PLAYER_Y + team_shift * SIZE_PLAYER_Y, SIZE_PLAYER_X, SIZE_PLAYER_Y));
+        _window->draw(_sprites[ID_PLAYER]);
+    }
+    for (size_t i = 0; i < _particles.size(); i++)
+    {
+        if (_particles[i].y == y - DECOR_SIZE && _particles[i].x == x - DECOR_SIZE)
+        {
+            sf::CircleShape circle(7 + _particles[i].lifetime * 0.5);
+            circle.setPosition(_particles[i].pos.x, _particles[i].pos.y - height);
+            circle.setFillColor(_particles[i].color);
+            _window->draw(circle);
         }
     }
     for (size_t i = 0; i < _eggs.size(); i++)
@@ -73,6 +97,7 @@ void Gui::draw_players(int y, int x)
             _sprites[ID_EGG].setTexture(_textures[ID_EGG]);
             _sprites[ID_EGG].setScale(0.75, 0.75);
             _window->draw(_sprites[ID_EGG]);
+            return;
         }
     }
 }
@@ -218,18 +243,6 @@ void Gui::draw_map(void)
                 draw_players(i, j);
             }
         }
-    }
-}
-
-void Gui::draw_particles(void)
-{
-    for (size_t i = 0; i < _particles.size(); i++)
-    {
-        // TODO height ?
-        sf::CircleShape circle(7 + _particles[i].lifetime * 0.5);
-        circle.setPosition(_particles[i].pos.x, _particles[i].pos.y);
-        circle.setFillColor(_particles[i].color);
-        _window->draw(circle);
     }
 }
 

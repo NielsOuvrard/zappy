@@ -41,6 +41,8 @@ typedef struct s_particle
     sf::Vector2f pos;
     sf::Color color;
     int lifetime;
+    int x;
+    int y;
 } t_particle;
 
 typedef struct s_incant
@@ -88,7 +90,6 @@ private:
     void load_map(void);
     void draw_map(void);
     void draw_map_tile(int i, int j, int tile);
-    void draw_particles(void);
     void draw_map_half_tile(int i, int j, int tile);
     bool is_sand_center(int i, int j, int middle_x, int middle_y, float multiple);
     void event_slider(sf::Event event);
@@ -155,6 +156,8 @@ private:
     bool _move_down;
     bool _move_left;
     bool _move_up;
+
+    size_t _selected_player = 0;
 
     bool _slider_selected = false;
     unsigned char _slider_value = 100;
