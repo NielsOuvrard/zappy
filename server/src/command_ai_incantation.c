@@ -168,6 +168,11 @@ struct my_string_s *buffer)
             else
                 dprintf(tmp->client_fd, "dead\n");
         }
+        // destroy allocated memory
+        map_set_destroy(team_lvl8, string_destroy, free);
+        map_destroy(team_lvl8);
+        free_all();
+        exit(0);
     }
 
     // destroy allocated memory

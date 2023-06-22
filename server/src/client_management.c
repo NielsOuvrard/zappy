@@ -15,7 +15,7 @@ void generate_missing_eggs(struct global_struct_s *g)
         // recreate an egg for this team
         while (g->arg->team_slots_server[i] < g->arg->clientsNb) {
             g->arg->team_slots_server[i]++;
-            ((struct base_type_s *)tuple_get_first(map_get(g->team_slots, name, string_equals_str)))->_int++;
+            ((struct base_type_s *)tuple_get_second(map_get(g->team_slots, name, string_equals_str)))->_int++;
             struct egg_s *egg = malloc(sizeof(struct egg_s));
             egg->id = g->egg_id++;
             egg->posx = rand() % g->arg->width;

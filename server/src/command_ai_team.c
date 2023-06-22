@@ -15,7 +15,7 @@ struct my_string_s *buffer)
     struct my_tuple_s *slots = map_get(g->team_slots, egg->team, string_equals_str);
     int min = ((struct base_type_s *)tuple_get_first(slots))->_int;
     int max = ((struct base_type_s *)tuple_get_second(slots))->_int;
-    if (min == max) {
+    if (min >= max) {
         dprintf(client->client_fd, "ko\n");
         return;
     }
