@@ -11,13 +11,13 @@ void command_ai_forward(struct global_struct_s *g, struct client_s *client,
 struct my_string_s *buffer)
 {
     if (client->orientation == NORTH)
-        client->posy = (client->posy - 1 + g->arg->height) % g->arg->height;
-    else if (client->orientation == SOUTH)
-        client->posy = (client->posy + 1) % g->arg->height;
-    else if (client->orientation == EAST)
-        client->posx = (client->posx + 1) % g->arg->width;
-    else if (client->orientation == WEST)
         client->posx = (client->posx - 1 + g->arg->width) % g->arg->width;
+    else if (client->orientation == SOUTH)
+        client->posx = (client->posx + 1) % g->arg->width;
+    else if (client->orientation == EAST)
+        client->posy = (client->posy + 1) % g->arg->height;
+    else if (client->orientation == WEST)
+        client->posy = (client->posy - 1 + g->arg->height) % g->arg->height;
     send_to_client(client, "ok\n");
     struct my_string_s *msg = string_from_format("ppo %d %d %d %d\n",
     client->client_nb, client->posx, client->posy, client->orientation);

@@ -42,7 +42,7 @@ struct my_string_s *buffer)
                 if (tile->food <= 0)
                     continue;
                 struct my_string_s *msg = string_from_format("bct %d %d %d %d %d %d %d %d %d\n",
-                i, j, tile->food, tile->linemate, tile->deraumere, tile->sibur,
+                j, i, tile->food, tile->linemate, tile->deraumere, tile->sibur,
                 tile->mendiane, tile->phiras, tile->thystame);
                 send_to_all_gui(g, msg->str);
                 string_destroy(msg);
