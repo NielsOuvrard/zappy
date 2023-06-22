@@ -21,7 +21,7 @@ struct my_string_s *buffer)
     egg->team = string_copy(client->team);
     vector_push_back(g->eggs, egg);
     ((struct base_type_s *)tuple_get_second(map_get(g->team_slots, client->team, string_equals_str)))->_int++;
-    dprintf(client->client_fd, "ok\n");
+    send_to_client(client, "ok\n");
 
     // GUI Event
     struct my_string_s *msg = string_from_format("enw %d %d %d %d\n",

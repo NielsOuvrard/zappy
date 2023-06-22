@@ -11,5 +11,5 @@
 void command_gui_msz(struct global_struct_s *g, struct client_s *client,
 struct my_string_s *buffer)
 {
-    dprintf(client->client_fd, "msz %d %d\n", g->arg->width, g->arg->height);
+    send_to_client(client, "msz %d %d\n", g->arg->width, g->arg->height);
 }

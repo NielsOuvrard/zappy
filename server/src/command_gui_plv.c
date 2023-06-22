@@ -18,5 +18,5 @@ struct my_string_s *buffer)
     struct client_s *target = vector_get(g->clients, id);
     if (target == NULL || target->is_gui || target->team == NULL)
         return;
-    dprintf(client->client_fd, "plv %d %d\n", id, target->level);
+    send_to_client(client, "plv %d %d\n", id, target->level);
 }

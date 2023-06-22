@@ -62,7 +62,7 @@ void accept_new_client(int select_result, struct global_struct_s *g)
         client->phiras = 0;
         client->thystame = 0;
         vector_push_back(g->clients, client);
-        dprintf(client_fd, "WELCOME\n");
+        send_to_client(client, "WELCOME\n");
         printf("new client: x: %d, y: %d, orient: %d\n", client->posx, client->posy, client->orientation);
     }
 }
@@ -130,7 +130,11 @@ void manage_specific_client(struct client_s *client, struct global_struct_s *g)
     if (FD_ISSET(client->client_fd, &g->readset)) {
         char buffer[BUFSIZ];
         memset(buffer, 0, BUFSIZ);
-        read(client->client_fd, buffer, BUFSIZ);
+        int return_value = read(client->client_fd, buffer, BUFSIZ);
+        if (return_value <= 0) {
+            client_disconnection(client, g);
+            return;
+        }
         if (strlen(buffer) == 0) {
             client_disconnection(client, g);
             return;
@@ -150,7 +154,7 @@ bool ai_starve_eat(struct global_struct_s *g, struct client_s *client)
             client->food--;
             client->food_time += FOOD_TIME;
         } else {
-            dprintf(client->client_fd, "dead\n");
+            send_to_client(client, "dead\n");
             close(client->client_fd);
             client->is_closed = true;
             ((struct base_type_s *)tuple_get_first(map_get(g->team_slots, client->team, string_equals_str)))->_int--;

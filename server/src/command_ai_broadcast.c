@@ -85,14 +85,14 @@ struct my_string_s *buffer)
         struct client_s *tmp = vector_get(g->clients, i);
         if (tmp->is_gui == false && tmp->client_fd != client->client_fd && tmp->is_closed == false) {
             int orientation = calc_orientation(g, client, tmp);
-            dprintf(tmp->client_fd, "message %d, %s", orientation,
+            send_to_client(tmp, "message %d, %s", orientation,
             buffer->str);
         }
         // GUI Event
         if (tmp->is_gui == true && tmp->client_fd != client->client_fd && tmp->is_closed == false) {
-            dprintf(tmp->client_fd, "pbc %d %s", client->client_nb,
+            send_to_client(tmp, "pbc %d %s", client->client_nb,
             buffer->str);
         }
     }
-    dprintf(client->client_fd, "ok\n");
+    send_to_client(client, "ok\n");
 }

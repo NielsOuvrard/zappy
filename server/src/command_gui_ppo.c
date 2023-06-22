@@ -18,6 +18,6 @@ struct my_string_s *buffer)
     struct client_s *target = vector_get(g->clients, id);
     if (target == NULL || target->is_gui || target->team == NULL)
         return;
-    dprintf(client->client_fd, "ppo %d %d %d %d\n", id, target->posx,
+    send_to_client(client, "ppo %d %d %d %d\n", id, target->posx,
     target->posy, target->orientation);
 }

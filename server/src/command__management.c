@@ -20,7 +20,7 @@ struct my_string_s *buffer)
                 return;
             }
         }
-        dprintf(client->client_fd, "ko\n"); // unknown command
+        send_to_client(client, "ko\n"); // unknown command
     }
 }
 
@@ -46,7 +46,7 @@ struct my_string_s *buffer)
     else if (string_startswith(buffer, "sst "))
         command_gui_sst(g, client, buffer);
     else
-        dprintf(client->client_fd, "suc\n"); // unknown command
+        send_to_client(client, "suc\n"); // unknown command
 }
 
 void manage_command_ai(struct global_struct_s *g, struct client_s *client,
@@ -105,7 +105,7 @@ struct my_string_s *buffer)
         client->exec = command_ai_incantation_end;
         client->cmd = string_copy(buffer);
     } else {
-        dprintf(client->client_fd, "ko\n"); // unknown command
+        send_to_client(client, "ko\n"); // unknown command
     }
 }
 

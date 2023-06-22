@@ -37,7 +37,7 @@ struct my_string_s *buffer)
     struct my_vector_s *arg = string_split(buffer, " ");
 
     if (vector_length(arg) != 2) {
-        dprintf(client->client_fd, "ko\n");
+        send_to_client(client, "ko\n");
         vector_destroy(arg);
         return;
     }
@@ -48,46 +48,46 @@ struct my_string_s *buffer)
     if (string_equals(name, "food\n") && client->food > 0) {
         tile->food++;
         client->food--;
-        dprintf(client->client_fd, "ok\n");
+        send_to_client(client, "ok\n");
         // GUI Event
         gui_event_set(g, client, tile, 0);
     } else if (string_equals(name, "linemate\n") && client->linemate > 0) {
         tile->linemate++;
         client->linemate--;
-        dprintf(client->client_fd, "ok\n");
+        send_to_client(client, "ok\n");
         // GUI Event
         gui_event_set(g, client, tile, 1);
     } else if (string_equals(name, "deraumere\n") && client->deraumere > 0) {
         tile->deraumere++;
         client->deraumere--;
-        dprintf(client->client_fd, "ok\n");
+        send_to_client(client, "ok\n");
         // GUI Event
         gui_event_set(g, client, tile, 2);
     } else if (string_equals(name, "sibur\n") && client->sibur > 0) {
         tile->sibur++;
         client->sibur--;
-        dprintf(client->client_fd, "ok\n");
+        send_to_client(client, "ok\n");
         // GUI Event
         gui_event_set(g, client, tile, 3);
     } else if (string_equals(name, "mendiane\n") && client->mendiane > 0) {
         tile->mendiane++;
         client->mendiane--;
-        dprintf(client->client_fd, "ok\n");
+        send_to_client(client, "ok\n");
         // GUI Event
         gui_event_set(g, client, tile, 4);
     } else if (string_equals(name, "phiras\n") && client->phiras > 0) {
         tile->phiras++;
         client->phiras--;
-        dprintf(client->client_fd, "ok\n");
+        send_to_client(client, "ok\n");
         // GUI Event
         gui_event_set(g, client, tile, 5);
     } else if (string_equals(name, "thystame\n") && client->thystame > 0) {
         tile->thystame++;
         client->thystame--;
-        dprintf(client->client_fd, "ok\n");
+        send_to_client(client, "ok\n");
         // GUI Event
         gui_event_set(g, client, tile, 6);
     } else
-        dprintf(client->client_fd, "ko\n");
+        send_to_client(client, "ko\n");
     vector_destroy(arg);
 }

@@ -16,7 +16,7 @@ struct my_string_s *buffer)
         return;
     int value = atoi(((struct my_string_s *)vector_get(args, 1))->str);
     g->arg->freq = value;
-    dprintf(client->client_fd, "sst %d\n", g->arg->freq);
+    send_to_client(client, "sst %d\n", g->arg->freq);
     vector_set_destructor(args, string_destroy);
     vector_destroy(args);
 }

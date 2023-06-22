@@ -16,7 +16,7 @@ struct my_string_s *buffer)
     int min = ((struct base_type_s *)tuple_get_first(slots))->_int;
     int max = ((struct base_type_s *)tuple_get_second(slots))->_int;
     if (min >= max) {
-        dprintf(client->client_fd, "ko\n");
+        send_to_client(client, "ko\n");
         return;
     }
     if (egg->is_forked == false) {
@@ -61,8 +61,8 @@ struct my_string_s *buffer)
     if (egg->team)
         string_destroy(egg->team);
     free(egg);
-    dprintf(client->client_fd, "%d\n", remaining_slots);
-    dprintf(client->client_fd, "%d %d\n", g->arg->width, g->arg->height);
+    send_to_client(client, "%d\n", remaining_slots);
+    send_to_client(client, "%d %d\n", g->arg->width, g->arg->height);
     // GUI Event
     struct my_string_s *msg = string_from_format("ebo %d\n", egg_id);
     if (is_forked_egg)
@@ -82,7 +82,7 @@ struct my_string_s *buffer, struct my_string_s *name)
     int min = ((struct base_type_s *)tuple_get_first(slots))->_int;
     int max = ((struct base_type_s *)tuple_get_second(slots))->_int;
     if (min == max) {
-        dprintf(client->client_fd, "ko\n");
+        send_to_client(client, "ko\n");
         return;
     }
     int index = -1;
@@ -94,7 +94,7 @@ struct my_string_s *buffer, struct my_string_s *name)
         }
     }
     if (index == -1) {
-        dprintf(client->client_fd, "ko\n");
+        send_to_client(client, "ko\n");
         return;
     }
 

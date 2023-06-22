@@ -31,7 +31,7 @@ struct my_string_s *buffer)
             struct client_s *tmp = vector_get(g->clients, i);
             if (tmp->posx == x && tmp->posy == y && tmp != client) {
                 tmp->posy = (tmp->posy - 1 + g->arg->height) % g->arg->height;
-                dprintf(tmp->client_fd, "eject: %d\n", SOUTH);
+                send_to_client(tmp, "eject: %d\n", SOUTH);
                 success = true;
                 gui_event_eject(g, tmp);
             }
@@ -41,7 +41,7 @@ struct my_string_s *buffer)
             struct client_s *tmp = vector_get(g->clients, i);
             if (tmp->posx == x && tmp->posy == y && tmp != client) {
                 tmp->posy = (tmp->posy + 1) % g->arg->height;
-                dprintf(tmp->client_fd, "eject: %d\n", NORTH);
+                send_to_client(tmp, "eject: %d\n", NORTH);
                 success = true;
                 gui_event_eject(g, tmp);
             }
@@ -51,7 +51,7 @@ struct my_string_s *buffer)
             struct client_s *tmp = vector_get(g->clients, i);
             if (tmp->posx == x && tmp->posy == y && tmp != client) {
                 tmp->posx = (tmp->posx + 1) % g->arg->width;
-                dprintf(tmp->client_fd, "eject: %d\n", WEST);
+                send_to_client(tmp, "eject: %d\n", WEST);
                 success = true;
                 gui_event_eject(g, tmp);
             }
@@ -61,7 +61,7 @@ struct my_string_s *buffer)
             struct client_s *tmp = vector_get(g->clients, i);
             if (tmp->posx == x && tmp->posy == y && tmp != client) {
                 tmp->posx = (tmp->posx - 1 + g->arg->width) % g->arg->width;
-                dprintf(tmp->client_fd, "eject: %d\n", EAST);
+                send_to_client(tmp, "eject: %d\n", EAST);
                 success = true;
                 gui_event_eject(g, tmp);
             }
@@ -86,7 +86,7 @@ struct my_string_s *buffer)
         }
     }
     if (success)
-        dprintf(client->client_fd, "ok\n");
+        send_to_client(client, "ok\n");
     else
-        dprintf(client->client_fd, "ko\n");
+        send_to_client(client, "ko\n");
 }

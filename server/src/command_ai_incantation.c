@@ -27,7 +27,7 @@ struct my_string_s *buffer)
             nb_players++;
     }
     if (nb_players < incant->nb_players) {
-        dprintf(client->client_fd, "ko\n");
+        send_to_client(client, "ko\n");
         return;
     }
     struct tile_s *tile = vector_get(vector_get(g->map, client->posy), client->posx);
@@ -37,7 +37,7 @@ struct my_string_s *buffer)
         tile->mendiane < incant->mendiane ||
         tile->phiras < incant->phiras ||
         tile->thystame < incant->thystame) {
-        dprintf(client->client_fd, "ko\n");
+        send_to_client(client, "ko\n");
         return;
     }
 
@@ -51,7 +51,7 @@ struct my_string_s *buffer)
             tmp->is_incanting = client->client_nb;
             string_append(msg, " ");
             string_append_int(msg, tmp->client_nb);
-            dprintf(tmp->client_fd, "Elevation underway\n");
+            send_to_client(tmp, "Elevation underway\n");
             if (tmp->exec == NULL) {
                 tmp->time = 300;
                 tmp->exec = do_nothing;
@@ -67,7 +67,7 @@ struct my_string_s *buffer)
     string_append(msg, "\n");
     send_to_all_gui(g, msg->str);
     string_destroy(msg);
-    dprintf(client->client_fd, "Elevation underway\n");
+    send_to_client(client, "Elevation underway\n");
 }
 
 void command_ai_incantation_end(struct global_struct_s *g, struct client_s *client,
@@ -91,14 +91,14 @@ struct my_string_s *buffer)
         tile->mendiane < incant->mendiane ||
         tile->phiras < incant->phiras ||
         tile->thystame < incant->thystame) {
-        dprintf(client->client_fd, "ko\n");
+        send_to_client(client, "ko\n");
         for (int i = 0; i < vector_length(g->clients); i++) {
             struct client_s *tmp = vector_get(g->clients, i);
             if (tmp->is_closed || tmp->is_gui)
                 continue;
             if (tmp->posx == client->posx && tmp->posy == client->posy && tmp->level == client->level && client != tmp && tmp->is_incanting == client->client_nb) {
                 tmp->is_incanting = -1;
-                dprintf(tmp->client_fd, "ko\n");
+                send_to_client(tmp, "ko\n");
             }
         }
         // GUI Event
@@ -120,12 +120,12 @@ struct my_string_s *buffer)
             continue;
         if (tmp->posx == client->posx && tmp->posy == client->posy && tmp->level == client->level && client != tmp && tmp->is_incanting == client->client_nb) {
             tmp->level++;
-            dprintf(tmp->client_fd, "Current level: %d\n", client->level);
+            send_to_client(tmp, "Current level: %d\n", client->level);
             tmp->is_incanting = -1;
         }
     }
     client->level++;
-    dprintf(client->client_fd, "Current level: %d\n", client->level);
+    send_to_client(client, "Current level: %d\n", client->level);
 
     // GUI Event
     struct my_string_s *msg = string_from_format("pie %d %d 1\n",
@@ -162,11 +162,11 @@ struct my_string_s *buffer)
         for (int i = 0; i < vector_length(g->clients); i++) {
             struct client_s *tmp = vector_get(g->clients, i);
             if (tmp->is_gui)
-                dprintf(tmp->client_fd, "seg %s\n", client->team->str);
+                send_to_client(tmp, "seg %s\n", client->team->str);
             else if (string_equals_str(tmp->team, team))
-                dprintf(tmp->client_fd, "You Win!\n");
+                send_to_client(tmp, "You Win!\n");
             else
-                dprintf(tmp->client_fd, "dead\n");
+                send_to_client(tmp, "dead\n");
         }
         // destroy allocated memory
         map_set_destroy(team_lvl8, string_destroy, free);

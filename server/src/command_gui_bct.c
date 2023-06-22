@@ -18,7 +18,7 @@ struct my_string_s *buffer)
     int y = atoi(((struct my_string_s *)vector_get(args, 2))->str);
     convert_coordinate(&x, &y);
     struct tile_s *tile = vector_get(vector_get(g->map, y), x);
-    dprintf(client->client_fd, "bct %d %d %d %d %d %d %d %d %d\n",
+    send_to_client(client, "bct %d %d %d %d %d %d %d %d %d\n",
     x, y, (g->ai_spawn ? tile->food : 0), tile->linemate, tile->deraumere,
     tile->sibur, tile->mendiane, tile->phiras, tile->thystame);
 }

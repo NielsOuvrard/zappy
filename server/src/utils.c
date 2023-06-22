@@ -23,7 +23,20 @@ void send_to_all_gui(struct global_struct_s *global_struct, char *msg)
 {
     for (int i = 0; i < vector_length(global_struct->clients); i++) {
         struct client_s *client = vector_get(global_struct->clients, i);
-        if (client->is_gui)
-            dprintf(client->client_fd, "%s", msg);
+        if (client->is_gui) {
+            int return_value = dprintf(client->client_fd, "%s", msg);
+            if (return_value < 0)
+                client_disconnection(client, get_global_struct());
+        }
     }
+}
+
+void send_to_client(struct client_s *client, char *format, ...)
+{
+    va_list ap;
+    va_start(ap, format);
+    int return_value = vdprintf(client->client_fd, format, ap);
+    if (return_value < 0)
+        client_disconnection(client, get_global_struct());
+    va_end(ap);
 }

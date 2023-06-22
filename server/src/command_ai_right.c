@@ -18,7 +18,7 @@ struct my_string_s *buffer)
         client->orientation = SOUTH;
     else if (client->orientation == WEST)
         client->orientation = NORTH;
-    dprintf(client->client_fd, "ok\n");
+    send_to_client(client, "ok\n");
     struct my_string_s *msg = string_from_format("ppo %d %d %d %d\n",
     client->client_nb, client->posx, client->posy, client->orientation);
     send_to_all_gui(g, msg->str);

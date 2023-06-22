@@ -33,7 +33,7 @@ void free_all(void)
         (client->cmd) ? string_destroy(client->cmd) : 0;
         if (fcntl(client->client_fd, F_GETFD) != -1) {
             if (!client->is_gui)
-                dprintf(client->client_fd, "dead\n");
+                send_to_client(client, "dead\n");
             close(client->client_fd);
         }
         free(client);

@@ -18,7 +18,7 @@ struct my_string_s *buffer)
     struct client_s *target = vector_get(g->clients, id);
     if (target == NULL || target->is_gui || target->team == NULL)
         return;
-    dprintf(client->client_fd, "pin %d %d %d %d %d %d %d %d %d %d\n", id,
+    send_to_client(client, "pin %d %d %d %d %d %d %d %d %d %d\n", id,
     target->posx, target->posy, target->food, target->linemate,
     target->deraumere, target->sibur, target->mendiane, target->phiras,
     target->thystame);

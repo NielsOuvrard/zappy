@@ -12,6 +12,6 @@ struct my_string_s *buffer)
 {
     struct my_string_s *inv = string_from_format("[food %d, linemate %d, deraumere %d, sibur %d, mendiane %d, phiras %d, thystame %d]\n",
     client->food, client->linemate, client->deraumere, client->sibur, client->mendiane, client->phiras, client->thystame);
-    dprintf(client->client_fd, "%s", inv->str);
+    send_to_client(client, "%s", inv->str);
     string_destroy(inv);
 }

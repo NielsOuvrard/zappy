@@ -15,5 +15,5 @@ struct my_string_s *buffer)
     int max = ((struct base_type_s *)tuple_get_second(slots))->_int;
 
     int remaning_slots = max - min;
-    dprintf(client->client_fd, "%d\n", remaning_slots);
+    send_to_client(client, "%d\n", remaning_slots);
 }

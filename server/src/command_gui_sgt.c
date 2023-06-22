@@ -11,5 +11,5 @@
 void command_gui_sgt(struct global_struct_s *g, struct client_s *client,
 struct my_string_s *buffer)
 {
-    dprintf(client->client_fd, "sgt %d\n", g->arg->freq);
+    send_to_client(client, "sgt %d\n", g->arg->freq);
 }
