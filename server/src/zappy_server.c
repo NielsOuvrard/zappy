@@ -19,9 +19,9 @@ void set_fd_set(struct global_struct_s *g)
         struct client_s *client = vector_get(g->clients, i);
         if (client->is_closed)
             continue;
-        FD_SET(client->client_fd, &g->readset);
-        if (client->client_fd + 1 > g->maxfd)
-            g->maxfd = client->client_fd + 1;
+        FD_SET(client->network_client->client_fd, &g->readset);
+        if (client->network_client->client_fd + 1 > g->maxfd)
+            g->maxfd = client->network_client->client_fd + 1;
         if (client->is_gui)
             continue;
         if (client->time > 0 && (client->time < g->lowest_time || g->lowest_time == 0))

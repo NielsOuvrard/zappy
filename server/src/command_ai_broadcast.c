@@ -83,13 +83,13 @@ struct my_string_s *buffer)
         string_remove_at(buffer, 0);
     for (int i = 0; i < vector_length(g->clients); i++) {
         struct client_s *tmp = vector_get(g->clients, i);
-        if (tmp->is_gui == false && tmp->client_fd != client->client_fd && tmp->is_closed == false) {
+        if (tmp->is_gui == false && tmp != client && tmp->is_closed == false) {
             int orientation = calc_orientation(g, client, tmp);
             send_to_client(tmp, "message %d, %s", orientation,
             buffer->str);
         }
         // GUI Event
-        if (tmp->is_gui == true && tmp->client_fd != client->client_fd && tmp->is_closed == false) {
+        if (tmp->is_gui == true && tmp != client && tmp->is_closed == false) {
             send_to_client(tmp, "pbc %d %s", client->client_nb,
             buffer->str);
         }

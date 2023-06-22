@@ -116,11 +116,15 @@ struct egg_s {
 
 struct global_struct_s;
 
-struct client_s {
-    bool is_closed;
-    bool is_gui;
+struct network_client_s {
     int client_fd;
     struct my_string_s *buffer;
+};
+
+struct client_s {
+    struct network_client_s *network_client;
+    bool is_closed;
+    bool is_gui;
     struct my_string_s *team;
     int posx;
     int posy;
@@ -235,6 +239,7 @@ void send_to_client(struct client_s *client, char *format, ...);
 void check_args(int ac, char **av);
 
 // Client management
+void client_disconnection(struct client_s *client, struct global_struct_s *g);
 void accept_new_client(int select_result, struct global_struct_s *g);
 bool ai_starve_eat(struct global_struct_s *g, struct client_s *client);
 void manage_clients(int select_result, struct global_struct_s *g);

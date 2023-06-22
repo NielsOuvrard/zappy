@@ -40,10 +40,11 @@ void accept_new_client(int select_result, struct global_struct_s *g)
         if (client_fd == -1)
             return;
         struct client_s *client = malloc(sizeof(struct client_s));
-        client->client_fd = client_fd;
+        client->network_client = malloc(sizeof(struct network_client_s));
+        client->network_client->client_fd = client_fd;
+        client->network_client->buffer = string_create();
         client->is_closed = false;
         client->is_gui = false;
-        client->buffer = string_create();
         client->team = NULL;
         client->posx = rand() % g->arg->width;
         client->posy = rand() % g->arg->height;
@@ -69,7 +70,7 @@ void accept_new_client(int select_result, struct global_struct_s *g)
 
 void client_disconnection(struct client_s *client, struct global_struct_s *g)
 {
-    close(client->client_fd);
+    close(client->network_client->client_fd);
     client->is_closed = true;
     if (client->team != NULL && !client->is_gui) {
         ((struct base_type_s *)tuple_get_first(map_get(g->team_slots, client->team, string_equals_str)))->_int--;
@@ -90,10 +91,10 @@ void manage_command_in_buffer(struct client_s *client, struct global_struct_s *g
         return;
 
     // "str to line"
-    struct my_vector_s *lines = string_split(client->buffer, "\n");
+    struct my_vector_s *lines = string_split(client->network_client->buffer, "\n");
     for (int i = 0; i < vector_length(lines); i++) {
         struct my_string_s *line = vector_get(lines, i);
-        if (i == vector_length(lines) - 1 && !string_endswith(client->buffer, "\n"))
+        if (i == vector_length(lines) - 1 && !string_endswith(client->network_client->buffer, "\n"))
             break;
         else
             string_append(line, "\n");
@@ -117,20 +118,20 @@ void manage_command_in_buffer(struct client_s *client, struct global_struct_s *g
         }
 
     // vider le buffer
-    string_clear(client->buffer);
+    string_clear(client->network_client->buffer);
 
     //remplir le buffer avec les commandes restantes
     for (int i = 0; i < vector_length(lines); i++)
-        string_append(client->buffer, vector_get(lines, i));
+        string_append(client->network_client->buffer, vector_get(lines, i));
     vector_destroy(lines);
 }
 
 void manage_specific_client(struct client_s *client, struct global_struct_s *g)
 {
-    if (FD_ISSET(client->client_fd, &g->readset)) {
+    if (FD_ISSET(client->network_client->client_fd, &g->readset)) {
         char buffer[BUFSIZ];
         memset(buffer, 0, BUFSIZ);
-        int return_value = read(client->client_fd, buffer, BUFSIZ);
+        int return_value = read(client->network_client->client_fd, buffer, BUFSIZ);
         if (return_value <= 0) {
             client_disconnection(client, g);
             return;
@@ -139,10 +140,10 @@ void manage_specific_client(struct client_s *client, struct global_struct_s *g)
             client_disconnection(client, g);
             return;
         }
-        string_append(client->buffer, buffer);
-        if (strstr(client->buffer->str, "\n") != NULL)
+        string_append(client->network_client->buffer, buffer);
+        if (strstr(client->network_client->buffer->str, "\n") != NULL)
             manage_command_in_buffer(client, g);
-        else if (strlen(client->buffer->str) > 10000)
+        else if (strlen(client->network_client->buffer->str) > 10000)
             client_disconnection(client, g);
     }
 }
@@ -155,7 +156,7 @@ bool ai_starve_eat(struct global_struct_s *g, struct client_s *client)
             client->food_time += FOOD_TIME;
         } else {
             send_to_client(client, "dead\n");
-            close(client->client_fd);
+            close(client->network_client->client_fd);
             client->is_closed = true;
             ((struct base_type_s *)tuple_get_first(map_get(g->team_slots, client->team, string_equals_str)))->_int--;
             ((struct base_type_s *)tuple_get_second(map_get(g->team_slots, client->team, string_equals_str)))->_int--;

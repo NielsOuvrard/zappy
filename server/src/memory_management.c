@@ -28,14 +28,15 @@ void free_all(void)
     vector_destroy(global_struct->map);
     for (int i = 0; i < vector_length(global_struct->clients); i++) {
         struct client_s *client = vector_get(global_struct->clients, i);
-        string_destroy(client->buffer);
+        string_destroy(client->network_client->buffer);
         (client->team) ? string_destroy(client->team) : 0;
         (client->cmd) ? string_destroy(client->cmd) : 0;
-        if (fcntl(client->client_fd, F_GETFD) != -1) {
+        if (fcntl(client->network_client->client_fd, F_GETFD) != -1) {
             if (!client->is_gui)
                 send_to_client(client, "dead\n");
-            close(client->client_fd);
+            close(client->network_client->client_fd);
         }
+        free(client->network_client);
         free(client);
     }
     vector_destroy(global_struct->clients);
@@ -54,9 +55,10 @@ void close_client(void)
         if (client->is_closed) {
             struct client_s *tmp = vector_remove(g->clients, i);
             i--;
-            string_destroy(tmp->buffer);
+            string_destroy(tmp->network_client->buffer);
             (tmp->team) ? string_destroy(tmp->team) : 0;
             (tmp->cmd) ? string_destroy(tmp->cmd) : 0;
+            free(tmp->network_client);
             free(tmp);
         }
     }
