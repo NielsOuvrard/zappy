@@ -154,6 +154,22 @@ bool Gui::fill_map(std::string data)
                 }
             }
         }
+        // pin (inventory)
+        else if (line.find("pin") != std::string::npos)
+        {
+            std::string values = line.substr(line.find(" ") + 1);
+            std::string id = values.substr(0, values.find(" "));
+            values = values.substr(values.find(" ") + 1);
+            std::string x = values.substr(0, values.find(" "));
+            values = values.substr(values.find(" ") + 1);
+            std::string y = values.substr(0, values.find(" "));
+            values = values.substr(values.find(" ") + 1);
+            for (size_t i = 0; i < 7; i++)
+            {
+                _selected_player_ressources[i] = std::stoi(values.substr(0, values.find(" ")));
+                values = values.substr(values.find(" ") + 1);
+            }
+        }
         // pic (incantation)
         else if (line.find("pic") != std::string::npos)
         {

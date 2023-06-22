@@ -13,13 +13,13 @@
 #define DISPLAY_HEIGHT 1080
 
 // * Mandatory
+// select
 // broadcast
 // modify interface size ?
 // not connected to server
 // disp player inventory
 // disp nmb player by team
 // disp nmb player by tile
-// selection player
 
 // * Optional
 // water animation ?
@@ -232,6 +232,10 @@ void Gui::run(void)
                         _selected_player++;
                     else
                         _selected_player = _players.size() - 1;
+                    if (_players.size() > 0)
+                        _network->send_data("pin " + std::to_string(_players[_selected_player].id) + "\n");
+                    // pos
+                    // _network->send_data("ppo " + std::to_string(_players[_selected_player].id) + "\n");
                 }
                 if (event.key.code == sf::Keyboard::E)
                 {

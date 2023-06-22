@@ -158,6 +158,7 @@ private:
     bool _move_up;
 
     size_t _selected_player = 0;
+    int _selected_player_ressources[7];
 
     bool _slider_selected = false;
     unsigned char _slider_value = 100;
