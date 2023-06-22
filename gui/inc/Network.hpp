@@ -27,4 +27,5 @@ private:
     int _sock;
     char *_ip;
     int _port;
+    fd_set _readfds;
 };

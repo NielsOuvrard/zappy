@@ -13,7 +13,6 @@
 #define DISPLAY_HEIGHT 1080
 
 // * Mandatory
-// select
 // broadcast
 // modify interface size ?
 // not connected to server
