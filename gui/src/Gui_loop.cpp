@@ -82,7 +82,7 @@ void Gui::handle_clocks(sf::Clock *clock, sf::Clock *clock_particules)
                         sf::Vector2f(
                             ((DECOR_SIZE + j) * 64) + ((DECOR_SIZE + i) * 64) + 42,
                             (int)((int)(DECOR_SIZE + i) * 32) - (int)((int)(DECOR_SIZE + j) * 32) + 16),
-                        color_according_to_level[_map[i][j].is_incanting], 15});
+                        color_according_to_level[_map[i][j].is_incanting], 15, (int)j, (int)i});
                 }
             }
         }
@@ -161,6 +161,7 @@ void Gui::run(void)
     _view_interface = &view_2;
 
     sf::View view_3(sf::FloatRect(0, 0, DISPLAY_WIDTH, DISPLAY_HEIGHT));
+    view_3.setCenter(-(DISPLAY_WIDTH / 2) + 280 - _interface_center_value, DISPLAY_HEIGHT / 2);
     _view_player = &view_3;
 
     load_map();
@@ -212,13 +213,32 @@ void Gui::run(void)
                     _zoom -= 0.1;
                     _view_main->setSize(_view_width * _zoom, _view_height * _zoom);
                 }
+                if (event.key.code == sf::Keyboard::M && _zoom > ZOOM_MIN)
+                {
+                    _zoom -= 0.1;
+                    _view_player->setSize(_view_width * _zoom, _view_height * _zoom);
+                }
                 if (event.key.code == sf::Keyboard::O)
                 {
-                    _view_interface->zoom(0.9f);
+                    // _view_interface->zoom(0.9f);
                 }
                 if (event.key.code == sf::Keyboard::L)
                 {
-                    _view_interface->zoom(1.1f);
+                    // _view_interface->zoom(1.1f);
+                }
+                if (event.key.code == sf::Keyboard::A)
+                {
+                    if (_selected_player + 1 < _players.size())
+                        _selected_player++;
+                    else
+                        _selected_player = _players.size() - 1;
+                }
+                if (event.key.code == sf::Keyboard::E)
+                {
+                    if (_selected_player > 0)
+                        _selected_player--;
+                    else
+                        _selected_player = 0;
                 }
                 if (event.key.code == sf::Keyboard::I)
                 {
@@ -231,19 +251,21 @@ void Gui::run(void)
         // * INTERFACE
         if (_interface_show && _interface_center_value > INTERFACE_SHOW)
         {
+            // -(DISPLAY_WIDTH / 2) + 280
             _interface_center_value -= 10;
             _view_interface->setCenter(DISPLAY_WIDTH / 2 + _interface_center_value, DISPLAY_HEIGHT / 2);
+            _view_player->setCenter(-(DISPLAY_WIDTH / 2) + 280 - _interface_center_value, DISPLAY_HEIGHT / 2);
         }
         else if (!_interface_show && _interface_center_value < INTERFACE_HIDE)
         {
             _interface_center_value += 10;
             _view_interface->setCenter(DISPLAY_WIDTH / 2 + _interface_center_value, DISPLAY_HEIGHT / 2);
+            _view_player->setCenter(-(DISPLAY_WIDTH / 2) + 280 - _interface_center_value, DISPLAY_HEIGHT / 2);
         }
         move_map(event);
         draw_map();
-        draw_particles();
         interface();
-        // player();
+        player();
 
         // * animation up and down
         if (_up_selected_tile)

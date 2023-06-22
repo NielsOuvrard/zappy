@@ -99,6 +99,8 @@ bool Gui::fill_map(std::string data)
                 if (_players[i].id == std::stoi(id))
                 {
                     _players.erase(_players.begin() + i);
+                    if (_selected_player == i)
+                        _selected_player = 0;
                     break;
                 }
             }
