@@ -63,7 +63,7 @@ private:
     void draw_stones(int i, int j);
     void draw_stone(int i, int j, int pos_x, int pos_y);
     void perlin_noise(void);
-    void menu_texture(void);
+    void menu_init(void);
     void set_pos(void);
     void draw_help(void);
 
@@ -82,20 +82,34 @@ private:
     sf::Vector2i clickPosition;
 
     // draw menu
-    sf::Texture _texture;
-    sf::Sprite _sprite;
-    sf::Texture _texture2;
-    sf::Sprite _sprite2;
-    sf::Texture _texture3;
-    sf::Sprite _sprite3;
-
+    sf::Text _text;
+    sf::Font _font;
     std::vector<sf::Sprite> _sprites;
     std::vector<sf::Texture> _textures;
-    sf::Font _font;
-    sf::Text _text;
-    sf::Font _font2;
-    sf::Text _text2;
-    sf::Text _text3;
+
+    // draw main menu
+    sf::Sprite _background;
+    sf::Texture _background_texture;
+    sf::Sprite _help_menu;
+    sf::Texture _help_texture;
+    sf::Text _title;
+    sf::Font _adumu;
+    std::vector<sf::Sprite> _buttons_sprites;
+    std::vector<sf::Texture> _buttons_textures;
+    std::vector<std::string> _buttons_tags;
+    std::vector<bool> _buttons_pressed;
+    sf::Vector2f _button_init_size;
+
+    // sf::Texture _texture;
+    // sf::Sprite _sprite;
+    // sf::Texture _texture2;
+    // sf::Sprite _sprite2;
+    // sf::Texture _texture3;
+    // sf::Sprite _sprite3;
+
+    // sf::Font _font2;
+    // sf::Text _text2;
+    // sf::Text _text3;
 
     bool _menuisopen;
 
