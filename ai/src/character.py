@@ -290,6 +290,10 @@ class Player:
     def manage_receive_message(self, response):
         print("RECEIVED MESSAGE", response)
         tmp = response.split(" ")
+        orientation = int(tmp[1][:-1])
+        message = tmp[2]
+        # uncrypt message
+        message = ''.join(chr(ord(a) ^ 1) for a in message)
 
         if tmp[2].startswith("Searching_incant_"):
             message = tmp[2].split("_")
@@ -420,6 +424,8 @@ class Player:
         # return response
 
     def broadcast(self, message):
+        # uncrypt message
+        message = ''.join(chr(ord(a) ^ 1) for a in message)
         self.server.send(("Broadcast " + message + "\n"))
         self.current_action = "BROADCAST"
         response = self.manage_response()
