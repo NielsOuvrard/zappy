@@ -154,6 +154,13 @@ bool ai_starve_eat(struct global_struct_s *g, struct client_s *client)
         if (client->food > 0) {
             client->food--;
             client->food_time += FOOD_TIME;
+            // GUI Event
+            struct my_string_s *msg = string_from_format("pin %d %d %d %d %d %d %d %d %d %d\n",
+            client->client_nb, client->posx, client->posy, client->food,
+            client->linemate, client->deraumere, client->sibur,
+            client->mendiane, client->phiras, client->thystame);
+            send_to_all_gui(g, msg->str);
+            string_destroy(msg);
         } else {
             send_to_client(client, "dead\n");
             close(client->network_client->client_fd);

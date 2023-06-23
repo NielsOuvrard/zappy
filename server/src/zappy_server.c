@@ -31,6 +31,8 @@ void set_fd_set(struct global_struct_s *g)
         if (client->food_time > 0 && (client->food_time < g->lowest_time || g->lowest_time == 0))
             g->lowest_time = client->food_time;
     }
+    if (g->ressources_respawn <= 0)
+        g->ressources_respawn = RESSOURCES_RESPAWN_TIME;
     if (g->ressources_respawn > 0 && (g->ressources_respawn < g->lowest_time || g->lowest_time == 0))
         g->lowest_time = g->ressources_respawn;
     for (int i = 0; i < vector_length(g->eggs); i++) {
