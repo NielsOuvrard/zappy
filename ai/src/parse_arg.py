@@ -7,6 +7,8 @@
 
 import sys
 
+from logger import Logger
+
 def print_help(exit_code):
     print("USAGE: ./zappy_ai -p port -n name -h machine")
     print("\tport\tis the port number")
@@ -37,5 +39,5 @@ def setup_data():
         else:
             print("Error: Invalid argument")
             print_help(84)
-    print(data)
+    Logger.log_info(data)
     return data

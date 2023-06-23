@@ -8,12 +8,14 @@
 import random
 import socket
 import sys
+import threading
 import json
+from time import sleep
 
 from parse_arg import setup_data
 from character import Player
-
 from network import Network
+from logger import Logger
 
 # One unit of food allows them to live for 126 units of time
 
@@ -37,24 +39,22 @@ def connect_to_server(data):
     response = server.recv() # WELCOME\n
     server.send(data["team_name"] + "\n")
     response = server.recv()
-    print("recieve '" + response + "'")
 
     if response == "ko\n":
-        print("Error: Invalid team name")
+        Logger.log_err("Error: Invalid team name")
         sys.exit(84)
 
     size_x = 0
     size_y = 0
     response = server.recv()
-    print("recieve '" + response + "'")
     if response == "ko\n":
-        print("Error: Invalid map size")
+        Logger.log_err("Error: Invalid map size")
         sys.exit(84)
     else:
         size_x = int(response.split(" ")[0])
         size_y = int(response.split(" ")[1])
 
-    player = Player(size_x, size_y, random.randint(0, 1000000000), server)
+    player = Player(size_x, size_y, 0, server)
     return player
 
 # 1
@@ -63,6 +63,9 @@ def connect_to_server(data):
 # 16
 # 25
 
+# take -> getInventory
+# difference between old and new inventory -> shared_inventory
+
 # issue [AI] Handle map
 # def fill_map(player: Player, look: list, size: int, incr: int = 1):
 #     for i in range(size):
@@ -70,64 +73,40 @@ def connect_to_server(data):
 #     if look.length() > size:
 #         fill_map(player, look[size:], size + incr, incr + 2)
 
-def check_food(player: Player, look: list):
-    if len(look) <= 2:
-        return False
-    for thing in look[2]:
-        if thing == "food":
-            return True
-    return False
+from enum import Enum
 
+class TypeResponse(Enum):
+    BOOL = 0
+    INVENTORY = 1
+    LOOK = 2
+    BROADCAST = 3
 
-def simple_algo_eat(player: Player):
-    look: list = player.look()
-    for thing in look[0]:
-        if thing == "food":
-            return 1
-    for i in range(4):
-        look: list = player.look()
-        if check_food(player, look):
-            res = player.forward()
-            print("forward", res)
-            return 1
-        res = player.right()
-        print("right", res)
-    val_rand = random.randint(0, 2)
-    if val_rand == 0:
-        res = player.right()
-        print("right", res)
-    elif val_rand == 1:
-        res = player.left()
-        print("left", res)
-    else:
-        res = player.forward()
-        print("forward", res)
-    return 0
-
-def detect_priority(player: Player, look: list):
-    """
-    Detect priority of the looked ressources
-    """
+def thread_function(player: Player):
+    while (1):
+        player.manage_response()
 
 def main():
-    data = setup_data()
-    player = connect_to_server(data)
-    print("inventory", player.inventory)
+    data: dict = setup_data()
+    player: Player = connect_to_server(data)
+
+    response_manager = threading.Thread(target=thread_function, args=(player,))
+    response_manager.start()
+
+    player.broadcast("Hello")
+
+    # player.manage_response()
 
     while (1):
-        # input()
-        player.getInventory()
-        print("inventory", player.inventory)
         player.look()
-        # print("map", json.dumps(player.map, indent=4))
-        print("PLAYER STATE", player.priority)
+        player.getInventory()
+        # input()
         if player.next_move == []:
             player.compute_good_case()
             player.compute_action()
         else:
             while player.next_move != []:
-                action = player.next_move.pop(0)
-                print("action TO DO", action)
+                # Logger.log_warn("next_move : " + str(player.next_move), player.id)
+                action: str = player.next_move.pop(0)
                 if action == "Forward":
                     player.forward()
                 elif action == "Left":
@@ -135,27 +114,38 @@ def main():
                 elif action == "Right":
                     player.right()
                 elif action == "Incantation":
+                    Logger.log_warn("Incantation", player.id)
                     player.incantation()
                 elif action == "Fork":
+                    Logger.log_warn("Fork", player.id)
                     player.fork(data)
                 elif action.startswith("Broadcast"):
+                    Logger.log_send("Broadcast", player.id)
                     messsage = action.split(" ")[0]
                     player.broadcast(action[len(messsage) + 1:])
                 else:
+                    Logger.log_warn("take " + action, player.id)
                     player.take(action)
+                    player.getInventory()
+                sleep(0.1)
+                    # if res_take == "ok" and action != "food":
+                    #     Logger.log_info("take " + action, player.id)
+                    #     player.inventory[action] += 1
+                    #     player.shared_inventory[action] += 1
+                    #     player.broadcast("SharedInventory_" + action + "_" + str(player.shared_inventory[action]))
+                    #     Logger.log_warn("shared_inventory : " + str(player.shared_inventory), player.id)
+                    #     Logger.log_warn("inventory : " + str(player.inventory), player.id)
+                    # elif res_take == "ko":
+                    #     Logger.log_err("take " + action, player.id)
         # response = player.server.recv(1024).decode()
         # player.parse_cmd(response)
         # command = player.next_command[0]
-        # print("command = ", command)
         # player.getInventory()
         # if player.getInventory() == "dead":
-        #     print("player is dead")
         #     break
-        # print("inventory", player.getInventory())
 
         # if simple_algo_eat(player):
         #     res = player.take("food")
-        #     print("take food", res)
     sys.exit(0)
 
 if __name__ == "__main__":

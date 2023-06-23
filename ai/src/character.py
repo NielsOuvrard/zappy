@@ -9,6 +9,18 @@ import json
 import sys
 import subprocess
 from enum import Enum
+from time import sleep
+
+from network import Network
+from logger import Logger
+
+# look for food
+# enought food -> look for stone
+# enought stone -> broadcast "Playler my level ?"
+# if find my level -> gather players -> drop stone -> incantation
+# if not -> fork & move
+
+# shared inventory ?
 
 LVL1_2 = {
     "ally": 0,
@@ -86,9 +98,16 @@ class Priority(Enum):
     Stones = 2
     Incantation = 3
     Reproduction = 4
+    Gather = 5
+
+class TypeResponse(Enum):
+    BOOL = 0
+    INVENTORY = 1
+    LOOK = 2
+    BROADCAST = 3
 
 class Player:
-    def __init__(self, size_x, size_y, id, server):
+    def __init__(self, size_x, size_y, id, server: Network):
         self.size_x = size_x
         self.size_y = size_y
         self.id = id
@@ -98,7 +117,18 @@ class Player:
         self.leader = False
         self.priority = Priority.Undefined
         self.forked_nbr = 0
+        self.message_received: list = []
+        self.message_type_received: list = []
         self.current_action = "NONE"
+        self.nmb_player = 1
+        self.shared_inventory = {
+            "linemate": 0,
+            "deraumere": 0,
+            "sibur": 0,
+            "mendiane": 0,
+            "phiras": 0,
+            "thystame": 0
+        }
 
         # Inventory
         self.inventory = {
@@ -160,14 +190,22 @@ class Player:
         """
         This function compute the priority of the player
         """
+        if (len(self.map) == 0):
+            sleep(0.1)
+            Logger.log_err("Player map is empty", self.id)
+            return
         self.compute_needed_food(self.map[-1].get("case_id"))
         self.compute_evolve()
         if self.inventory["food"] < self.needed_food:
+            Logger.log_warn("food : " + str(self.inventory["food"]) + " needed : " + str(self.needed_food), self.id)
             self.priority = Priority.Food
-        elif self.lvl > 1 and self.can_evolve and self.forked_nbr < 2:
+        elif self.nmb_player < self.level_cap[self.lvl - 1]["ally"] + 1:
             self.priority = Priority.Reproduction
         elif self.can_evolve and self.inventory["food"] >= 6:
-            self.priority = Priority.Incantation
+            if self.lvl > 1:
+                self.priority = Priority.Gather
+            else:
+                self.priority = Priority.Incantation
         else:
             self.priority = Priority.Stones
 
@@ -176,6 +214,7 @@ class Player:
         According to the map, this function compute the best case to go
         """
         self.compute_priority()
+        Logger.log_prio("My priority is " + str(self.priority), self.id)
         self.go_case_id = -1
         for i in range(len(self.map)):
             if self.map[i]["player"] == 0:
@@ -183,11 +222,11 @@ class Player:
                     self.go_case_id = self.map[i]["case_id"]
                     break
                 elif self.priority == Priority.Stones:
-                    # print("LEVEL CAP ", self.level_cap[self.lvl - 1])
                     needed_stones: dict = self.level_cap[self.lvl - 1].copy()
                     needed_stones.pop("ally")
                     for stone in needed_stones:
                         if self.map[i][stone] > 0 and self.inventory[stone] < needed_stones[stone]:
+                            Logger.log_err("I need " + stone)
                             self.go_case_id = self.map[i]["case_id"]
                             break
                 # elif self.priority == Priority.Incantation:
@@ -258,7 +297,6 @@ class Player:
             self.next_move.append("food")
         elif self.priority == Priority.Stones:
             self.next_move.append(self.get_stone())
-            print("SEARCHING FOR STONE", self.get_stone())
         elif self.priority == Priority.Reproduction:
             self.next_move.append("Fork")
         elif self.priority == Priority.Incantation:
@@ -269,7 +307,6 @@ class Player:
                 self.next_move.append("Incantation")
         else:
             self.next_move.append("food")
-        print("NEXT COMMAND", self.next_move)
 
     # # def parse_response(self, command):
     # #     """
@@ -278,8 +315,6 @@ class Player:
     # #     De l'index 0 a len(self.next_command) - 1
     # #     """
     # #     self.buffer += command
-    # #     print("PARSED COMMAND = " + command)
-    # #     print(f"NEXT COMMAND {self.next_command}")
     # #     if "\n" in self.buffer:
     # #         while "\n" in self.buffer:
     # #             self.next_command.append(self.buffer.split("\n")[0])
@@ -288,186 +323,237 @@ class Player:
     # #         self.parse_response(self.server.recv())
 
     def manage_receive_message(self, response):
-        print("RECEIVED MESSAGE", response)
         tmp = response.split(" ")
         orientation = int(tmp[1][:-1])
         message = tmp[2]
         # uncrypt message
         message = ''.join(chr(ord(a) ^ 1) for a in message)
 
-        if tmp[2].startswith("Searching_incant_"):
-            message = tmp[2].split("_")
-            print("SOMEBODY IS SEARCHING FOR INCANTATION", message)
-            if int(message[2]) != self.lvl:
-                print("NOT THE SAME LEVEL")
-                return
-            if int(message[3]) < self.inventory["food"]:
-                print("SENDING_COME_TO_ME")
-                self.next_move.append("Broadcast COME_" + message[4] + "_" + str(self.inventory["food"]) + "_" + str(self.id))
-                return
-            if int(message[3]) > self.inventory["food"]:
-                print("SENDING_WAIT")
-                self.next_move.append("Broadcast WAIT_" + message[4] + "_" + str(self.id))
-                return
+        Logger.log_recve("MESSAGE recieve [" + message + "]", self.id)
 
-        if tmp[2].startswith("COME_"):
-            message = tmp[2].split("_")
-            print("RECEIVED COME", message)
-            if int(message[2]) != self.id:
-                print("NOT FOR ME")
-                return
-            self.next_move.append("Forward")
+        if message.startswith("Hello"):
+            self.id += 1
+            if self.id == 1:
+                Logger.log_info("New player spawn, all id + 1")
+                str_to_send = "SharedAllInventory"
+                for i in self.shared_inventory:
+                    str_to_send += "_" + i + "_" + str(self.shared_inventory[i])
+                self.broadcast(str_to_send)
+                Logger.log_send("shared all inventory send -> " + str_to_send, self.id)
+            if self.id > 0:
+                self.broadcast("myidis_" + str(self.id) + "_" + str(self.lvl))
+                Logger.log_success("shared inventory" + str(self.shared_inventory), self.id)
             return
 
-        if tmp[2].startswith("WAIT_"):
-            message = tmp[2].split("_")
-            print("RECEIVED WAIT", message)
-            if int(message[2]) != self.id:
-                print("NOT FOR ME")
+        if message.startswith("SharedInventory"):
+            Logger.log_debug("SharedInventory message ->" + str(message), self.id)
+            message = message.split("_")
+            Logger.log_debug("SharedInventory split(_) ->" + str(message), self.id)
+            if len(message) != 3:
+                Logger.log_err("SharedInventory message too short ->" + str(message) , self.id)
                 return
-            self.next_move.append("Forward")
+            self.shared_inventory[message[1]] = int(message[2])
+            Logger.log_debug("SharedInventory [" + message[1] + "] [" + message[2] + "]", self.id)
             return
 
-    def manage_response(self):
-        while (True):
-            response = self.server.recv()
-            if response == "dead":
-                print("DEAD")
-                sys.exit(0)
-            elif response == "Elevation underway" and self.current_action != "INCANTATION":
-                pass
-            elif response.startswith("Current level: ") and self.current_action != "INCANTATION":
-                print("LEVEL UP", self.lvl)
-                self.lvl = int(response.split(" ")[2])
-            elif response.startswith("message "):
-                continue
-                self.manage_receive_message(response)
-            elif response.startswith("Eject: "):
-                print("I'VE BEEN EJECTED")
-            else:
-                return response
+        if message.startswith("SharedAddInventory"):
+            message = message.split("_")
+            if len(message) != 3:
+                Logger.log_err("SharedAddInventory bad args short ->" + str(message) , self.id)
+                return
+            self.shared_inventory[message[1]] += int(message[2])
+            Logger.log_debug("SharedAddInventory [" + message[1] + "] add [" + message[2] + "]", self.id)
+            return
 
-    def look(self):
+        if message.startswith("SharedAllInventory"):
+            # TODO int nmbr of player
+            Logger.log_debug("SharedAllInventory message ->" + str(message), self.id)
+            message = message.split("_")
+            Logger.log_debug("SharedAllInventory split(_) ->" + str(message), self.id)
+            if len(message) != 1 + 2 * len(self.shared_inventory):
+                Logger.log_err("SharedAllInventory message too short ->" + str(message) , self.id)
+                return
+            for i in range(1, len(message), 2):
+                self.shared_inventory[message[i]] = int(message[i + 1])
+            Logger.log_debug("SharedAllInventory " + str(self.shared_inventory) , self.id)
+            return
+
+        if message.startswith("myidis"):
+            # TODO decrem if player die
+            message = message.split("_")
+            if len(message) > 1 and int(message[1]) + 1 > self.nmb_player:
+                self.nmb_player = int(message[1]) + 1
+            Logger.log_recve("find id -> " + str(self.id) + " level " + message[2], self.id)
+            return
+
+        # if tmp[2].startswith("Searching_incant_"):
+        #     message = tmp[2].split("_")
+        #     if int(message[2]) != self.lvl:
+        #         return
+        #     if int(message[3]) < self.inventory["food"]:
+        #         self.next_move.append("Broadcast COME_" + message[4] + "_" + str(self.inventory["food"]) + "_" + str(self.id))
+        #         return
+        #     if int(message[3]) > self.inventory["food"]:
+        #         self.next_move.append("Broadcast WAIT_" + message[4] + "_" + str(self.id))
+        #         return
+
+        # if tmp[2].startswith("COME_"):
+        #     message = tmp[2].split("_")
+        #     if int(message[2]) != self.id:
+        #         return
+        #     self.next_move.append("Forward")
+        #     return
+
+        # if tmp[2].startswith("WAIT_"):
+        #     message = tmp[2].split("_")
+        #     if int(message[2]) != self.id:
+        #         return
+        #     self.next_move.append("Forward")
+            return
+
+    def manage_response(self) -> None:
+        response = self.server.recv()
+
+        if response == "dead":
+            sys.exit(0)
+
+        self.message_received.append(response)
+
+        # Logger.log_info("last 3 message received -> " + str(self.message_received[-3:]), self.id)
+
+        if response == "Elevation underway" and self.current_action != "INCANTATION":
+            Logger.log_err("Elevation underway but not incantation", self.id)
+            return
+
+        elif response.startswith("Current level: ") and self.current_action != "INCANTATION":
+            self.lvl = int(response.split(" ")[2])
+            Logger.log_err("lvl up to " + str(self.lvl), self.id)
+            return
+
+        elif response.startswith("message "):
+            self.manage_receive_message(response)
+            self.message_type_received.append(TypeResponse.BROADCAST)
+            return
+
+        elif response.startswith("Eject: "):
+            Logger.log_err("I'VE BEEN EJECTED")
+            return
+
+        if response.startswith("[") and response.endswith("]"):
+            # * check if inventory or look
+            try:
+                response = response[1:-1]
+            except:
+                Logger.log_err("look or inv", self.id)
+                return []
+            response = response.split(",")
+            for i in range(len(response)):
+                response[i] = response[i].split(" ")
+                # remove empty string
+                response[i] = list(filter(None, response[i]))
+
+            # if inventory
+            if len(response) == 7:
+                self.message_type_received.append(TypeResponse.INVENTORY)
+                new_inventory = {}
+                for i in range(len(response)):
+                    if len(response[i]) == 2:
+                        new_inventory[response[i][0]] = int(response[i][1])
+                    else:
+                        Logger.log_err("inventory error |" + str(response[i]) + "|", self.id)
+                Logger.log_info("inventory = " + str(response), self.id)
+                inventory_change: bool = False
+                update_inventory = "SharedAddInventory"
+                for i in self.inventory:
+                    if self.inventory[i] != new_inventory[i]:
+                        if i != "food":
+                            update_inventory += "_" + i + "_" + str(new_inventory[i] - self.inventory[i])
+                            inventory_change = True
+                        self.inventory[i] = new_inventory[i]
+                if inventory_change:
+                    Logger.log_send(update_inventory, self.id)
+                    self.broadcast(update_inventory)
+                return
+            self.message_type_received.append(TypeResponse.LOOK)
+            Logger.log_info("look because len(response) = " + str(len(response)), self.id)
+            # if look
+            self.map = []
+            for i in range(len(response)):
+                case_info: dict = {
+                    "case_id": i,
+                    "player": 0,
+                    "food": 0,
+                    "linemate": 0,
+                    "deraumere": 0,
+                    "sibur": 0,
+                    "mendiane": 0,
+                    "phiras": 0,
+                    "thystame": 0
+                }
+                for j in range(len(response[i])):
+                    if len(response[i]) >= j and response[i][j] in case_info:
+                        case_info[response[i][j]] += 1
+                    else:
+                        Logger.log_err("look error |" + str(response[i]) + "|", self.id)
+                self.map.append(case_info)
+            return
+        if response == "ok" or response == "ko":
+            self.message_type_received.append(TypeResponse.BOOL)
+        return
+
+
+    def look(self) -> list:
         self.server.send("Look\n")
         self.current_action = "LOOK"
-        response = self.manage_response()
-        # response = self.next_command.pop(0)
-        try:
-            response = response[1:-1]
-        except:
-            print("error")
-            return []
-        response = response.split(",")
-        for i in range(len(response)):
-            response[i] = response[i].split(" ")
-            # remove empty string
-            response[i] = list(filter(None, response[i]))
-        # print(response)
-        self.map = []
-        for i in range(len(response)):
-            case_info: dict = {
-                "case_id": i,
-                "player": 0,
-                "food": 0,
-                "linemate": 0,
-                "deraumere": 0,
-                "sibur": 0,
-                "mendiane": 0,
-                "phiras": 0,
-                "thystame": 0
-            }
-            for j in range(len(response[i])):
-                case_info[response[i][j]] += 1
-            self.map.append(case_info)
-        # print(json.dumps(self.map, indent=4))
-        print()
-        return response
+        # Logger.log_info("send look", self.id)
 
-    def forward(self):
+    def forward(self) -> str:
         self.server.send("Forward\n")
         self.current_action = "FORWARD"
-        response = self.manage_response()
-        # response = self.next_command.pop(0)
-        return response
 
-    def right(self):
+    def right(self) -> str:
         self.server.send("Right\n")
         self.current_action = "RIGHT"
-        response = self.manage_response()
-        # response = self.next_command.pop(0)
-        return response
 
-    def left(self):
+
+    def left(self) -> str:
         self.server.send("Left\n")
         self.current_action = "LEFT"
-        response = self.manage_response()
-        # response = self.next_command.pop(0)
-        return response
 
     def getInventory(self):
         self.server.send("Inventory\n")
         self.current_action = "INVENTORY"
-        response = self.manage_response()
-        # response = self.next_command.pop(0)
-        if response == "dead\n":
-            sys.exit(84)
-            return response
-        response = response[1:-1]
-        response = response.split(",")
-        for i in range(len(response)):
-            response[i] = response[i].split(" ")
-            # remove empty string
-            response[i] = list(filter(None, response[i]))
-        for i in range(len(response)):
-            self.inventory[response[i][0]] = int(response[i][1])
-        return self.inventory
-        # return response
 
     def broadcast(self, message):
         # uncrypt message
         message = ''.join(chr(ord(a) ^ 1) for a in message)
         self.server.send(("Broadcast " + message + "\n"))
         self.current_action = "BROADCAST"
-        response = self.manage_response()
-        # response = self.next_command.pop(0)
-        return response
 
     def connect_nbr(self):
         self.server.send("Connect_nbr\n")
         self.current_action = "CONNECT_NBR"
-        response = self.manage_response()
-        # response = self.next_command.pop(0)
-        return response
 
     def fork(self, data: dict):
         self.server.send("Fork\n")
         self.current_action = "FORK"
-        response = self.manage_response()
-        # response = self.next_command.pop(0)
         subprocess.Popen(["./zappy_ai", "-p", str(data["port"]), "-n", str(data["team_name"]), "-h", str(data["host"])])
         self.forked_nbr += 1
-        return response
 
     def eject(self):
         self.server.send("Eject\n")
         self.current_action = "EJECT"
-        response = self.manage_response()
-        # response = self.next_command.pop(0)
-        return response
+        # return self.response
 
     def take(self, object):
         self.server.send(("Take " + object + "\n"))
         self.current_action = "TAKE"
-        response = self.manage_response()
-        # response = self.next_command.pop(0)
-        return response
+        # return self.response
 
     def set(self, object):
         self.server.send(("Set " + object + "\n"))
         self.current_action = "SET"
-        response = self.manage_response()
-        # response = self.next_command.pop(0)
-        return response
+        # return self.response
 
     def drop_stone(self):
         # according to current level cap and inventory drop all needed stones to pass to the next level
@@ -482,12 +568,9 @@ class Player:
         self.drop_stone()
         self.server.send("Incantation\n")
         self.current_action = "INCANTATION"
-        response = self.manage_response()
-        # response = self.next_command.pop(0)
-        if response == "ko\n":
-            return response
-        self.lvl += 1
-        response = self.manage_response()
-        # response = self.next_command.pop(0)
-        print("LEVEL = ", self.lvl)
-        return response
+        # check with last response if incantation is ok
+        while self.message_type_received[-1] != TypeResponse.BOOL:
+            pass
+        if self.message_received[-1] == "ok":
+            self.lvl += 1
+        Logger.log_success("player " + str(self.id) + " level up to " + str(self.lvl), self.id)
