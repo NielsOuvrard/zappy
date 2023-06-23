@@ -279,9 +279,16 @@ void Menu::menu_run(void)
                 if (_help_menu.getPosition().x != 40000)
                     _help_menu.setPosition(_window->getSize().x / 2 - _help_menu.getGlobalBounds().width / 2, _window->getSize().y / 2 - _help_menu.getGlobalBounds().height / 2);
             }
-            if (event.type == sf::Event::Closed)
+            if (event.type == sf::Event::Closed) {
                 _window->close();
-            buttons_handling(event);
+                exit(0);
+            }
+            if (event.type == sf::Event::MouseMoved ||
+                event.type == sf::Event::MouseButtonPressed ||
+                event.type == sf::Event::MouseButtonReleased ||
+                event.type == sf::Event::KeyPressed ||
+                event.type == sf::Event::KeyReleased)
+                buttons_handling(event);
         }
         menu_draw();
         _window->display();
