@@ -20,7 +20,7 @@ Menu::Menu(std::string ip, std::string port)
     _background_texture = background_texture;
     _background.setTexture(background_texture);
 
-    if (!_help_texture.loadFromFile("gui/assets/HELP.png"))
+    if (!_help_texture.loadFromFile("gui/assets/Help_Menu.png"))
         exit(84);
 
     _help_menu.setTexture(_help_texture);
