@@ -111,6 +111,11 @@ class Player:
         self.size_x = size_x
         self.size_y = size_y
         self.id = id
+        self.boolean_received = 0
+        self.boolean_awaited = 0
+        self.data_received = 0
+        self.data_awaited = 0
+        self.broadcast_specific = False
         self.server = server
         self.can_evolve = False
         self.needed_food = 0
@@ -199,7 +204,7 @@ class Player:
         if self.inventory["food"] < self.needed_food:
             Logger.log_warn("food : " + str(self.inventory["food"]) + " needed : " + str(self.needed_food), self.id)
             self.priority = Priority.Food
-        elif self.nmb_player < self.level_cap[self.lvl - 1]["ally"] + 1:
+        elif self.nmb_player < self.level_cap[self.lvl - 1]["ally"] + 1 and self.forked_nbr < 1:
             self.priority = Priority.Reproduction
         elif self.can_evolve and self.inventory["food"] >= 6:
             if self.lvl > 1:
@@ -335,14 +340,7 @@ class Player:
             self.id += 1
             if self.id == 1:
                 Logger.log_info("New player spawn, all id + 1")
-                str_to_send = "SharedAllInventory"
-                for i in self.shared_inventory:
-                    str_to_send += "_" + i + "_" + str(self.shared_inventory[i])
-                self.broadcast(str_to_send)
-                Logger.log_send("shared all inventory send -> " + str_to_send, self.id)
-            if self.id > 0:
-                self.broadcast("myidis_" + str(self.id) + "_" + str(self.lvl))
-                Logger.log_success("shared inventory" + str(self.shared_inventory), self.id)
+                self.broadcast_specific = True
             return
 
         if message.startswith("SharedInventory"):
@@ -386,6 +384,7 @@ class Player:
             Logger.log_recve("find id -> " + str(self.id) + " level " + message[2], self.id)
             return
 
+        return
         # if tmp[2].startswith("Searching_incant_"):
         #     message = tmp[2].split("_")
         #     if int(message[2]) != self.lvl:
@@ -409,7 +408,6 @@ class Player:
         #     if int(message[2]) != self.id:
         #         return
         #     self.next_move.append("Forward")
-            return
 
     def manage_response(self) -> None:
         response = self.server.recv()
@@ -418,16 +416,19 @@ class Player:
             sys.exit(0)
 
         self.message_received.append(response)
-
+        print ("level ", self.lvl, end=" ")
+        Logger.log_recve(response, self.id)
         # Logger.log_info("last 3 message received -> " + str(self.message_received[-3:]), self.id)
 
         if response == "Elevation underway" and self.current_action != "INCANTATION":
             Logger.log_err("Elevation underway but not incantation", self.id)
             return
 
-        elif response.startswith("Current level: ") and self.current_action != "INCANTATION":
+        elif response.startswith("Current level: "):
             self.lvl = int(response.split(" ")[2])
             Logger.log_err("lvl up to " + str(self.lvl), self.id)
+            self.boolean_received += 1
+            self.message_type_received.append(TypeResponse.BOOL)
             return
 
         elif response.startswith("message "):
@@ -452,6 +453,7 @@ class Player:
                 # remove empty string
                 response[i] = list(filter(None, response[i]))
 
+            self.data_received += 1
             # if inventory
             if len(response) == 7:
                 self.message_type_received.append(TypeResponse.INVENTORY)
@@ -475,7 +477,7 @@ class Player:
                     self.broadcast(update_inventory)
                 return
             self.message_type_received.append(TypeResponse.LOOK)
-            Logger.log_info("look because len(response) = " + str(len(response)), self.id)
+            Logger.log_info("look", self.id)
             # if look
             self.map = []
             for i in range(len(response)):
@@ -499,36 +501,108 @@ class Player:
             return
         if response == "ok" or response == "ko":
             self.message_type_received.append(TypeResponse.BOOL)
+            self.boolean_received += 1
         return
 
 
     def look(self) -> list:
         self.server.send("Look\n")
         self.current_action = "LOOK"
-        # Logger.log_info("send look", self.id)
+        Logger.log_info("await look", self.id)
+        self.data_awaited += 1
+        last_nmbr = self.data_received
+        while self.data_received < self.data_awaited:
+            if last_nmbr != self.data_received:
+                last_nmbr = self.data_received
+                Logger.log_debug("look " + str(self.data_received) + "/" + str(self.data_awaited), self.id)
+            pass
+        Logger.log_debug("data_awaited (look) = " + str(self.data_awaited) + " recv = " + str(self.data_received), self.id)
 
     def forward(self) -> str:
         self.server.send("Forward\n")
         self.current_action = "FORWARD"
+        self.boolean_awaited += 1
+        # last_nmbr = self.boolean_received
+        # Logger.log_info("awaiting forward", self.id)
+        # while self.boolean_received < self.boolean_awaited:
+        #     if last_nmbr != self.boolean_received:
+        #         last_nmbr = self.boolean_received
+        #         Logger.log_debug("forward " + str(self.boolean_received) + "/" + str(self.boolean_awaited), self.id)
+        #     pass
+        # if self.message_received[-1] != "ok":
+        #     Logger.log_err("!!!! forward error, recve " + str(self.message_received[-1]) , self.id)
+        # Logger.log_debug("boolean_awaited (forward) = " + str(self.boolean_awaited) + " recv = " + str(self.boolean_received), self.id)
 
     def right(self) -> str:
         self.server.send("Right\n")
         self.current_action = "RIGHT"
-
+        self.boolean_awaited += 1
+        # last_nmbr = self.boolean_received
+        # Logger.log_info("awaiting right", self.id)
+        # while self.boolean_received < self.boolean_awaited:
+        #     if last_nmbr != self.boolean_received:
+        #         last_nmbr = self.boolean_received
+        #         Logger.log_debug("right " + str(self.boolean_received) + "/" + str(self.boolean_awaited), self.id)
+        #     pass
+        # if self.message_received[-1] != "ok":
+        #     Logger.log_err("!!!! right error, recve " + str(self.message_received[-1]) , self.id)
+        # Logger.log_debug("boolean_awaited (right) = " + str(self.boolean_awaited) + " recv = " + str(self.boolean_received), self.id)
 
     def left(self) -> str:
         self.server.send("Left\n")
         self.current_action = "LEFT"
+        self.boolean_awaited += 1
+        # last_nmbr = self.boolean_received
+        # Logger.log_info("awaiting left", self.id)
+        # while self.boolean_received < self.boolean_awaited:
+        #     if last_nmbr != self.boolean_received:
+        #         last_nmbr = self.boolean_received
+        #         Logger.log_debug("left " + str(self.boolean_received) + "/" + str(self.boolean_awaited), self.id)
+        #     pass
+        # if self.message_received[-1] != "ok":
+        #     Logger.log_err("!!!! left error, recve " + str(self.message_received[-1]) , self.id)
+        # Logger.log_debug("boolean_awaited (left) = " + str(self.boolean_awaited) + " recv = " + str(self.boolean_received), self.id)
 
     def getInventory(self):
         self.server.send("Inventory\n")
         self.current_action = "INVENTORY"
+        Logger.log_debug("await inventory", self.id)
+        self.data_awaited += 1
+        last_nmbr = self.data_received
+        while self.data_received < self.data_awaited:
+            if last_nmbr != self.data_received:
+                last_nmbr = self.data_received
+                Logger.log_debug("inventory " + str(self.data_received) + "/" + str(self.data_awaited), self.id)
+            pass
+        Logger.log_debug("data_awaited (inventory) = " + str(self.data_awaited) + " recv = " + str(self.data_received), self.id)
 
     def broadcast(self, message):
+        if self.broadcast_specific:
+            self.broadcast_specific = False
+            self.broadcast("myidis_" + str(self.id) + "_" + str(self.lvl))
+            Logger.log_success("shared inventory" + str(self.shared_inventory), self.id)
+            if self.id == 1:
+                str_to_send = "SharedAllInventory"
+                for i in self.shared_inventory:
+                    str_to_send += "_" + i + "_" + str(self.shared_inventory[i])
+                self.broadcast(str_to_send)
+                Logger.log_send("shared all inventory send -> " + str_to_send, self.id)
+            return
         # uncrypt message
         message = ''.join(chr(ord(a) ^ 1) for a in message)
         self.server.send(("Broadcast " + message + "\n"))
         self.current_action = "BROADCAST"
+        self.boolean_awaited += 1
+        # last_nmbr = self.boolean_received
+        # # can only send ok
+        # Logger.log_info("awaiting broadcast", self.id)
+        while self.boolean_received < self.boolean_awaited:
+            # sleep(0.1)
+            # Logger.log_debug("broadcast " + str(self.boolean_received) + "/" + str(self.boolean_awaited), self.id)
+            pass
+        # if self.message_received[-1] != "ok":
+        #     Logger.log_err("!!!! broadcast error, recve " + str(self.message_received[-1]) , self.id)
+        Logger.log_err("boolean_awaited (broadcast) = " + str(self.boolean_awaited) + " recv = " + str(self.boolean_received), self.id)
 
     def connect_nbr(self):
         self.server.send("Connect_nbr\n")
@@ -539,20 +613,58 @@ class Player:
         self.current_action = "FORK"
         subprocess.Popen(["./zappy_ai", "-p", str(data["port"]), "-n", str(data["team_name"]), "-h", str(data["host"])])
         self.forked_nbr += 1
+        self.boolean_awaited += 1
+        # can only send ok
+        Logger.log_info("awaiting fork", self.id)
+        while self.boolean_received < self.boolean_awaited:
+            pass
+        # if self.message_received[-1] != "ok":
+        #     Logger.log_err("!!!! fork error, recve " + str(self.message_received[-1]) , self.id)
+        Logger.log_debug("boolean_awaited (fork) = " + str(self.boolean_awaited) + " recv = " + str(self.boolean_received), self.id)
 
     def eject(self):
         self.server.send("Eject\n")
         self.current_action = "EJECT"
+        self.boolean_awaited += 1
+        Logger.log_debug("boolean_awaited (eject) = " + str(self.boolean_awaited) + " recv = " + str(self.boolean_received), self.id)
         # return self.response
 
     def take(self, object):
         self.server.send(("Take " + object + "\n"))
         self.current_action = "TAKE"
+        self.boolean_awaited += 1
+        last_nmbr = self.boolean_received
+        Logger.log_info("awaiting take", self.id)
+        while self.boolean_received < self.boolean_awaited:
+            if last_nmbr != self.boolean_received:
+                last_nmbr = self.boolean_received
+                Logger.log_debug("take " + str(self.boolean_received) + "/" + str(self.boolean_awaited), self.id)
+            pass
+        Logger.log_debug("boolean_awaited (take) = " + str(self.boolean_awaited) + " recv = " + str(self.boolean_received), self.id)
         # return self.response
+        if self.message_received[-1] == "ok":
+            self.inventory[object] += 1
+            Logger.log_debug("take " + object + " success = " + str(self.inventory[object]), self.id)
+        else:
+            Logger.log_err("take error, no " + object + " on the ground", self.id)
 
     def set(self, object):
         self.server.send(("Set " + object + "\n"))
         self.current_action = "SET"
+        self.boolean_awaited += 1
+        last_nmbr = self.boolean_received
+        Logger.log_info("awaiting set " + object, self.id)
+        while self.boolean_received < self.boolean_awaited:
+            if last_nmbr != self.boolean_received:
+                last_nmbr = self.boolean_received
+                Logger.log_debug("set " + str(self.boolean_received) + "/" + str(self.boolean_awaited), self.id)
+            pass
+        if self.message_received[-1] == "ok":
+            self.inventory[object] -= 1
+            Logger.log_debug("set " + object + " success", self.id)
+        else:
+            Logger.log_err("set error, no " + object + " in inventory", self.id)
+        Logger.log_debug("boolean_awaited (set) = " + str(self.boolean_awaited) + " recv = " + str(self.boolean_received), self.id)
         # return self.response
 
     def drop_stone(self):
@@ -569,8 +681,16 @@ class Player:
         self.server.send("Incantation\n")
         self.current_action = "INCANTATION"
         # check with last response if incantation is ok
-        while self.message_type_received[-1] != TypeResponse.BOOL:
+        self.boolean_awaited += 1
+        last_nmbr = self.boolean_received
+        Logger.log_info("awaiting incantation answer", self.id)
+        while self.boolean_received < self.boolean_awaited:
+            if last_nmbr != self.boolean_received:
+                last_nmbr = self.boolean_received
+                Logger.log_info("incantation " + str(self.boolean_received) + "/" + str(self.boolean_awaited), self.id)
             pass
-        if self.message_received[-1] == "ok":
-            self.lvl += 1
+        if self.message_received[-1] == "ko":
+            Logger.log_err("incantation ko", self.id)
+        else:
+            Logger.log_err("self.message_received[-1] = " + self.message_received[-1] , self.id)
         Logger.log_success("player " + str(self.id) + " level up to " + str(self.lvl), self.id)

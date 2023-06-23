@@ -27,7 +27,10 @@ class Network:
 
     def recv(self):
         while "\n" not in self.buffer:
-            select.select([self.server], [], [])
+            try:
+                select.select([self.server], [], [], 0)
+            except select.error:
+                return exit(84)
             self.buffer += self.server.recv(1024).decode()
         message = self.buffer.split("\n")[0]
         self.buffer = self.buffer[len(message) + 1:]

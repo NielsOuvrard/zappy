@@ -119,6 +119,8 @@ def main():
                 elif action == "Fork":
                     Logger.log_warn("Fork", player.id)
                     player.fork(data)
+                    player.broadcast("")
+                    Logger.log_err("Fork pass with succes", player.id)
                 elif action.startswith("Broadcast"):
                     Logger.log_send("Broadcast", player.id)
                     messsage = action.split(" ")[0]
@@ -127,7 +129,7 @@ def main():
                     Logger.log_warn("take " + action, player.id)
                     player.take(action)
                     player.getInventory()
-                sleep(0.1)
+                sleep(0.04)
                     # if res_take == "ok" and action != "food":
                     #     Logger.log_info("take " + action, player.id)
                     #     player.inventory[action] += 1
