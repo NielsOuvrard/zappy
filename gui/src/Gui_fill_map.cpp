@@ -160,13 +160,22 @@ bool Gui::fill_map(std::string data)
             std::string values = line.substr(line.find(" ") + 1);
             std::string id = values.substr(0, values.find(" "));
             values = values.substr(values.find(" ") + 1);
+            int player_index = 0;
+            for (size_t i = 0; i < _players.size(); i++)
+            {
+                if (_players[i].id == std::stoi(id))
+                {
+                    player_index = i;
+                    break;
+                }
+            }
             std::string x = values.substr(0, values.find(" "));
             values = values.substr(values.find(" ") + 1);
             std::string y = values.substr(0, values.find(" "));
             values = values.substr(values.find(" ") + 1);
             for (size_t i = 0; i < 7; i++)
             {
-                _selected_player_ressources[i] = std::stoi(values.substr(0, values.find(" ")));
+                _players[player_index].inventory[i] = std::stoi(values.substr(0, values.find(" ")));
                 values = values.substr(values.find(" ") + 1);
             }
         }
