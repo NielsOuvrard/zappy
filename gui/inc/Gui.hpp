@@ -62,7 +62,6 @@ private:
     void draw_stones(int i, int j);
     void draw_stone(int i, int j, int pos_x, int pos_y);
     void perlin_noise(void);
-    void menu_init(void);
     sf::RenderWindow *_window;
 
     // data
