@@ -111,7 +111,7 @@ void Gui::handle_clocks(sf::Clock *clock, sf::Clock *clock_particules)
         // add player particles
         if (_players.size() > 0)
         {
-            if (_players[_selected_player].is_incanting) {
+            if ((size_t)_selected_player < _players.size() && _players[_selected_player].is_incanting) {
                 int x = 185;
                 int y = 130;
                 _player_particles.push_back((s_particle){
