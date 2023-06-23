@@ -18,3 +18,12 @@ void convert_coordinate(int *x, int *y)
     while (*y < 0)
         *y = arg->height + *y;
 }
+
+void send_to_all_gui(struct global_struct_s *global_struct, char *msg)
+{
+    for (int i = 0; i < vector_length(global_struct->clients); i++) {
+        struct client_s *client = vector_get(global_struct->clients, i);
+        if (client->is_gui)
+            dprintf(client->client_fd, "%s", msg);
+    }
+}

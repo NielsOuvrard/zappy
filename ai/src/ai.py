@@ -9,80 +9,9 @@ import random
 import socket
 import sys
 import json
-from time import sleep
+
 from parse_arg import setup_data
 from character import Player
-
-
-LVL1_2 = {
-    "ally": 0,
-    "linemate": 1,
-    "deraumere": 0,
-    "sibur": 0,
-    "mendiane": 0,
-    "phiras": 0,
-    "thystame": 0
-}
-
-LVL2_3 = {
-    "ally": 1,
-    "linemate": 1,
-    "deraumere": 1,
-    "sibur": 1,
-    "mendiane": 0,
-    "phiras": 0,
-    "thystame": 0
-}
-
-LVL3_4 = {
-    "ally": 1,
-    "linemate": 2,
-    "deraumere": 0,
-    "sibur": 1,
-    "mendiane": 0,
-    "phiras": 2,
-    "thystame": 0
-}
-
-LVL4_5 = {
-    "ally": 3,
-    "linemate": 1,
-    "deraumere": 1,
-    "sibur": 2,
-    "mendiane": 0,
-    "phiras": 1,
-    "thystame": 0
-}
-
-LVL5_6 = {
-    "ally": 3,
-    "linemate": 1,
-    "deraumere": 2,
-    "sibur": 1,
-    "mendiane": 3,
-    "phiras": 0,
-    "thystame": 0
-}
-
-LVL6_7 = {
-    "ally": 5,
-    "linemate": 1,
-    "deraumere": 2,
-    "sibur": 3,
-    "mendiane": 0,
-    "phiras": 1,
-    "thystame": 0
-}
-
-LVL7_8 = {
-    "ally": 5,
-    "linemate": 2,
-    "deraumere": 2,
-    "sibur": 2,
-    "mendiane": 2,
-    "phiras": 2,
-    "thystame": 1
-}
 
 # One unit of food allows them to live for 126 units of time
 
@@ -113,9 +42,25 @@ def connect_to_server(data):
     response = server.recv(1024).decode()
     print("recieve '" + response + "'")
 
+    if response == "ko\n":
+        print("Error: Invalid team name")
+        sys.exit(84)
+    lines = response.split("\n")
     id = int(response.split("\n")[0])
-    size_x = int(response.split("\n")[1].split(" ")[0])
-    size_y = int(response.split("\n")[1].split(" ")[1])
+
+    size_x = 0
+    size_y = 0
+    if len(lines) >= 2 and lines[1] != "":
+        size_x = int(response.split("\n")[1].split(" ")[0])
+        size_y = int(response.split("\n")[1].split(" ")[1])
+    else:
+        response = server.recv(1024).decode()
+        if response == "ko\n":
+            print("Error: Invalid team name")
+            sys.exit(84)
+        size_x = int(response.split("\n")[0].split(" ")[0])
+        size_y = int(response.split("\n")[0].split(" ")[1])
+
     player = Player(size_x, size_y, id, server)
     return player
 
@@ -177,12 +122,31 @@ def main():
     print("inventory", player.inventory)
 
     while (1):
-        input()
-        if player.first == True:
-            player.first = False
-            player.look()
+        # input()
+        player.getInventory()
         print("inventory", player.inventory)
-        print("map", json.dumps(player.map, indent=4))
+        player.look()
+        # print("map", json.dumps(player.map, indent=4))
+        print("PLAYER STATE", player.priority)
+        if player.next_move == []:
+            player.compute_good_case()
+            player.compute_action()
+        else:
+            while player.next_move != []:
+                action = player.next_move.pop(0)
+                print("action TO DO", action)
+                if action == "Forward":
+                    player.forward()
+                elif action == "Left":
+                    player.left()
+                elif action == "Right":
+                    player.right()
+                elif action == "Incantation":
+                    player.incantation()
+                elif action == "Fork":
+                    player.fork(data)
+                else:
+                    player.take(action)
         # response = player.server.recv(1024).decode()
         # player.parse_cmd(response)
         # command = player.next_command[0]

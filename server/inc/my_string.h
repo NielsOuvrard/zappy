@@ -308,7 +308,8 @@ void string_remove_at(struct my_string_s *this, int index);
 ** @param end The end index
 ** @return The substring
 **/
-struct my_string_s *string_substring(struct my_string_s *this, int start, int end);
+struct my_string_s *string_substring(struct my_string_s *this, int start,
+int end);
 
 /**
 ** @brief Splits a string into an array

@@ -37,13 +37,10 @@ void string_append(struct my_string_s *this, char *str)
 {
     int len = strlen(str);
 
-    // check if we need to resize
-    // if yes double the capacity until it fits
     while (this->length + len + 1 > this->capacity) {
         this->capacity *= 2;
         this->str = realloc(this->str, this->capacity);
     }
-    // append the string
     strcat(this->str, str);
     this->length += len;
 }
@@ -54,13 +51,10 @@ void string_append_n(struct my_string_s *this, char *str, int n)
 
     if (n > len)
         n = len;
-    // check if we need to resize
-    // if yes double the capacity until it fits
     while (this->length + n + 1 > this->capacity) {
         this->capacity *= 2;
         this->str = realloc(this->str, this->capacity);
     }
-    // append the string
     strncat(this->str, str, n);
     this->length += n;
 }
@@ -165,16 +159,12 @@ void string_replace(struct my_string_s *this, char *old, char *new)
     int index = string_indexof(this, old);
 
     while (index != -1) {
-        // check if we need to resize
-        // if yes double the capacity until it fits
         while (this->length + new_len - old_len + 1 > this->capacity) {
             this->capacity *= 2;
             this->str = realloc(this->str, this->capacity);
         }
-        // move the string to the right
         memmove(this->str + index + new_len, this->str + index + old_len,
             this->length - index - old_len + 1);
-        // replace the string
         memcpy(this->str + index, new, new_len);
         this->length += new_len - old_len;
         index = string_indexof(this, old);
@@ -295,7 +285,10 @@ struct my_string_s *string_from_double(double nb)
 
 void string_append_format(struct my_string_s *this, char *format, va_list args)
 {
-    int size = vsnprintf(NULL, 0, format, args);
+    va_list args_copy;
+    va_copy(args_copy, args);
+    int size = vsnprintf(NULL, 0, format, args_copy);
+    va_end(args_copy);
 
     while (this->length + size + 1 > this->capacity) {
         this->capacity *= 2;
@@ -349,7 +342,8 @@ void string_remove_at(struct my_string_s *this, int index)
     this->length--;
 }
 
-struct my_string_s *string_substring(struct my_string_s *this, int start, int end)
+struct my_string_s *string_substring(struct my_string_s *this, int start,
+int end)
 {
     struct my_string_s *str = malloc(sizeof(struct my_string_s));
 
@@ -376,6 +370,7 @@ struct my_vector_s *string_split(struct my_string_s *this, char *delimiter)
     char *token = strtok(str, delimiter);
 
     vector_init(vector, sizeof(struct my_string_s));
+    vector_set_destructor(vector, string_destroy);
     while (token != NULL) {
         vector_push_back(vector, string_from_string(token));
         token = strtok(NULL, delimiter);

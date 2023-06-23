@@ -12,6 +12,8 @@
 #include <errno.h>
 #include <signal.h>
 #include <math.h>
+#include <time.h>
+#include <fcntl.h>
 
 #include <sys/types.h>
 #include <sys/select.h>
@@ -25,12 +27,33 @@
 #include "my_vector.h"
 #include "my_string.h"
 #include "my_map.h"
+#include "my_tuple.h"
+
+#define FOOD_TIME 126
+
+#define RESSOURCES_RESPAWN_TIME 20
+
+#define MAX_WIDTH 30
+#define MIN_WIDTH 10
+
+#define MAX_HEIGHT 30
+#define MIN_HEIGHT 10
+
+#define HATCH_TIME 600
+
+struct base_type_s {
+    int _int;
+    char _char;
+    float _float;
+    double _double;
+};
 
 struct arg_s {
     int port;
     int width;
     int height;
     struct my_vector_s *names;
+    int *team_slots_server;
     int clientsNb;
     int freq;
 };
@@ -38,6 +61,17 @@ struct arg_s {
 struct server_s {
     int server_sock;
     struct sockaddr_in server_addr;
+};
+
+struct incant_s {
+    int level;
+    int nb_players;
+    int linemate;
+    int deraumere;
+    int sibur;
+    int mendiane;
+    int phiras;
+    int thystame;
 };
 
 struct tile_s {
@@ -57,6 +91,19 @@ enum orientation_e {
     WEST = 4
 };
 
+struct egg_s {
+    int id;
+    int posx;
+    int posy;
+    int hatch_time;
+    bool is_hatched;
+    bool is_forked;
+    enum orientation_e orientation;
+    struct my_string_s *team;
+};
+
+struct global_struct_s;
+
 struct client_s {
     bool is_closed;
     bool is_gui;
@@ -67,6 +114,12 @@ struct client_s {
     int posy;
     enum orientation_e orientation;
     int client_nb;
+    int food_time;
+    int time;
+    void (*exec)(struct global_struct_s *g, struct client_s *client,
+        struct my_string_s *buffer);
+    struct my_string_s *cmd;
+    int is_incanting;
     int level;
     int food;
     int linemate;
@@ -83,19 +136,30 @@ struct global_struct_s {
     struct server_s *server;
     struct my_vector_s *clients;
     struct my_map_s *team_slots;
+    struct my_vector_s *eggs;
+    struct my_vector_s *incant_need;
+    int ressources_respawn;
     int client_id;
+    int egg_id;
     int ai_spawn;
     int maxfd;
     fd_set readset;
     fd_set writeset;
+    struct timeval timeout;
+    bool null_timeout;
+    int lowest_time;
 };
 
 // Getter
 struct global_struct_s *get_global_struct(void);
 
-// GUI command
+// Connect command
 void command_gui_graphic(struct global_struct_s *g, struct client_s *client,
 struct my_string_s *buffer);
+void command_ai_team(struct global_struct_s *g, struct client_s *client,
+struct my_string_s *buffer, struct my_string_s *name);
+
+// GUI command
 void command_gui_msz(struct global_struct_s *g, struct client_s *client,
 struct my_string_s *buffer);
 void command_gui_bct(struct global_struct_s *g, struct client_s *client,
@@ -116,8 +180,6 @@ void command_gui_sst(struct global_struct_s *g, struct client_s *client,
 struct my_string_s *buffer);
 
 // AI command
-void command_ai_team(struct global_struct_s *g, struct client_s *client,
-struct my_string_s *buffer, struct my_string_s *name);
 void command_ai_forward(struct global_struct_s *g, struct client_s *client,
 struct my_string_s *buffer);
 void command_ai_right(struct global_struct_s *g, struct client_s *client,
@@ -132,11 +194,21 @@ void command_ai_broadcast(struct global_struct_s *g, struct client_s *client,
 struct my_string_s *buffer);
 void command_ai_connect_nbr(struct global_struct_s *g, struct client_s *client,
 struct my_string_s *buffer);
-
+void command_ai_fork(struct global_struct_s *g, struct client_s *client,
+struct my_string_s *buffer);
+void command_ai_eject(struct global_struct_s *g, struct client_s *client,
+struct my_string_s *buffer);
 void command_ai_take(struct global_struct_s *g, struct client_s *client,
 struct my_string_s *buffer);
 void command_ai_set(struct global_struct_s *g, struct client_s *client,
 struct my_string_s *buffer);
+void command_ai_incantation_start(struct global_struct_s *g,
+struct client_s *client, struct my_string_s *buffer);
+void command_ai_incantation_end(struct global_struct_s *g,
+struct client_s *client, struct my_string_s *buffer);
+
+// Ressources respawn
+void ressoure_respawn(void);
 
 // Initializer
 void initialize_map(void);
@@ -144,6 +216,24 @@ void initialize_server(void);
 
 // Utils
 void convert_coordinate(int *x, int *y);
+void send_to_all_gui(struct global_struct_s *global_struct, char *msg);
+
+// Arg management
+void check_args(int ac, char **av);
+
+// Client management
+void accept_new_client(int select_result, struct global_struct_s *g);
+bool ai_starve_eat(struct global_struct_s *g, struct client_s *client);
+void manage_clients(int select_result, struct global_struct_s *g);
+
+// Command management
+void manage_command(struct global_struct_s *g, struct client_s *client,
+struct my_string_s *buffer);
+
+// Memory management
+void free_all(void);
+void close_client(void);
+void sigint_handler(int sig);
 
 // Main function
 int zappy_server(int ac, char **av);

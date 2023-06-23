@@ -15,6 +15,7 @@ struct my_vector_s *vector_create(size_t item_size)
     this->length = 0;
     this->item_size = item_size;
     this->items = malloc(sizeof(this->item_size) * this->capacity);
+    this->destructor = NULL;
     return this;
 }
 
@@ -24,13 +25,19 @@ void vector_init(struct my_vector_s *this, size_t item_size)
     this->length = 0;
     this->item_size = item_size;
     this->items = malloc(sizeof(this->item_size) * this->capacity);
+    this->destructor = NULL;
 }
 
-void vector_destroy(struct my_vector_s *this, void (*destructor)(void *))
+void vector_set_destructor(struct my_vector_s *this, void (*destructor)(void *))
 {
-    if (destructor) {
+    this->destructor = destructor;
+}
+
+void vector_destroy(struct my_vector_s *this)
+{
+    if (this->destructor) {
         for (int i = 0; i < this->length; i++)
-            destructor(this->items[i]);
+            this->destructor(this->items[i]);
     }
     free(this->items);
     free(this);
@@ -50,14 +57,11 @@ void vector_resize(struct my_vector_s *this, int new_capacity)
 
 void vector_push_back(struct my_vector_s *this, void *item)
 {
-    // check if we need to resize
-    // if yes double the capacity until it fits
     while (this->length + 1 > this->capacity) {
         this->capacity *= 2;
         this->items = realloc(this->items,
         sizeof(this->item_size) * this->capacity);
     }
-    // append the item
     this->items[this->length] = item;
     this->length++;
 }
@@ -70,14 +74,14 @@ void *vector_pop_back(struct my_vector_s *this)
     return item;
 }
 
-void vector_set(struct my_vector_s *this, int index, void *item, void (*destructor)(void *))
+void vector_set(struct my_vector_s *this, int index, void *item)
 {
     if (index < 0 || index >= this->length) {
         dprintf(2, "Vector: Index out of bounds\n");
         return;
     }
-    if (destructor)
-        destructor(this->items[index]);
+    if (this->destructor)
+        this->destructor(this->items[index]);
     this->items[index] = item;
 }
 
@@ -96,17 +100,13 @@ void vector_insert(struct my_vector_s *this, int index, void *item)
         dprintf(2, "Vector: Index out of bounds\n");
         return;
     }
-    // check if we need to resize
-    // if yes double the capacity until it fits
     while (this->length + 1 > this->capacity) {
         this->capacity *= 2;
         this->items = realloc(this->items,
         sizeof(this->item_size) * this->capacity);
     }
-    // shift all items to the right
     for (int i = this->length; i > index; i--)
         this->items[i] = this->items[i - 1];
-    // insert the item
     this->items[index] = item;
     this->length++;
 }
@@ -120,16 +120,15 @@ void *vector_remove(struct my_vector_s *this, int index)
         return NULL;
     }
     item = this->items[index];
-    // shift all items to the left
     for (int i = index; i < this->length - 1; i++)
         this->items[i] = this->items[i + 1];
     this->length--;
     return item;
 }
 
-void vector_clear(struct my_vector_s *this, void (*destructor)(void *))
+void vector_clear(struct my_vector_s *this)
 {
-    vector_destroy(this, destructor);
+    vector_destroy(this);
     vector_init(this, this->item_size);
 }
 
