@@ -10,6 +10,7 @@
 #include "Gui.hpp"
 #include "Mutex.hpp"
 #include "Pthread.hpp"
+#include "Menu.hpp"
 #include <sys/select.h>
 
 typedef struct args_s
@@ -71,6 +72,10 @@ int zappy_gui(int ac, char **av)
 {
     args_t args = get_arguments(ac, av);
     shared_t shared;
+    Menu menu(args.machine, std::to_string(args.port));
+    menu.menu_run();
+    args.machine = (char *)menu.get_ip().c_str();
+    args.port = atoi(menu.get_port().c_str());
     Network net(args.machine, args.port);
     shared.net = &net;
     MyPthread thread_net;
@@ -83,6 +88,7 @@ int zappy_gui(int ac, char **av)
     shared.stop = false;
 
     thread_net.create(thread_net_func, &shared);
+
 
     gui.run();
     shared.stop = true;

@@ -121,7 +121,13 @@ private:
     std::string _ressources[7] = {"food", "linemate", "deraumere", "sibur", "mendiane", "phiras", "thystame"};
     bool *_server_stopped;
 
-    // draw
+    //position
+    sf::Vector2f _pos;
+    sf::Vector2i clickPosition;
+
+    // draw menu
+    sf::Text _text;
+    sf::Font _font;
     std::vector<sf::Sprite> _sprites;
     std::vector<sf::Texture> _textures;
     sf::RectangleShape _slider;
