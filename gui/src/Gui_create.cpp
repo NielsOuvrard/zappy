@@ -8,7 +8,7 @@
 #include "Gui.hpp"
 #include "logger.hpp"
 
-Gui::Gui(std::string data, Network *network) : _network(network)
+Gui::Gui(std::string data, Network *network, bool *server_stopped) : _network(network), _server_stopped(server_stopped)
 {
     bool size_found = false;
     while (std::string::npos != data.find("\n") && !size_found)
@@ -35,6 +35,7 @@ Gui::Gui(std::string data, Network *network) : _network(network)
     }
 
     _zoom = 1.0f;
+    _actual_zoom = 1.0f;
 
     _waves = 0;
 

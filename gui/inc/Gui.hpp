@@ -79,7 +79,7 @@ typedef struct s_incant
 class Gui
 {
 public:
-    Gui(std::string data, Network *network);
+    Gui(std::string data, Network *network, bool *server_stopped);
     ~Gui();
     void run(void);
     bool fill_map(std::string data);
@@ -114,8 +114,10 @@ private:
     std::vector<t_player> _players;
     std::vector<t_egg> _eggs;
     std::vector<t_particle> _particles;
+    std::vector<t_particle> _player_particles;
     std::vector<t_incant> _list_incants;
     std::string _ressources[7] = {"food", "linemate", "deraumere", "sibur", "mendiane", "phiras", "thystame"};
+    bool *_server_stopped;
 
     // draw
     std::vector<sf::Sprite> _sprites;
@@ -145,6 +147,7 @@ private:
     int _shift_x;
     int _shift_y;
     float _zoom;
+    float _actual_zoom;
     float _speed_x;
     float _speed_y;
     int _view_width;

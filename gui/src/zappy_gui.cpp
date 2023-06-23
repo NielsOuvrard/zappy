@@ -55,8 +55,13 @@ void *thread_net_func(void *arg)
     shared_t *shared = (shared_t *)arg;
     while (!shared->stop)
     {
-        shared->gui->fill_map(shared->data);
-        shared->data = shared->net->receive_data();
+        try {
+            shared->gui->fill_map(shared->data);
+            shared->data = shared->net->receive_data();
+        } catch (std::runtime_error &e) {
+            std::cout << e.what() << std::endl;
+            shared->stop = true;
+        }
     }
     pthread_exit(EXIT_SUCCESS);
     return NULL;
@@ -73,7 +78,7 @@ int zappy_gui(int ac, char **av)
     shared.data = shared.net->receive_data(); // WELECOME
     shared.net->send_data("GRAPHIC\n");
     shared.data = shared.net->receive_data();
-    Gui gui(shared.data, &net);
+    Gui gui(shared.data, &net, &shared.stop);
     shared.gui = &gui;
     shared.stop = false;
 

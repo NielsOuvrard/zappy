@@ -55,7 +55,7 @@ std::string Network::receive_data()
         {
             std::cout << "Server disconnected" << std::endl;
             close(_sock);
-            exit(84);
+            throw std::runtime_error("Server disconnected");
         }
         else if (len < 0)
         {
@@ -64,7 +64,7 @@ std::string Network::receive_data()
             {
                 std::cout << "Server disconnected" << std::endl;
                 close(_sock);
-                exit(0);
+                throw std::runtime_error("Server disconnected");
             }
         }
         else
