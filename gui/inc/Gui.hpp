@@ -87,19 +87,6 @@ private:
     std::vector<sf::Sprite> _sprites;
     std::vector<sf::Texture> _textures;
 
-    // draw main menu
-    sf::Sprite _background;
-    sf::Texture _background_texture;
-    sf::Sprite _help_menu;
-    sf::Texture _help_texture;
-    sf::Text _title;
-    sf::Font _adumu;
-    std::vector<sf::Sprite> _buttons_sprites;
-    std::vector<sf::Texture> _buttons_textures;
-    std::vector<std::string> _buttons_tags;
-    std::vector<bool> _buttons_pressed;
-    sf::Vector2f _button_init_size;
-
     // sf::Texture _texture;
     // sf::Sprite _sprite;
     // sf::Texture _texture2;
