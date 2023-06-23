@@ -49,7 +49,6 @@ public:
     Gui(std::string data);
     ~Gui();
     void run(void);
-    void menu_run(void);
     bool fill_map(std::string data);
 
 private:
@@ -64,9 +63,6 @@ private:
     void draw_stone(int i, int j, int pos_x, int pos_y);
     void perlin_noise(void);
     void menu_init(void);
-    void menu_draw(void);
-    void buttons_handling(sf::Event event);
-
     sf::RenderWindow *_window;
 
     // data
@@ -86,19 +82,6 @@ private:
     sf::Font _font;
     std::vector<sf::Sprite> _sprites;
     std::vector<sf::Texture> _textures;
-
-    // sf::Texture _texture;
-    // sf::Sprite _sprite;
-    // sf::Texture _texture2;
-    // sf::Sprite _sprite2;
-    // sf::Texture _texture3;
-    // sf::Sprite _sprite3;
-
-    // sf::Font _font2;
-    // sf::Text _text2;
-    // sf::Text _text3;
-
-    bool _menuisopen;
 
     int _selected_tile_x;
     int _selected_tile_y;
