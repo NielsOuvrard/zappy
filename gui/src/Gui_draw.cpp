@@ -244,6 +244,19 @@ void Gui::draw_map(void)
             }
         }
     }
+    // * DRAW CURRENT BROADCAST
+    for (int i = 0; (size_t)i < _players.size(); i++)
+    {
+        if (_players[i].broadcast_time > 0) {
+            sf::RectangleShape rectangle(sf::Vector2f(64, 64));
+            rectangle.setPosition(
+                ((_players[i].x + DECOR_SIZE) * 64 + (_players[i].y + DECOR_SIZE) * 64 + 32) + 32,
+                ((_players[i].y + DECOR_SIZE) * 32 - (_players[i].x + DECOR_SIZE) * 32 - 32) - 32);
+            rectangle.setFillColor(sf::Color(255, 255, 255, 128));
+            _window->draw(rectangle);
+        } else
+            _players[i].broadcast = "NONE";
+    }
 }
 
 // linear interpolation

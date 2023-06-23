@@ -13,12 +13,12 @@
 #define DISPLAY_HEIGHT 1080
 
 // * Mandatory
-// broadcast
+// broadcast (Missing sprite but working)
 // modify interface size ?
 // // not connected to server
 // // disp player inventory
 // // disp nmb player by team
-// disp nmb player by tile
+// // disp nmb player by tile
 // an arrow on selected player
 
 // * Optional
@@ -84,6 +84,14 @@ void Gui::handle_clocks(sf::Clock *clock, sf::Clock *clock_particules)
                             ((DECOR_SIZE + i) * 32) - ((DECOR_SIZE + j) * 32) + 16),
                         color_according_to_level[_map[i][j].is_incanting], 15, j, i});
                 }
+                _map[i][j].is_incanting = 0;
+                for (int k = 0; (size_t)k < _players.size(); k++)
+                {
+                    if (_players[k].x == j && _players[k].y == i && _players[k].is_incanting)
+                    {
+                        _map[i][j].is_incanting = _players[k].level;
+                    }
+                }
             }
         }
         for (size_t i = 0; i < _particles.size(); i++)
@@ -129,6 +137,9 @@ void Gui::handle_clocks(sf::Clock *clock, sf::Clock *clock_particules)
 
     if (clock->getElapsedTime().asMilliseconds() > 1000)
     {
+        for (int i = 0; (size_t)i < _players.size(); i++)
+            if (_players[i].broadcast_time > 0)
+                _players[i].broadcast_time -= 1;
         _waves++;
         clock->restart();
     }

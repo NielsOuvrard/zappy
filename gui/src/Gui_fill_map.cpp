@@ -254,14 +254,17 @@ bool Gui::fill_map(std::string data)
             }
         }
         // broadcast
-        else if (line.find("bpc") != std::string::npos)
+        else if (line.find("pbc") != std::string::npos)
         {
             std::string values = line.substr(line.find(" ") + 1);
             std::string id = values.substr(0, values.find(" "));
+            std::string msg = values.substr(values.find(" ") + 1);
             for (size_t i = 0; i < _players.size(); i++)
             {
                 if (_players[i].id == std::stoi(id))
                 {
+                    _players[i].broadcast = msg;
+                    _players[i].broadcast_time = 5;
                     // broadcast
                 }
             }

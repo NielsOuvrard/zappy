@@ -26,6 +26,8 @@ typedef struct s_player
     int team;
     int inventory[7];
     bool is_incanting;
+    std::string broadcast;
+    int broadcast_time;
 } t_player;
 
 typedef struct s_egg

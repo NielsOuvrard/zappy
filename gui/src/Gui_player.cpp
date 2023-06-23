@@ -219,5 +219,21 @@ void Gui::player(void)
     teamHighestText2.setString(std::to_string(highest));
     teamHighestText2.setPosition(140, 310);
     _window->draw(teamHighestText2);
+
+    // * BROADCAST
+    sf::Text broadcastText;
+    broadcastText.setFont(_font);
+    broadcastText.setCharacterSize(15);
+    broadcastText.setFillColor(sf::Color::Black);
+    broadcastText.setString("Broadcast:");
+    broadcastText.setPosition(140, 350);
+    _window->draw(broadcastText);
+    sf::Text broadcastText2;
+    broadcastText2.setFont(_font);
+    broadcastText2.setCharacterSize(15);
+    broadcastText2.setFillColor(sf::Color::Black);
+    broadcastText2.setString(_players[_selected_player].broadcast);
+    broadcastText2.setPosition(140, 370);
+    _window->draw(broadcastText2);
 }
 // 110 - 132 - 154
