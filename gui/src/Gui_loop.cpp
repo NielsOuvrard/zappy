@@ -232,9 +232,10 @@ void Gui::run(void)
                 sf::Vector2f pos = _view_main->getCenter();
                 sf::FloatRect visibleArea(pos.x - event.size.width / 2, pos.y - event.size.height / 2, event.size.width, event.size.height);
                 _view_main->reset(visibleArea);
+                _view_main->setSize(_view_width * _actual_zoom, _view_height * _actual_zoom);
 
-                sf::FloatRect visibleAreaInterface(0, 0, event.size.width, event.size.height);
-                _view_interface->reset(visibleAreaInterface);
+                // sf::FloatRect visibleAreaInterface(0, 0, event.size.width, event.size.height);
+                // _view_interface->reset(visibleAreaInterface);
             }
             // * ZOOM
             if (event.type == sf::Event::KeyPressed)
