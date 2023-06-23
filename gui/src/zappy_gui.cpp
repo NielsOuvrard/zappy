@@ -10,6 +10,7 @@
 #include "Gui.hpp"
 #include "Mutex.hpp"
 #include "Pthread.hpp"
+#include "Menu.hpp"
 #include <sys/select.h>
 
 typedef struct args_s
@@ -55,8 +56,13 @@ void *thread_net_func(void *arg)
     shared_t *shared = (shared_t *)arg;
     while (!shared->stop)
     {
-        shared->gui->fill_map(shared->data);
-        shared->data = shared->net->receive_data();
+        try {
+            shared->gui->fill_map(shared->data);
+            shared->data = shared->net->receive_data();
+        } catch (std::runtime_error &e) {
+            std::cout << e.what() << std::endl;
+            shared->stop = true;
+        }
     }
     pthread_exit(EXIT_SUCCESS);
     return NULL;
@@ -66,6 +72,10 @@ int zappy_gui(int ac, char **av)
 {
     args_t args = get_arguments(ac, av);
     shared_t shared;
+    Menu menu(args.machine, std::to_string(args.port));
+    menu.menu_run();
+    args.machine = (char *)menu.get_ip().c_str();
+    args.port = atoi(menu.get_port().c_str());
     Network net(args.machine, args.port);
     shared.net = &net;
     MyPthread thread_net;
@@ -73,11 +83,12 @@ int zappy_gui(int ac, char **av)
     shared.data = shared.net->receive_data(); // WELECOME
     shared.net->send_data("GRAPHIC\n");
     shared.data = shared.net->receive_data();
-    Gui gui(shared.data, &net);
+    Gui gui(shared.data, &net, &shared.stop);
     shared.gui = &gui;
     shared.stop = false;
 
     thread_net.create(thread_net_func, &shared);
+
 
     gui.run();
     shared.stop = true;

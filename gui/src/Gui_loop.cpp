@@ -13,17 +13,17 @@
 #define DISPLAY_HEIGHT 1080
 
 // * Mandatory
-// broadcast
+// broadcast (Missing sprite but working)
 // modify interface size ?
-// not connected to server
-// disp player inventory
-// disp nmb player by team
-// disp nmb player by tile
-// selection player
+// // not connected to server
+// // disp player inventory
+// // disp nmb player by team
+// // disp nmb player by tile
+// an arrow on selected player
 
 // * Optional
 // water animation ?
-// smooth zoom
+// // smooth zoom
 // move according to zoom
 
 void Gui::move_tile(sf::Event event)
@@ -61,28 +61,36 @@ void Gui::handle_clocks(sf::Clock *clock, sf::Clock *clock_particules)
 {
     if (clock_particules->getElapsedTime().asMilliseconds() > 100)
     {
+        sf::Color color_according_to_level[8] = {
+            sf::Color(255, 255, 255, 140),
+            sf::Color(255, 255, 0, 140),
+            sf::Color(255, 0, 0, 140),
+            sf::Color(0, 255, 0, 140),
+            sf::Color(0, 0, 255, 140),
+            sf::Color(255, 0, 255, 140),
+            sf::Color(0, 255, 255, 140),
+            sf::Color(10, 10, 10, 140),
+        };
         // add particles
-        for (size_t i = 0; i < _size_y; i++)
+        for (int i = 0; i < _size_y; i++)
         {
-            for (size_t j = 0; j < _size_x; j++)
+            for (int j = 0; j < _size_x; j++)
             {
                 if (_map[i][j].is_incanting)
                 {
-                    sf::Color color_according_to_level[8] = {
-                        sf::Color(255, 255, 255, 140),
-                        sf::Color(255, 255, 0, 140),
-                        sf::Color(255, 0, 0, 140),
-                        sf::Color(0, 255, 0, 140),
-                        sf::Color(0, 0, 255, 140),
-                        sf::Color(255, 0, 255, 140),
-                        sf::Color(0, 255, 255, 140),
-                        sf::Color(10, 10, 10, 140),
-                    };
                     _particles.push_back((s_particle){
                         sf::Vector2f(
                             ((DECOR_SIZE + j) * 64) + ((DECOR_SIZE + i) * 64) + 42,
-                            (int)((int)(DECOR_SIZE + i) * 32) - (int)((int)(DECOR_SIZE + j) * 32) + 16),
-                        color_according_to_level[_map[i][j].is_incanting], 15, (int)j, (int)i});
+                            ((DECOR_SIZE + i) * 32) - ((DECOR_SIZE + j) * 32) + 16),
+                        color_according_to_level[_map[i][j].is_incanting], 15, j, i});
+                }
+                _map[i][j].is_incanting = 0;
+                for (int k = 0; (size_t)k < _players.size(); k++)
+                {
+                    if (_players[k].x == j && _players[k].y == i && _players[k].is_incanting)
+                    {
+                        _map[i][j].is_incanting = _players[k].level;
+                    }
                 }
             }
         }
@@ -99,11 +107,39 @@ void Gui::handle_clocks(sf::Clock *clock, sf::Clock *clock_particules)
                 _particles.erase(_particles.begin() + i);
             }
         }
+
+        // add player particles
+        if (_players.size() > 0)
+        {
+            if (_players[_selected_player].is_incanting) {
+                int x = 185;
+                int y = 130;
+                _player_particles.push_back((s_particle){
+                    sf::Vector2f(x, y),
+                    color_according_to_level[_players[_selected_player].level], 15, x, y});
+            }
+            for (size_t i = 0; i < _player_particles.size(); i++)
+            {
+                _player_particles[i].lifetime -= 1;
+                int rand_y = rand() % 14;
+                int rand_x = rand() % 14;
+                _player_particles[i].pos.y += 2 - rand_y;
+                _player_particles[i].pos.x += 7 - rand_x;
+
+                if (_player_particles[i].lifetime <= 0)
+                {
+                    _player_particles.erase(_player_particles.begin() + i);
+                }
+            }
+        }
         clock_particules->restart();
     }
 
     if (clock->getElapsedTime().asMilliseconds() > 1000)
     {
+        for (int i = 0; (size_t)i < _players.size(); i++)
+            if (_players[i].broadcast_time > 0)
+                _players[i].broadcast_time -= 1;
         _waves++;
         clock->restart();
     }
@@ -206,17 +242,10 @@ void Gui::run(void)
                 if (event.key.code == sf::Keyboard::P && _zoom < ZOOM_MAX)
                 {
                     _zoom += 0.1;
-                    _view_main->setSize(_view_width * _zoom, _view_height * _zoom);
                 }
                 if (event.key.code == sf::Keyboard::M && _zoom > ZOOM_MIN)
                 {
                     _zoom -= 0.1;
-                    _view_main->setSize(_view_width * _zoom, _view_height * _zoom);
-                }
-                if (event.key.code == sf::Keyboard::M && _zoom > ZOOM_MIN)
-                {
-                    _zoom -= 0.1;
-                    _view_player->setSize(_view_width * _zoom, _view_height * _zoom);
                 }
                 if (event.key.code == sf::Keyboard::O)
                 {
@@ -231,14 +260,20 @@ void Gui::run(void)
                     if (_selected_player + 1 < _players.size())
                         _selected_player++;
                     else
-                        _selected_player = _players.size() - 1;
+                        _selected_player = 0;
+                    if (_players.size() > 0)
+                        _network->send_data("pin " + std::to_string(_players[_selected_player].id) + "\n");
+                    // pos
+                    // _network->send_data("ppo " + std::to_string(_players[_selected_player].id) + "\n");
                 }
                 if (event.key.code == sf::Keyboard::E)
                 {
                     if (_selected_player > 0)
                         _selected_player--;
                     else
-                        _selected_player = 0;
+                        _selected_player = _players.size() - 1;
+                    if (_players.size() > 0)
+                        _network->send_data("pin " + std::to_string(_players[_selected_player].id) + "\n");
                 }
                 if (event.key.code == sf::Keyboard::I)
                 {
@@ -253,19 +288,54 @@ void Gui::run(void)
         {
             // -(DISPLAY_WIDTH / 2) + 280
             _interface_center_value -= 10;
-            _view_interface->setCenter(DISPLAY_WIDTH / 2 + _interface_center_value, DISPLAY_HEIGHT / 2);
-            _view_player->setCenter(-(DISPLAY_WIDTH / 2) + 280 - _interface_center_value, DISPLAY_HEIGHT / 2);
+            _view_interface->setCenter(DISPLAY_WIDTH / 2 + _interface_center_value, _view_interface->getCenter().y);
+            _view_player->setCenter(-(DISPLAY_WIDTH / 2) + 280 - _interface_center_value, _view_player->getCenter().y);
         }
         else if (!_interface_show && _interface_center_value < INTERFACE_HIDE)
         {
             _interface_center_value += 10;
-            _view_interface->setCenter(DISPLAY_WIDTH / 2 + _interface_center_value, DISPLAY_HEIGHT / 2);
-            _view_player->setCenter(-(DISPLAY_WIDTH / 2) + 280 - _interface_center_value, DISPLAY_HEIGHT / 2);
+            _view_interface->setCenter(DISPLAY_WIDTH / 2 + _interface_center_value, _view_interface->getCenter().y);
+            _view_player->setCenter(-(DISPLAY_WIDTH / 2) + 280 - _interface_center_value, _view_player->getCenter().y);
         }
+        // * SMOOTH ZOOM
+        if (_zoom - _actual_zoom > 0.01)
+        {
+            _actual_zoom += 0.01;
+            _view_main->setSize(_view_width * _actual_zoom, _view_height * _actual_zoom);
+        }
+        else if (_zoom - _actual_zoom < -0.01)
+        {
+            _actual_zoom -= 0.01;
+            _view_main->setSize(_view_width * _actual_zoom, _view_height * _actual_zoom);
+        }
+        // * DRAW
         move_map(event);
         draw_map();
         interface();
         player();
+
+        if (*_server_stopped == true)
+        {
+            sf::Text serverDisconnectedText;
+            serverDisconnectedText.setFont(_font);
+            serverDisconnectedText.setString("Server disconnected");
+            serverDisconnectedText.setCharacterSize(50);
+            serverDisconnectedText.setFillColor(sf::Color::Red);
+            serverDisconnectedText.setStyle(sf::Text::Bold);
+            serverDisconnectedText.setOrigin(serverDisconnectedText.getLocalBounds().width / 2, serverDisconnectedText.getLocalBounds().height / 2);
+            serverDisconnectedText.setPosition(-(DISPLAY_WIDTH / 2) + 280 - _interface_center_value, 100);
+
+            sf::RectangleShape serverDisconnectedBackground(sf::Vector2f(
+                serverDisconnectedText.getLocalBounds().width + 20,
+                serverDisconnectedText.getLocalBounds().height + 20));
+
+            serverDisconnectedBackground.setFillColor(sf::Color(0, 0, 0, 140));
+            serverDisconnectedBackground.setOrigin(serverDisconnectedBackground.getLocalBounds().width / 2, serverDisconnectedBackground.getLocalBounds().height / 2);
+            serverDisconnectedBackground.setPosition(-(DISPLAY_WIDTH / 2) + 280 - _interface_center_value, 110);
+
+            _window->draw(serverDisconnectedBackground);
+            _window->draw(serverDisconnectedText);
+        }
 
         // * animation up and down
         if (_up_selected_tile)

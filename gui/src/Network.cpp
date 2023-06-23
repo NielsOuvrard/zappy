@@ -47,12 +47,15 @@ std::string Network::receive_data()
     std::string data = "";
     while (size_str == 0 || buff[size_str - 1] != '\n')
     {
+        FD_ZERO(&_readfds);
+        FD_SET(_sock, &_readfds);
+        select(_sock + 1, &_readfds, NULL, NULL, NULL);
         len = read(_sock, buff + size_str, 1);
         if (len == 0)
         {
             std::cout << "Server disconnected" << std::endl;
             close(_sock);
-            exit(84);
+            throw std::runtime_error("Server disconnected");
         }
         else if (len < 0)
         {
@@ -61,7 +64,7 @@ std::string Network::receive_data()
             {
                 std::cout << "Server disconnected" << std::endl;
                 close(_sock);
-                exit(0);
+                throw std::runtime_error("Server disconnected");
             }
         }
         else

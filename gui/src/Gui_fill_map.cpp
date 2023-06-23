@@ -71,7 +71,7 @@ bool Gui::fill_map(std::string data)
             values = values.substr(values.find(" ") + 1);
             std::string team = values.substr(0, values.find(" "));
             int team_index = 0;
-            for (int i = 0; _teams.size() > 0 && i < _teams.size(); i++)
+            for (size_t i = 0; _teams.size() > 0 && i < _teams.size(); i++)
             {
                 if (_teams[i] == team)
                 {
@@ -152,6 +152,22 @@ bool Gui::fill_map(std::string data)
                 {
                     _players[i].inventory[std::stoi(resource)]++;
                 }
+            }
+        }
+        // pin (inventory)
+        else if (line.find("pin") != std::string::npos)
+        {
+            std::string values = line.substr(line.find(" ") + 1);
+            std::string id = values.substr(0, values.find(" "));
+            values = values.substr(values.find(" ") + 1);
+            std::string x = values.substr(0, values.find(" "));
+            values = values.substr(values.find(" ") + 1);
+            std::string y = values.substr(0, values.find(" "));
+            values = values.substr(values.find(" ") + 1);
+            for (size_t i = 0; i < 7; i++)
+            {
+                _selected_player_ressources[i] = std::stoi(values.substr(0, values.find(" ")));
+                values = values.substr(values.find(" ") + 1);
             }
         }
         // pic (incantation)
@@ -238,14 +254,17 @@ bool Gui::fill_map(std::string data)
             }
         }
         // broadcast
-        else if (line.find("bpc") != std::string::npos)
+        else if (line.find("pbc") != std::string::npos)
         {
             std::string values = line.substr(line.find(" ") + 1);
             std::string id = values.substr(0, values.find(" "));
+            std::string msg = values.substr(values.find(" ") + 1);
             for (size_t i = 0; i < _players.size(); i++)
             {
                 if (_players[i].id == std::stoi(id))
                 {
+                    _players[i].broadcast = msg;
+                    _players[i].broadcast_time = 5;
                     // broadcast
                 }
             }

@@ -26,6 +26,8 @@ typedef struct s_player
     int team;
     int inventory[7];
     bool is_incanting;
+    std::string broadcast;
+    int broadcast_time;
 } t_player;
 
 typedef struct s_egg
@@ -79,7 +81,7 @@ typedef struct s_incant
 class Gui
 {
 public:
-    Gui(std::string data, Network *network);
+    Gui(std::string data, Network *network, bool *server_stopped);
     ~Gui();
     void run(void);
     bool fill_map(std::string data);
@@ -114,15 +116,21 @@ private:
     std::vector<t_player> _players;
     std::vector<t_egg> _eggs;
     std::vector<t_particle> _particles;
+    std::vector<t_particle> _player_particles;
     std::vector<t_incant> _list_incants;
     std::string _ressources[7] = {"food", "linemate", "deraumere", "sibur", "mendiane", "phiras", "thystame"};
+    bool *_server_stopped;
 
-    // draw
+    //position
+    sf::Vector2f _pos;
+    sf::Vector2i clickPosition;
+
+    // draw menu
+    sf::Text _text;
+    sf::Font _font;
     std::vector<sf::Sprite> _sprites;
     std::vector<sf::Texture> _textures;
     sf::RectangleShape _slider;
-    sf::Font _font;
-    sf::Text _text;
 
     sf::View *_view_main;
     sf::View *_view_interface;
@@ -145,12 +153,11 @@ private:
     int _shift_x;
     int _shift_y;
     float _zoom;
+    float _actual_zoom;
     float _speed_x;
     float _speed_y;
     int _view_width;
     int _view_height;
-
-    sf::Vector2f _pos;
 
     bool _move_right;
     bool _move_down;
@@ -158,6 +165,7 @@ private:
     bool _move_up;
 
     size_t _selected_player = 0;
+    int _selected_player_ressources[7];
 
     bool _slider_selected = false;
     unsigned char _slider_value = 100;

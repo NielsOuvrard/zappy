@@ -173,9 +173,9 @@ void Gui::draw_map_tile(int i, int j, int tile)
 void Gui::draw_map_half_tile(int i, int j, int tile)
 {
     int x = tile - '0';
-    if (x == 11 && (i % 5 == _waves % 5))
+    if (x == 11 && ((size_t)(i % 5) == _waves % 5))
         x = 18;
-    if (x == 11 && (j + i) % 5 == _waves % 5)
+    if (x == 11 && (size_t)((j + i) % 5) == _waves % 5)
         x = 13;
     int y = 0;
     while (x >= 10)
@@ -208,7 +208,7 @@ void Gui::draw_map_half_tile(int i, int j, int tile)
 
 void Gui::draw_map(void)
 {
-    for (int i = 0; i < _map_decor.size(); i++)
+    for (int i = 0; (size_t)i < _map_decor.size(); i++)
     {
         for (int j = _map_decor[i].size() - 1; j >= 0; j--)
         {
@@ -243,6 +243,19 @@ void Gui::draw_map(void)
                 draw_players(i, j);
             }
         }
+    }
+    // * DRAW CURRENT BROADCAST
+    for (int i = 0; (size_t)i < _players.size(); i++)
+    {
+        if (_players[i].broadcast_time > 0) {
+            sf::RectangleShape rectangle(sf::Vector2f(64, 64));
+            rectangle.setPosition(
+                ((_players[i].x + DECOR_SIZE) * 64 + (_players[i].y + DECOR_SIZE) * 64 + 32) + 32,
+                ((_players[i].y + DECOR_SIZE) * 32 - (_players[i].x + DECOR_SIZE) * 32 - 32) - 32);
+            rectangle.setFillColor(sf::Color(255, 255, 255, 128));
+            _window->draw(rectangle);
+        } else
+            _players[i].broadcast = "NONE";
     }
 }
 

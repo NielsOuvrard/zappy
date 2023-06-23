@@ -85,6 +85,14 @@ void Gui::interface(void)
     _text.setPosition(0, 500);
     _window->draw(_text);
 
+    int players = 0;
+    for (size_t i = 0; i < _players.size(); i++)
+        if (_players[i].y == _selected_tile_y && _players[i].x == _selected_tile_x)
+            players++;
+    _text.setString("Player : " + std::to_string(players));
+    _text.setPosition(0, 550);
+    _window->draw(_text);
+
     _text.setString("Frequency: " + std::to_string(10 * _slider_value));
     _text.setPosition(0, 600);
     _window->draw(_text);
