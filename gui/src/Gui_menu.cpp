@@ -98,7 +98,7 @@ void Gui::menu_init(void)
     _buttons_tags.push_back("help");
 
     sf::Texture quit_texture;
-    if (!quit_texture.loadFromFile("gui/assets/settings_button.png"))
+    if (!quit_texture.loadFromFile("gui/assets/quit_button.png"))
         exit(84);
     _buttons_textures.push_back(quit_texture);
     sf::Sprite quit_sprite;
@@ -107,16 +107,69 @@ void Gui::menu_init(void)
     quit_sprite.setPosition(_window->getSize().x / 2, _window->getSize().y / 2 + 200);
     _buttons_sprites.push_back(quit_sprite);
     _buttons_pressed.push_back(false);
-    _buttons_tags.push_back("settings");
-
-
-    // _window->draw(_title);
-    // for (const auto& button_sprite : _buttons_sprites)
-    // {
-    //     _window->draw(button_sprite);
-    // }
+    _buttons_tags.push_back("quit");
 }
 
+void Gui::menu_draw(void)
+{
+    _window->clear();
+    _background.setTexture(_background_texture);
+    _window->draw(_background);
+    _window->draw(_title);
+    for (int i = 0; i < _buttons_sprites.size(); i++) {
+        _buttons_sprites[i].setTexture(_buttons_textures[i]);
+        _window->draw(_buttons_sprites[i]);
+    }
+    _window->draw(_help_menu);
+}
+
+void Gui::buttons_handling(sf::Event event)
+{
+    // Check if the mouse is over any button sprite
+    sf::Vector2f mousePosition = sf::Vector2f(event.mouseMove.x, event.mouseMove.y);
+    for (std::size_t i = 0; i < _buttons_sprites.size(); ++i)
+    {
+        if (_buttons_sprites[i].getGlobalBounds().contains(mousePosition) && !_buttons_pressed[i])
+            // Scale the button sprite when the mouse is over it
+            _buttons_sprites[i].setScale(_button_init_size + sf::Vector2f(0.1f, 0.1f));
+        else if (!_buttons_pressed[i])
+            // Reset the scale of the button sprite when the mouse is not over it
+            _buttons_sprites[i].setScale(_button_init_size);
+    }
+    if (event.mouseButton.button == sf::Mouse::Left && event.type == sf::Event::MouseButtonPressed) {
+        mousePosition = sf::Vector2f(event.mouseButton.x, event.mouseButton.y);
+        for (std::size_t i = 0; i < _buttons_sprites.size(); ++i)
+        {
+            if (_buttons_sprites[i].getGlobalBounds().contains(mousePosition)) {
+                _buttons_sprites[i].setScale(_button_init_size - sf::Vector2f(0.1f, 0.1f));
+                _buttons_pressed[i] = true;
+            }
+        }
+    }
+    if (event.mouseButton.button == sf::Mouse::Left && event.type == sf::Event::MouseButtonReleased) {
+        mousePosition = sf::Vector2f(event.mouseButton.x, event.mouseButton.y);
+        for (std::size_t i = 0; i < _buttons_sprites.size(); ++i)
+        {
+            if (_buttons_sprites[i].getGlobalBounds().contains(mousePosition)) {
+                _buttons_sprites[i].setScale(_button_init_size + sf::Vector2f(0.1f, 0.1f));
+                _buttons_pressed[i] = false;
+                if (_buttons_tags[i] == "start") {
+                    run();
+                }
+                else if (_buttons_tags[i] == "help") {
+                    _help_menu.setPosition(_window->getSize().x / 2 - _help_menu.getGlobalBounds().width / 2, _window->getSize().y / 2 - _help_menu.getGlobalBounds().height / 2);
+                }
+                else if (_buttons_tags[i] == "quit") {
+                    _window->close();
+                }
+            }
+            else
+                _buttons_sprites[i].setScale(_button_init_size);
+        }
+    }
+    if (event.key.code == sf::Keyboard::Escape && _help_menu.getPosition().x != 40000)
+        _help_menu.setPosition(40000, 10000);
+}
 
 void Gui::menu_run(void)
 {
@@ -129,71 +182,13 @@ void Gui::menu_run(void)
     menu_init();
     while(_window->isOpen()) {
         sf::Event event;
-        // if (_menuisopen == true) {
-        //     draw_help();
-        // }
         while (_window->pollEvent(event)) {
             if (event.type == sf::Event::Closed) {
                 _window->close();
             }
-            // Check if the mouse is over any button sprite
-            sf::Vector2f mousePosition = sf::Vector2f(event.mouseMove.x, event.mouseMove.y);
-            for (std::size_t i = 0; i < _buttons_sprites.size(); ++i)
-            {
-                if (_buttons_sprites[i].getGlobalBounds().contains(mousePosition) && !_buttons_pressed[i])
-                    // Scale the button sprite when the mouse is over it
-                    _buttons_sprites[i].setScale(_button_init_size + sf::Vector2f(0.1f, 0.1f));
-                else if (!_buttons_pressed[i])
-                    // Reset the scale of the button sprite when the mouse is not over it
-                    _buttons_sprites[i].setScale(_button_init_size);
-            }
-            if (event.mouseButton.button == sf::Mouse::Left && event.type == sf::Event::MouseButtonPressed) {
-                mousePosition = sf::Vector2f(event.mouseButton.x, event.mouseButton.y);
-                for (std::size_t i = 0; i < _buttons_sprites.size(); ++i)
-                {
-                    if (_buttons_sprites[i].getGlobalBounds().contains(mousePosition)) {
-                        _buttons_sprites[i].setScale(_button_init_size - sf::Vector2f(0.1f, 0.1f));
-                        _buttons_pressed[i] = true;
-                    }
-                }
-            }
-            if (event.mouseButton.button == sf::Mouse::Left && event.type == sf::Event::MouseButtonReleased) {
-                mousePosition = sf::Vector2f(event.mouseButton.x, event.mouseButton.y);
-                for (std::size_t i = 0; i < _buttons_sprites.size(); ++i)
-                {
-                    if (_buttons_sprites[i].getGlobalBounds().contains(mousePosition)) {
-                        _buttons_sprites[i].setScale(_button_init_size + sf::Vector2f(0.1f, 0.1f));
-                        _buttons_pressed[i] = false;
-                        if (_buttons_tags[i] == "start") {
-                            run();
-                        }
-                        else if (_buttons_tags[i] == "help") {
-                            _help_menu.setPosition(_window->getSize().x / 2 - _help_menu.getGlobalBounds().width / 2, _window->getSize().y / 2 - _help_menu.getGlobalBounds().height / 2);
-                        }
-                        else if (_buttons_tags[i] == "settings") {
-                           int a = 0;
-                           //! NEXT FOR SETTINGS OR QUIT BUTTON
-                        }
-                    }
-                    else
-                        _buttons_sprites[i].setScale(_button_init_size);
-                }
-            }
-            if (event.key.code == sf::Keyboard::Escape && _help_menu.getPosition().x != 40000)
-                _help_menu.setPosition(40000, 10000);
-            if (event.key.code == sf::Keyboard::Enter) {
-                run();
-            }
+            buttons_handling(event);
         }
-        _window->clear();
-        _background.setTexture(_background_texture);
-        _window->draw(_background);
-        _window->draw(_title);
-        for (int i = 0; i < _buttons_sprites.size(); i++) {
-            _buttons_sprites[i].setTexture(_buttons_textures[i]);
-            _window->draw(_buttons_sprites[i]);
-        }
-        _window->draw(_help_menu);
+        menu_draw();
         _window->display();
     }
 }

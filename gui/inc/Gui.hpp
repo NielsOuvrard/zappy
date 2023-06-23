@@ -64,8 +64,8 @@ private:
     void draw_stone(int i, int j, int pos_x, int pos_y);
     void perlin_noise(void);
     void menu_init(void);
-    void set_pos(void);
-    void draw_help(void);
+    void menu_draw(void);
+    void buttons_handling(sf::Event event);
 
     sf::RenderWindow *_window;
 
