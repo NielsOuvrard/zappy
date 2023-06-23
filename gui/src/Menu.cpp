@@ -194,6 +194,7 @@ void Menu::buttons_handling(sf::Event event)
                 }
                 else if (_buttons_tags[i] == "quit") {
                     _window->close();
+                    exit(0);
                 }
                 else if (_buttons_tags[i] == "start2") {
                     _window->close();
