@@ -15,6 +15,8 @@ struct my_string_s *buffer)
     if (vector_length(args) != 2)
         return;
     int value = atoi(((struct my_string_s *)vector_get(args, 1))->str);
+    if (value < MIN_FREQ || value > MAX_FREQ)
+        return;
     g->arg->freq = value;
     send_to_client(client, "sst %d\n", g->arg->freq);
     vector_set_destructor(args, string_destroy);
