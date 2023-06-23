@@ -131,8 +131,6 @@ private:
     std::vector<sf::Sprite> _sprites;
     std::vector<sf::Texture> _textures;
     sf::RectangleShape _slider;
-    sf::Font _font;
-    sf::Text _text;
 
     sf::View *_view_main;
     sf::View *_view_interface;
@@ -160,8 +158,6 @@ private:
     float _speed_y;
     int _view_width;
     int _view_height;
-
-    sf::Vector2f _pos;
 
     bool _move_right;
     bool _move_down;

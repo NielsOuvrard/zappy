@@ -143,7 +143,7 @@ void Menu::menu_draw(void)
     // resize background according to window size
     _window->draw(_background);
     _window->draw(_title);
-    for (int i = 0; i < _buttons_sprites.size(); i++) {
+    for (int i = 0; (size_t)i < _buttons_sprites.size(); i++) {
         _buttons_sprites[i].setTexture(_buttons_textures[i]);
         _window->draw(_buttons_sprites[i]);
     }
@@ -234,7 +234,7 @@ void Menu::buttons_handling(sf::Event event)
     if (event.key.code == sf::Keyboard::Escape && _param)
         _param = false;
     if (_param) {
-        for (int i = 0; i < _buttons_sprites.size(); i++) {
+        for (int i = 0; (size_t)i < _buttons_sprites.size(); i++) {
             _buttons_sprites[i].setPosition(40000, 10000);
             if (_buttons_tags[i] == "start2")
                 _buttons_sprites[i].setPosition(_window->getSize().x / 2, _window->getSize().y / 2 + 400);
@@ -246,7 +246,7 @@ void Menu::buttons_handling(sf::Event event)
         _ip_text.setPosition(_window->getSize().x / 2 - _ip_text.getGlobalBounds().width / 2, _window->getSize().y / 2 - 150 - _ip_text.getGlobalBounds().height / 2);
         _port_text.setPosition(_window->getSize().x / 2 - _port_text.getGlobalBounds().width / 2, _window->getSize().y / 2 + 50 - _port_text.getGlobalBounds().height / 2);
     } else {
-        for (int i = 0; i < _buttons_sprites.size(); i++)
+        for (int i = 0; (size_t)i < _buttons_sprites.size(); i++)
             if (_buttons_tags[i] != "start2")
                 _buttons_sprites[i].setPosition(_window->getSize().x / 2, _window->getSize().y / 2 + (i * 100 * _button_init_size.y));
             else
@@ -272,7 +272,7 @@ void Menu::menu_run(void)
                 _background.setScale(float(event.size.width) / float(_background_texture.getSize().x), float(event.size.height) / float(_background_texture.getSize().y));
                 _title.setScale(float(event.size.width) / float(_background_texture.getSize().x), float(event.size.height) / float(_background_texture.getSize().y));
                 _title.setPosition((_window->getSize().x / 2) - (_title.getGlobalBounds().width / 2), 0);
-                for (int i = 0; i < _buttons_sprites.size(); i++)
+                for (int i = 0; (size_t)i < _buttons_sprites.size(); i++)
                     _button_init_size = sf::Vector2f(float(event.size.width) / float(_background_texture.getSize().x), float(event.size.height) / float(_background_texture.getSize().y));
                 _help_menu.setScale(float(event.size.width) / float(_background_texture.getSize().x), float(event.size.height) / float(_background_texture.getSize().y));
                 if (_help_menu.getPosition().x != 40000)
