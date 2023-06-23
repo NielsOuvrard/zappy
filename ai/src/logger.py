@@ -18,6 +18,14 @@ COL_GREY = '\033[90m'
 COL_BOLD = '\033[1m'
 COL_UNDERLINE = '\033[4m'
 
+# todo sometimes send data -1
+# why take miss
+# a command "how many player with level x" / "who's alive"
+# why incantation miss
+
+# shared inventory by player with level
+
+# * nmb of player with level
 
 class Logger:
     def log_err(msg, id = -1):

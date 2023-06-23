@@ -120,13 +120,12 @@ def main():
                     Logger.log_warn("Fork", player.id)
                     player.fork(data)
                     player.broadcast("")
-                    Logger.log_err("Fork pass with succes", player.id)
                 elif action.startswith("Broadcast"):
-                    Logger.log_send("Broadcast", player.id)
+                    # Logger.log_send("Broadcast", player.id)
                     messsage = action.split(" ")[0]
                     player.broadcast(action[len(messsage) + 1:])
                 else:
-                    Logger.log_warn("take " + action, player.id)
+                    # Logger.log_warn("take " + action, player.id)
                     player.take(action)
                     player.getInventory()
                 sleep(0.04)
