@@ -76,6 +76,19 @@ void Gui::draw_players(int y, int x)
             1 * SIZE_PLAYER_Y + team_shift * SIZE_PLAYER_Y, SIZE_PLAYER_X, SIZE_PLAYER_Y));
         _window->draw(_sprites[ID_PLAYER]);
     }
+    // * DRAW CURRENT BROADCAST
+    for (int i = 0; (size_t)i < _players.size(); i++)
+    {
+        if (_players[i].broadcast_time > 0 && _players[i].y == y - DECOR_SIZE && _players[i].x == x - DECOR_SIZE) {
+            _sprites[ID_BROADCAST].setPosition(
+                ((_players[i].x + DECOR_SIZE) * 64 + (_players[i].y + DECOR_SIZE) * 64 + 32),
+                ((_players[i].y + DECOR_SIZE) * 32 - (_players[i].x + DECOR_SIZE) * 32 - 32) - 32);
+            _window->draw(_sprites[ID_BROADCAST]);
+        } else if (_players[i].broadcast_time > 0)
+            continue;
+        else
+            _players[i].broadcast = "NONE";
+    }
     for (size_t i = 0; i < _particles.size(); i++)
     {
         if (_particles[i].y == y - DECOR_SIZE && _particles[i].x == x - DECOR_SIZE)
@@ -243,19 +256,6 @@ void Gui::draw_map(void)
                 draw_players(i, j);
             }
         }
-    }
-    // * DRAW CURRENT BROADCAST
-    for (int i = 0; (size_t)i < _players.size(); i++)
-    {
-        if (_players[i].broadcast_time > 0) {
-            sf::RectangleShape rectangle(sf::Vector2f(64, 64));
-            rectangle.setPosition(
-                ((_players[i].x + DECOR_SIZE) * 64 + (_players[i].y + DECOR_SIZE) * 64 + 32) + 32,
-                ((_players[i].y + DECOR_SIZE) * 32 - (_players[i].x + DECOR_SIZE) * 32 - 32) - 32);
-            rectangle.setFillColor(sf::Color(255, 255, 255, 128));
-            _window->draw(rectangle);
-        } else
-            _players[i].broadcast = "NONE";
     }
 }
 

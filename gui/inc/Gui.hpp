@@ -63,6 +63,7 @@ typedef struct s_incant
 #define ID_HALF_TILE 5
 #define ID_TREE 6
 #define ID_BACKGROUND 7
+#define ID_BROADCAST 8
 
 #define SIZE_TILE 64
 #define SIZE_STONE 512

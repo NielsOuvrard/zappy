@@ -138,4 +138,8 @@ void Gui::load_textures(void)
 
     _sprites[ID_BACKGROUND].setTexture(_textures[ID_BACKGROUND]);
     _sprites[ID_BACKGROUND].setScale(0.5, 0.5);
+
+    _textures[ID_BROADCAST].setSmooth(false);
+    _sprites[ID_BROADCAST].setTexture(_textures[ID_BROADCAST]);
+    _sprites[ID_BROADCAST].setScale(1.25, 1.25);
 }

@@ -1,11 +1,11 @@
 if [ "$1" = 'v' ] && [ "$2" = 'g' ]; then
-    valgrind -s --leak-check=full --show-leak-kinds=all --track-origins=yes --vgdb=yes --vgdb-error=0 ./zappy_gui -p 8080 -h 127.0.0.1
+    valgrind -s --vgdb=yes --vgdb-error=0 ./zappy_gui -p 8080 -h 127.0.0.1
 elif [ "$1" = 'v' ] && [ "$2" = 'c' ]; then
     shift
     shift
-    valgrind -s --leak-check=full --show-leak-kinds=all --track-origins=yes ./zappy_gui $@
+    valgrind -s ./zappy_gui $@
 elif [ "$1" = 'v' ]; then
-    valgrind -s --leak-check=full --show-leak-kinds=all --track-origins=yes ./zappy_gui -p 8080 -h 127.0.0.1
+    valgrind -s ./zappy_gui -p 8080 -h 127.0.0.1
 elif [ "$1" = 'c' ]; then
     shift
     ./zappy_gui $@
