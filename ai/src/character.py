@@ -6,6 +6,7 @@
 ##
 
 import json
+import uuid
 import sys
 import subprocess
 from enum import Enum
@@ -425,6 +426,8 @@ class Player:
 
     def broadcast(self, message):
         # uncrypt message
+        id = str(uuid.uuid4())
+        message = id + " " + message
         message = ''.join(chr(ord(a) ^ 1) for a in message)
         self.server.send(("Broadcast " + message + "\n"))
         self.current_action = "BROADCAST"
