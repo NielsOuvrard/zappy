@@ -113,7 +113,6 @@ Menu::Menu(std::string ip, std::string port)
     _buttons_textures.push_back(start_texture);
     sf::Sprite start_sprite2;
     start_sprite2.setTexture(start_texture);
-    start_sprite2.setOrigin(start_sprite2.getGlobalBounds().width / 2, start_sprite2.getGlobalBounds().height / 2);
     start_sprite2.setPosition(40000, 40000);
     _buttons_sprites.push_back(start_sprite2);
     _buttons_pressed.push_back(false);
@@ -235,17 +234,47 @@ void Menu::buttons_handling(sf::Event event)
     if (event.key.code == sf::Keyboard::Escape && _param)
         _param = false;
     if (_param) {
+        _input_host_rect.setPosition(_window->getSize().x / 2 - _input_host_rect.getGlobalBounds().width / 2, _window->getSize().y / 2 - _input_host_rect.getGlobalBounds().height);
+        _input_host.setPosition(_window->getSize().x / 2 - _input_host.getGlobalBounds().width / 2, _window->getSize().y / 2 - _input_host_rect.getGlobalBounds().height + _input_host_rect.getGlobalBounds().height / 2 - _input_host.getGlobalBounds().height / 2);
+        _ip_text.setPosition(_window->getSize().x / 2 - _ip_text.getGlobalBounds().width / 2, _input_host_rect.getPosition().y - (_input_host_rect.getGlobalBounds().height / 3));
+        _input_port_rect.setPosition(_window->getSize().x / 2 - _input_port_rect.getGlobalBounds().width / 2, _window->getSize().y / 2 + _input_port_rect.getGlobalBounds().height);
+        _input_port.setPosition(_window->getSize().x / 2 - _input_port.getGlobalBounds().width / 2, _window->getSize().y / 2 + _input_port_rect.getGlobalBounds().height + _input_port_rect.getGlobalBounds().height / 2 - _input_port.getGlobalBounds().height / 2);
+        _port_text.setPosition(_window->getSize().x / 2 - _port_text.getGlobalBounds().width / 2, _input_port_rect.getPosition().y - (_input_port_rect.getGlobalBounds().height / 3));
         for (int i = 0; (size_t)i < _buttons_sprites.size(); i++) {
             _buttons_sprites[i].setPosition(40000, 10000);
             if (_buttons_tags[i] == "start2")
-                _buttons_sprites[i].setPosition(_window->getSize().x / 2, _window->getSize().y / 2 + 400);
+                _buttons_sprites[i].setPosition(_input_port_rect.getPosition().x + _input_port_rect.getGlobalBounds().width / 2 - _buttons_sprites[i].getGlobalBounds().width / 2, _input_port_rect.getPosition().y + _input_port_rect.getGlobalBounds().height + 50);
         }
-        _input_host_rect.setPosition(_window->getSize().x / 2 - _input_host_rect.getGlobalBounds().width / 2, _window->getSize().y / 2 - 100 - _input_host_rect.getGlobalBounds().height / 2);
-        _input_host.setPosition(_window->getSize().x / 2 - _input_host.getGlobalBounds().width / 2, _window->getSize().y / 2 - 100 - _input_host.getGlobalBounds().height / 2);
-        _input_port_rect.setPosition(_window->getSize().x / 2 - _input_port_rect.getGlobalBounds().width / 2, _window->getSize().y / 2 + 100 - _input_port_rect.getGlobalBounds().height / 2);
-        _input_port.setPosition(_window->getSize().x / 2 - _input_port.getGlobalBounds().width / 2, _window->getSize().y / 2 + 100 - _input_port.getGlobalBounds().height / 2);
-        _ip_text.setPosition(_window->getSize().x / 2 - _ip_text.getGlobalBounds().width / 2, _window->getSize().y / 2 - 150 - _ip_text.getGlobalBounds().height / 2);
-        _port_text.setPosition(_window->getSize().x / 2 - _port_text.getGlobalBounds().width / 2, _window->getSize().y / 2 + 50 - _port_text.getGlobalBounds().height / 2);
+    } else {
+        for (int i = 0; (size_t)i < _buttons_sprites.size(); i++)
+            if (_buttons_tags[i] != "start2")
+                _buttons_sprites[i].setPosition(_window->getSize().x / 2, _window->getSize().y / 2 + (i * 100 * _button_init_size.y));
+            else
+                _buttons_sprites[i].setPosition(40000, 40000);
+        _input_host.setPosition(40000, 40000);
+        _input_host_rect.setPosition(40000, 40000);
+        _input_port.setPosition(40000, 40000);
+        _input_port_rect.setPosition(40000, 40000);
+        _ip_text.setPosition(40000, 40000);
+        _port_text.setPosition(40000, 40000);
+    }
+}
+
+void Menu::reset_pos(void)
+{
+    if (_param) {
+        _input_host_rect.setPosition(_window->getSize().x / 2 - _input_host_rect.getGlobalBounds().width / 2, _window->getSize().y / 2 - _input_host_rect.getGlobalBounds().height);
+        _input_host.setPosition(_window->getSize().x / 2 - _input_host.getGlobalBounds().width / 2, _window->getSize().y / 2 - _input_host_rect.getGlobalBounds().height + _input_host_rect.getGlobalBounds().height / 2 - _input_host.getGlobalBounds().height / 2);
+        _ip_text.setPosition(_window->getSize().x / 2 - _ip_text.getGlobalBounds().width / 2, _input_host_rect.getPosition().y - (_input_host_rect.getGlobalBounds().height / 3));
+
+        _input_port_rect.setPosition(_window->getSize().x / 2 - _input_port_rect.getGlobalBounds().width / 2, _window->getSize().y / 2 + _input_port_rect.getGlobalBounds().height);
+        _input_port.setPosition(_window->getSize().x / 2 - _input_port.getGlobalBounds().width / 2, _window->getSize().y / 2 + _input_port_rect.getGlobalBounds().height + _input_port_rect.getGlobalBounds().height / 2 - _input_port.getGlobalBounds().height / 2);
+        _port_text.setPosition(_window->getSize().x / 2 - _port_text.getGlobalBounds().width / 2, _input_port_rect.getPosition().y - (_input_port_rect.getGlobalBounds().height / 3));
+        for (int i = 0; (size_t)i < _buttons_sprites.size(); i++) {
+            _buttons_sprites[i].setPosition(40000, 10000);
+            if (_buttons_tags[i] == "start2")
+                _buttons_sprites[i].setPosition(_input_port_rect.getPosition().x + _input_port_rect.getGlobalBounds().width / 2 - _buttons_sprites[i].getGlobalBounds().width / 2, _input_port_rect.getPosition().y + _input_port_rect.getGlobalBounds().height + 50);
+        }
     } else {
         for (int i = 0; (size_t)i < _buttons_sprites.size(); i++)
             if (_buttons_tags[i] != "start2")
@@ -278,6 +307,12 @@ void Menu::menu_run(void)
                 _help_menu.setScale(float(event.size.width) / float(_background_texture.getSize().x), float(event.size.height) / float(_background_texture.getSize().y));
                 if (_help_menu.getPosition().x != 40000)
                     _help_menu.setPosition(_window->getSize().x / 2 - _help_menu.getGlobalBounds().width / 2, _window->getSize().y / 2 - _help_menu.getGlobalBounds().height / 2);
+                _input_host_rect.setScale(float(event.size.width) / float(_background_texture.getSize().x), float(event.size.height) / float(_background_texture.getSize().y));
+                _input_port_rect.setScale(float(event.size.width) / float(_background_texture.getSize().x), float(event.size.height) / float(_background_texture.getSize().y));
+                _input_host.setScale(float(event.size.width) / float(_background_texture.getSize().x), float(event.size.height) / float(_background_texture.getSize().y));
+                _input_port.setScale(float(event.size.width) / float(_background_texture.getSize().x), float(event.size.height) / float(_background_texture.getSize().y));
+                _ip_text.setScale(float(event.size.width) / float(_background_texture.getSize().x), float(event.size.height) / float(_background_texture.getSize().y));
+                _port_text.setScale(float(event.size.width) / float(_background_texture.getSize().x), float(event.size.height) / float(_background_texture.getSize().y));
             }
             if (event.type == sf::Event::Closed) {
                 _window->close();
@@ -287,6 +322,7 @@ void Menu::menu_run(void)
                 event.type == sf::Event::MouseButtonPressed ||
                 event.type == sf::Event::MouseButtonReleased ||
                 event.type == sf::Event::KeyPressed ||
+                event.type == sf::Event::TextEntered ||
                 event.type == sf::Event::KeyReleased)
                 buttons_handling(event);
         }

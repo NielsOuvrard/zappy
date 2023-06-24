@@ -16,6 +16,7 @@ class Menu {
         void menu_draw(void);
         void buttons_handling(sf::Event event);
         void menu_run(void);
+        void reset_pos(void);
 
         std::string get_ip(void) const { return _ip; };
         std::string get_port(void) const { return _port; };
