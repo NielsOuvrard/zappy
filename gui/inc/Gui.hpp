@@ -169,7 +169,7 @@ private:
     int _selected_player_ressources[7];
 
     bool _slider_selected = false;
-    unsigned char _slider_value = 100;
+    int _slider_value = 100;
 
     bool _interface_show;
     int _interface_center_value;

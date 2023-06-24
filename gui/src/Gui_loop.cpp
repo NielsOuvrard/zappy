@@ -147,7 +147,8 @@ void Gui::handle_clocks(sf::Clock *clock, sf::Clock *clock_particules)
 
 void Gui::event_slider(sf::Event event)
 {
-    _slider.setSize(sf::Vector2f(200, 20));
+    _slider.setSize(sf::Vector2f(200 * _window->getSize().x / 1920, 20 * _window->getSize().y / 1080));
+    _slider.setPosition(50 * _window->getSize().x / 1920, 650 * _window->getSize().y / 1080);
     if (event.type == sf::Event::MouseButtonPressed)
     {
         if (event.mouseButton.button == sf::Mouse::Left)
@@ -172,7 +173,7 @@ void Gui::event_slider(sf::Event event)
         if (_slider_selected)
         {
             sf::Vector2i mousePosition = sf::Mouse::getPosition(*_window);
-            _slider_value = (mousePosition.x - _slider.getPosition().x) / 2;
+            _slider_value = (float)(mousePosition.x - _slider.getPosition().x) / (float)_slider.getSize().x * 100.0;
             if (_slider_value < 1)
                 _slider_value = 1;
             else if (_slider_value > 100)
