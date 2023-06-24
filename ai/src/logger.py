@@ -24,6 +24,7 @@ COL_UNDERLINE = '\033[4m'
 # why incantation miss
 
 # shared inventory by player with level
+# if inv enough -> send food -> player with most food await others in his tile
 
 # * nmb of player with level
 

@@ -57,22 +57,6 @@ def connect_to_server(data):
     player = Player(size_x, size_y, 0, server)
     return player
 
-# 1
-# 4
-# 9
-# 16
-# 25
-
-# take -> getInventory
-# difference between old and new inventory -> shared_inventory
-
-# issue [AI] Handle map
-# def fill_map(player: Player, look: list, size: int, incr: int = 1):
-#     for i in range(size):
-#         player.map.append(look[i]) # to change
-#     if look.length() > size:
-#         fill_map(player, look[size:], size + incr, incr + 2)
-
 from enum import Enum
 
 class TypeResponse(Enum):
@@ -84,6 +68,8 @@ class TypeResponse(Enum):
 def thread_function(player: Player):
     while (1):
         player.manage_response()
+
+
 
 def main():
     data: dict = setup_data()
@@ -101,52 +87,46 @@ def main():
         player.getInventory()
         # input()
         if player.next_move == []:
-            player.compute_good_case()
-            player.compute_action()
-        else:
+            # todo: compute priority only if no action done
+            # food / stone / reproduction / incantation / Gather
+            if not player.action_done:
+                player.find_next_move_with_priority()
+            else:
+                no_move: bool = player.compute_priority()
+                Logger.log_prio("Priority " + str(player.priority), player.id)
+                if no_move:
+                    player.compute_action()
+                else:
+                    player.find_next_move_with_priority()
+        if player.next_move != []:
             while player.next_move != []:
                 # Logger.log_warn("next_move : " + str(player.next_move), player.id)
                 action: str = player.next_move.pop(0)
                 if action == "Forward":
+                    player.action_done = False
                     player.forward()
                 elif action == "Left":
+                    player.action_done = False
                     player.left()
                 elif action == "Right":
+                    player.action_done = False
                     player.right()
                 elif action == "Incantation":
-                    Logger.log_warn("Incantation", player.id)
                     player.incantation()
                 elif action == "Fork":
-                    Logger.log_warn("Fork", player.id)
+                    player.action_done = True
                     player.fork(data)
                     player.broadcast("")
                 elif action.startswith("Broadcast"):
+                    player.action_done = True
                     # Logger.log_send("Broadcast", player.id)
                     messsage = action.split(" ")[0]
                     player.broadcast(action[len(messsage) + 1:])
                 else:
-                    # Logger.log_warn("take " + action, player.id)
+                    player.action_done = True
                     player.take(action)
                     player.getInventory()
-                sleep(0.04)
-                    # if res_take == "ok" and action != "food":
-                    #     Logger.log_info("take " + action, player.id)
-                    #     player.inventory[action] += 1
-                    #     player.shared_inventory[action] += 1
-                    #     player.broadcast("SharedInventory_" + action + "_" + str(player.shared_inventory[action]))
-                    #     Logger.log_warn("shared_inventory : " + str(player.shared_inventory), player.id)
-                    #     Logger.log_warn("inventory : " + str(player.inventory), player.id)
-                    # elif res_take == "ko":
-                    #     Logger.log_err("take " + action, player.id)
-        # response = player.server.recv(1024).decode()
-        # player.parse_cmd(response)
-        # command = player.next_command[0]
-        # player.getInventory()
-        # if player.getInventory() == "dead":
-        #     break
-
-        # if simple_algo_eat(player):
-        #     res = player.take("food")
+                sleep(0.3)
     sys.exit(0)
 
 if __name__ == "__main__":
