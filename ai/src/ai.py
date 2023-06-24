@@ -99,8 +99,8 @@ def main():
                 else:
                     player.find_next_move_with_priority()
         if player.next_move != []:
+            Logger.log_warn("next_move : " + str(player.next_move), player.id)
             while player.next_move != []:
-                # Logger.log_warn("next_move : " + str(player.next_move), player.id)
                 action: str = player.next_move.pop(0)
                 if action == "Forward":
                     player.action_done = False
@@ -116,17 +116,14 @@ def main():
                 elif action == "Fork":
                     player.action_done = True
                     player.fork(data)
-                    player.broadcast("")
                 elif action.startswith("Broadcast"):
-                    player.action_done = True
-                    # Logger.log_send("Broadcast", player.id)
                     messsage = action.split(" ")[0]
                     player.broadcast(action[len(messsage) + 1:])
                 else:
                     player.action_done = True
                     player.take(action)
                     player.getInventory()
-                sleep(0.3)
+                # sleep(0.3)
     sys.exit(0)
 
 if __name__ == "__main__":

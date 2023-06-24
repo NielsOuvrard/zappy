@@ -23,7 +23,6 @@ class Network:
         self.buffer = ""
 
     def send(self, message):
-        Logger.log_send(message)
         self.server.send((message + "\n").encode())
 
     def recv(self):
