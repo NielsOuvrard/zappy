@@ -120,7 +120,7 @@ struct my_string_s *buffer)
             continue;
         if (tmp->posx == client->posx && tmp->posy == client->posy && tmp->level == client->level && client != tmp && tmp->is_incanting == client->client_nb) {
             tmp->level++;
-            send_to_client(tmp, "Current level: %d\n", client->level);
+            send_to_client(tmp, "Current level: %d\n", tmp->level);
             tmp->is_incanting = -1;
         }
     }
