@@ -140,6 +140,12 @@ void Gui::handle_clocks(sf::Clock *clock, sf::Clock *clock_particules)
         for (int i = 0; (size_t)i < _players.size(); i++)
             if (_players[i].broadcast_time > 0)
                 _players[i].broadcast_time -= 1;
+        if (_messages.size() > 0)
+            _messages_cooldown--;
+        if (_messages.size() > 0 && _messages_cooldown <= 0) {
+            _messages.erase(_messages.begin());
+            _messages_cooldown = 5;
+        }
         _waves++;
         clock->restart();
     }
@@ -316,6 +322,28 @@ void Gui::run(void)
         interface();
         player();
 
+        if (_messages.size() > 0)
+        {
+            sf::Text serverMessagesText;
+            serverMessagesText.setFont(_font);
+            serverMessagesText.setString("Server message : " + _messages[0]);
+            serverMessagesText.setCharacterSize(50);
+            serverMessagesText.setFillColor(sf::Color::Blue);
+            serverMessagesText.setStyle(sf::Text::Bold);
+            serverMessagesText.setOrigin(serverMessagesText.getLocalBounds().width / 2, serverMessagesText.getLocalBounds().height / 2);
+            serverMessagesText.setPosition(-(DISPLAY_WIDTH / 2) + 280 - _interface_center_value, 30);
+
+            sf::RectangleShape serverMessagesBackground(sf::Vector2f(
+                serverMessagesText.getLocalBounds().width + 20,
+                serverMessagesText.getLocalBounds().height + 20));
+
+            serverMessagesBackground.setFillColor(sf::Color(0, 0, 0, 140));
+            serverMessagesBackground.setOrigin(serverMessagesBackground.getLocalBounds().width / 2, serverMessagesBackground.getLocalBounds().height / 2);
+            serverMessagesBackground.setPosition(-(DISPLAY_WIDTH / 2) + 280 - _interface_center_value, 40);
+
+            _window->draw(serverMessagesBackground);
+            _window->draw(serverMessagesText);
+        }
         if (*_server_stopped == true)
         {
             sf::Text serverDisconnectedText;
@@ -337,6 +365,28 @@ void Gui::run(void)
 
             _window->draw(serverDisconnectedBackground);
             _window->draw(serverDisconnectedText);
+        }
+        if (_game_over == true)
+        {
+            sf::Text gameOverText;
+            gameOverText.setFont(_font);
+            gameOverText.setString("Game Over! Winner: " + _winner);
+            gameOverText.setCharacterSize(50);
+            gameOverText.setFillColor(sf::Color::Green);
+            gameOverText.setStyle(sf::Text::Bold);
+            gameOverText.setOrigin(gameOverText.getLocalBounds().width / 2, gameOverText.getLocalBounds().height / 2);
+            gameOverText.setPosition(-(DISPLAY_WIDTH / 2) + 280 - _interface_center_value, 170);
+
+            sf::RectangleShape gameOverBackground(sf::Vector2f(
+                gameOverText.getLocalBounds().width + 20,
+                gameOverText.getLocalBounds().height + 20));
+
+            gameOverBackground.setFillColor(sf::Color(0, 0, 0, 140));
+            gameOverBackground.setOrigin(gameOverBackground.getLocalBounds().width / 2, gameOverBackground.getLocalBounds().height / 2);
+            gameOverBackground.setPosition(-(DISPLAY_WIDTH / 2) + 280 - _interface_center_value, 180);
+
+            _window->draw(gameOverBackground);
+            _window->draw(gameOverText);
         }
 
         // * animation up and down

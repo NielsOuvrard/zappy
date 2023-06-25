@@ -82,7 +82,7 @@ void Gui::draw_players(int y, int x)
         if (_players[i].broadcast_time > 0 && _players[i].y == y - DECOR_SIZE && _players[i].x == x - DECOR_SIZE) {
             _sprites[ID_BROADCAST].setPosition(
                 ((_players[i].x + DECOR_SIZE) * 64 + (_players[i].y + DECOR_SIZE) * 64 + 32),
-                ((_players[i].y + DECOR_SIZE) * 32 - (_players[i].x + DECOR_SIZE) * 32 - 32) - 32);
+                ((_players[i].y + DECOR_SIZE) * 32 - (_players[i].x + DECOR_SIZE) * 32 - 32 - height) - 32);
             _window->draw(_sprites[ID_BROADCAST]);
         } else if (_players[i].broadcast_time > 0)
             continue;

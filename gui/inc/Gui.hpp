@@ -173,4 +173,10 @@ private:
 
     bool _interface_show;
     int _interface_center_value;
+
+    bool _game_over = false;
+    std::string _winner;
+
+    std::vector<std::string> _messages;
+    int _messages_cooldown = 5;
 };
