@@ -66,7 +66,7 @@ class TypeResponse(Enum):
     BROADCAST = 3
 
 def thread_function(player: Player):
-    while (1):
+    while (player.iamdead == False):
         player.manage_response()
 
 
@@ -80,50 +80,43 @@ def main():
 
     player.broadcast("Hello")
 
-    # player.manage_response()
-
-    while (1):
+    while (player.iamdead == False):
         player.look()
         player.getInventory()
-        # input()
+
         if player.next_move == []:
-            # todo: compute priority only if no action done
-            # food / stone / reproduction / incantation / Gather
-            if not player.action_done:
-                player.find_next_move_with_priority()
-            else:
-                no_move: bool = player.compute_priority()
-                Logger.log_prio("Priority " + str(player.priority), player.id)
-                if no_move:
+            # * food / stone / reproduction / incantation / Gather
+            player.compute_priority()
+            Logger.log_prio("priority : " + str(player.priority), player.id)
+            if not player.need_to_gather():
+                on_the_good_tile_to_act = True
+                if player.need_to_move():
+                    on_the_good_tile_to_act = player.find_next_move_with_priority()
+                if on_the_good_tile_to_act:
                     player.compute_action()
-                else:
-                    player.find_next_move_with_priority()
+
         if player.next_move != []:
             Logger.log_warn("next_move : " + str(player.next_move), player.id)
             while player.next_move != []:
+                if player.iamdead:
+                    sys.exit(0)
                 action: str = player.next_move.pop(0)
                 if action == "Forward":
-                    player.action_done = False
                     player.forward()
                 elif action == "Left":
-                    player.action_done = False
                     player.left()
                 elif action == "Right":
-                    player.action_done = False
                     player.right()
                 elif action == "Incantation":
                     player.incantation()
                 elif action == "Fork":
-                    player.action_done = True
                     player.fork(data)
                 elif action.startswith("Broadcast"):
                     messsage = action.split(" ")[0]
                     player.broadcast(action[len(messsage) + 1:])
                 else:
-                    player.action_done = True
                     player.take(action)
-                    player.getInventory()
-                # sleep(0.3)
+            # sleep(0.3)
     sys.exit(0)
 
 if __name__ == "__main__":

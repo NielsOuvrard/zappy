@@ -20,8 +20,6 @@ from logger import Logger
 # if find my level -> gather players -> drop stone -> incantation
 # if not -> fork & move
 
-# shared inventory ?
-
 LVL1_2 = {
     "ally": 0,
     "linemate": 1,
@@ -119,15 +117,23 @@ class Player:
         self.can_evolve = False
         self.needed_food = 0
         self.leader = False
-        self.action_done = True
         self.priority = Priority.Undefined
         self.forked_nbr = 0
         self.message_received: list = []
         self.message_type_received: list = []
         self.current_action = "NONE"
-        self.nmb_player = 1
         self.players: dict = []
-        self.shared_inventory_my_level: list = []
+        self.my_level_players: list = []
+        self.player_to_gather = None
+        self.players_gather_to_me = True
+        self.iamdead = False
+
+        # new algo
+        self.wait_players = False
+        self.follow_player = False
+        self.find_player_to_gather = False
+        self.players_ready_to_incant = 1 # or put 0 and + 1 when enough stones
+        self.main_player_incantation = False
 
         # Inventory
         self.inventory = {
@@ -159,121 +165,146 @@ class Player:
     def __str__(self):
         return "I'm player " + str(self.id) + " and my inventory is " + str(self.inventory)
 
-    def compute_needed_food(self, case_id):
+    def compute_needed_food(self) -> int:
         """
         Compute the needed food according to the number of foods in the inventory and level
         """
-        self.needed_food = (case_id // 2) + 5
+        return (self.go_case_id // 2) + 5
 
-    def compute_evolve(self):
+    def share_inventory_my_level(self):
         """
-        Compute if the player can evolve
+        Share the inventory of the player with the other players of the same level
         """
-        Logger.log_info("Compute evolve : " + str(self.lvl) + " " + str(self.inventory["food"]) + " " + str(self.needed_food) + " " + str(self.map[0]["linemate"]))
-        if self.lvl == 1 and self.inventory["food"] >= self.needed_food and self.map[0]["linemate"] >= 1:
-            Logger.log_info("I can evolve", self.id)
-            self.can_evolve = True
-            self.go_case_id = 0
-            return
-        stones: dict = {}
-        stones = self.inventory.copy()
-        stones.pop("food")
+        inventory = self.inventory.copy()
+        if self.lvl == 1:
+            return self.inventory
+        for player in self.my_level_players:
+            inventory["linemate"]   += player["linemate"]
+            inventory["deraumere"]  += player["deraumere"]
+            inventory["sibur"]      += player["sibur"]
+            inventory["mendiane"]   += player["mendiane"]
+            inventory["phiras"]     += player["phiras"]
+            inventory["thystame"]   += player["thystame"]
+        return inventory
+
+    def get_stone(self):
+        """
+        This function compute the next action to do to get the stone
+        """
         needed_stones: dict = self.level_cap[self.lvl - 1].copy()
         needed_stones.pop("ally")
-        evolvable: bool = True
-        for key in stones:
-            if stones[key] < needed_stones[key]:
-                evolvable = False
-                break
-        self.can_evolve = evolvable
-        # if stones == needed_stones:
-        #     self.can_evolve = True
-        # else:
-        #     self.can_evolve = False
+        shared_inv = self.share_inventory_my_level()
+        for stone in needed_stones:
+            if shared_inv[stone] < needed_stones[stone]:
+                return stone
+        return None
 
-    def compute_priority(self) -> bool:
+    def check_incantable_and_hungry(self) -> bool:
+        """
+        This function check if the player is incantable and hungry
+        """
+        if not self.get_stone() != None:
+            return False
+        if self.inventory["food"] < 6:
+            self.priority = Priority.Food
+        return True
+
+    def need_to_gather(self) -> bool:
+        """
+        This function check if the player need to gather
+        """
+        if self.priority == Priority.Gather:
+            return True
+        return False
+
+    def need_to_move(self) -> bool:
+        """
+        This function check if the player need to move
+        """
+        if self.priority == Priority.Reproduction or self.priority == Priority.Incantation:
+            return False
+        return True
+
+    # * ######################################################################################### PRIORITIES #####################################################################################################
+    def compute_priority(self):
         """
         This function compute the priority of the player
         """
-        if (len(self.map) == 0):
+        if self.lvl == 8:
+            Logger.log_success("Player " + str(self.id) + " is lvl 8")
+            # do anything else
+            return
+
+        if len(self.map) == 0: # error no map
             self.priority = Priority.Food
             Logger.log_err("Player map is empty", self.id)
-            return False
-        self.compute_needed_food(self.map[-1].get("case_id"))
-        self.compute_evolve()
-        if self.inventory["food"] < self.needed_food:
-            Logger.log_warn("food : " + str(self.inventory["food"]) + " needed : " + str(self.needed_food), self.id)
-            self.priority = Priority.Food
-            return False
-        elif self.nmb_player < self.level_cap[self.lvl - 1]["ally"] + 1 and self.forked_nbr < 1:
-            self.priority = Priority.Reproduction
-            return True
-        elif self.can_evolve and self.inventory["food"] >= 6:
-            if self.lvl > 1:
-                self.priority = Priority.Gather
-                return False
-            else:
-                self.priority = Priority.Incantation
-                return True
-        else:
-            self.priority = Priority.Stones
-            return False
+            return
 
-    def compute_good_case(self):
+        if self.inventory["food"] < 6:
+            self.priority = Priority.Food
+            return
+
+        if self.lvl == 1 and self.map[0]["linemate"] >= 1:
+            self.priority = Priority.Incantation
+            return
+
+        if (self.wait_players or self.follow_player) and self.get_stone() == None:
+            self.priority = Priority.Gather
+            return
+
+        if len(self.players) < self.level_cap[self.lvl - 1]["ally"] - 1:
+            self.priority = Priority.Reproduction
+            return
+
+        if self.get_stone() != None:
+            self.priority = Priority.Stones
+            return
+
+        if len(self.my_level_players) < self.level_cap[self.lvl - 1]["ally"] - 1:
+            self.priority = Priority.Food
+            return
+
+        elif self.get_stone() == None and len(self.my_level_players) >= self.level_cap[self.lvl - 1]["ally"] - 1:
+            self.priority = Priority.Gather
+            # todo: Am I self.wait_players or self.follow_player
+            return
+        Logger.log_err("Priority not found", self.id)
+        self.priority = Priority.Food
+        return
+
+    # todo shortest path
+    def find_and_compute_good_case(self):
         """
         According to the map, this function compute the best case to go
         """
-        # self.compute_priority()
-        # Logger.log_prio("Priority " + str(self.priority), self.id)
+        needed_stones = None
+        if self.priority == Priority.Stones:
+            needed_stones = self.get_stone()
+        self.go_case_id = -1
 
-        # ? is this check necessary ?
-        if self.priority == Priority.Reproduction or self.priority == Priority.Incantation:
-            Logger.log_err("Priority is reproduction or incantation in (compute_good_case)", self.id)
+        if self.map[0]["food"] > 0 and self.priority == Priority.Food:
             self.go_case_id = 0
             return
-        self.go_case_id = -1
-        for i in range(len(self.map)):
-            # if self.map[i]["player"] == 0:
+        if self.map[0][needed_stones] > 0:
+            self.go_case_id = 0
+            return
+
+        for i in range(1, len(self.map), 1):
             if self.priority == Priority.Food and self.map[i]["food"] > 0:
                 self.go_case_id = i
-                # self.go_case_id = self.map[i]["case_id"]
                 return
-            elif self.priority == Priority.Stones:
-                needed_stones: dict = self.level_cap[self.lvl - 1].copy()
-                needed_stones.pop("ally")
-                for stone in needed_stones:
-                    if self.map[i][stone] > 0 and self.inventory[stone] < needed_stones[stone]:
-                        Logger.log_prio("I need " + stone)
-                        self.go_case_id = self.map[i]["case_id"]
-                        return
-            elif self.priority == Priority.Gather:
-                Logger.log_prio("Need to Gather", self.id)
-            # elif self.priority == Priority.Incantation:
-            #     if self.map[i]["player"] > 0 and i != 0:
-            #         self.go_case_id = self.map[i]["case_id"]
-            #         break
-            # elif self.priority == Priority.Reproduction:
-            #     if self.map[i]["ally"] > 0:
-            #         self.go_case_id = self.map[i]["case_id"]
-            #         break
+            elif needed_stones != None and self.map[i][needed_stones] > 0:
+                self.go_case_id = i
+                return
+        Logger.log_err("No case found", self.id)
+        return
 
-    def go_to_case(self) -> bool:
+    def go_to_case(self):
         """
         This function compute the next action to do to go to the case
         """
         # todo: put it somewhere else
         Logger.log_warn("go to case " + str(self.go_case_id), self.id)
-        if self.go_case_id == -1:
-            Logger.log_prio("No case to go -1", self.id)
-            for i in range(self.lvl):
-                self.forward()
-            return False
-
-        # self.go_case_id = -1
-        if self.go_case_id == 0:
-            Logger.log_prio("No case to go 0", self.id)
-            return True
-        #     self.next_move.append("Take")
         self.next_move = []
 
         # forward
@@ -298,24 +329,58 @@ class Player:
             self.next_move.append("Right")
         else:
             Logger.log_warn("so we do " + str(self.next_move) + "\n", self.id)
-            return True
+            return
         # forward after turn
         mov = 0
         while mov < abs(x):
             self.next_move.append("Forward")
             mov += 1
         Logger.log_warn("so we do " + str(self.next_move) + "\n", self.id)
-        return True
+        return
 
-    def get_stone(self):
+    def where_move_to_gather(self, orientation: int):
         """
-        This function compute the next action to do to get the stone
+        This function compute the next action to do to go to the case
         """
-        needed_stones: dict = self.level_cap[self.lvl - 1].copy()
-        needed_stones.pop("ally")
-        for stone in needed_stones:
-            if self.inventory[stone] < needed_stones[stone]:
-                return stone
+        Logger.log_prio("gather to: " + str(orientation), self.id)
+        if orientation == 0:
+            # your orientation is the same as the player
+            # wait until enough player to incant
+            return
+        elif orientation == 1:
+            self.next_move.append("Forward")
+        elif orientation == 2:
+            self.next_move.append("Forward")
+            self.next_move.append("Left")
+            self.next_move.append("Forward")
+        elif orientation == 3:
+            self.next_move.append("Left")
+            self.next_move.append("Forward")
+        elif orientation == 4:
+            self.next_move.append("Left")
+            self.next_move.append("Forward")
+            self.next_move.append("Left")
+            self.next_move.append("Forward")
+        elif orientation == 5:
+            self.next_move.append("Left")
+            self.next_move.append("Left")
+            self.next_move.append("Forward")
+        elif orientation == 6:
+            self.next_move.append("Right")
+            self.next_move.append("Forward")
+            self.next_move.append("Right")
+            self.next_move.append("Forward")
+        elif orientation == 7:
+            self.next_move.append("Right")
+            self.next_move.append("Forward")
+        elif orientation == 8:
+            self.next_move.append("Forward")
+            self.next_move.append("Right")
+            self.next_move.append("Forward")
+        # allMyInfo = "AllMyInfoAndLevel_" + str(self.id) + "_" + str(self.lvl) + "_" + str(self.inventory["food"]) + "_" + str(self.inventory["linemate"]) + "_" + str(self.inventory["deraumere"]) + "_" + str(self.inventory["sibur"]) + "_" + str(self.inventory["mendiane"]) + "_" + str(self.inventory["phiras"]) + "_" + str(self.inventory["thystame"])
+        self.next_move.append("Broadcast WhereAreYou_" + self.player_to_gather["id"])
+
+    # * ######################################################################################### COMPUTE ACTION ######################################################################################### * #
 
     def compute_action(self):
         """
@@ -327,25 +392,38 @@ class Player:
             self.next_move.append(self.get_stone())
         elif self.priority == Priority.Reproduction:
             self.next_move.append("Fork")
-        elif self.priority == Priority.Gather:
-            Logger.log_prio("Need to Gather (compute_action)", self.id)
-            # if self.level_cap[self.lvl - 1]["ally"] > (self.map[0]["player"] - 1):
-            #     self.next_move.append("Broadcast Searching_incant_" + str(self.lvl) + "_" + str(self.inventory["food"]) + "_" + str(self.id))
-            #     d = 0 #TODO A faire pour le Broadcast
-            # else:
         elif self.priority == Priority.Incantation:
             self.next_move.append("Incantation")
         else:
+            Logger.log_err("Priority not found, try to take food", self.id)
             self.next_move.append("food")
 
-    def find_next_move_with_priority(self):
-        # fill self.go_case_id
-        self.compute_good_case()
-        # fill self.next_move
-        find_good_tile = self.go_to_case()
-        if find_good_tile:
-            self.compute_action()
+    # * ######################################################################################### FIND NEXT MOVE ######################################################################################### * #
 
+    def find_next_move_with_priority(self) -> bool:
+        """
+        fill self.go_case_id and self.next_move
+        """
+        self.find_and_compute_good_case()
+
+        if self.go_case_id == -1:
+            for i in range(self.lvl):
+                self.forward()
+            return False
+
+        if self.go_case_id == 0:
+            return True
+
+        # if not enough food to move to the case
+        if self.priority != Priority.Food and self.inventory["food"] < self.compute_needed_food():
+            Logger.log_warn("food : " + str(self.inventory["food"]) + " needed to move away: " + str(self.needed_food), self.id)
+            self.priority = Priority.Food
+            return self.find_next_move_with_priority()
+
+        self.go_to_case()
+        return True
+
+    # * ######################################################################################### BRADCAST ####################################################################################################
     def manage_receive_message(self, response):
         tmp = response.split(" ")
         orientation = int(tmp[1][:-1])
@@ -361,7 +439,7 @@ class Player:
                 Logger.log_info("New player spawn, all id + 1")
             for player in self.players:
                 player["id"] += 1
-            for player in self.shared_inventory_my_level:
+            for player in self.my_level_players: # ? is it a pointer ? does it increment twice ?
                 player["id"] += 1
             new_player = {
                 "id": 0,
@@ -379,6 +457,57 @@ class Player:
             allMyInfo = "AllMyInfo_" + str(self.id) + "_" + str(self.lvl) + "_" + str(self.inventory["food"]) + "_" + str(self.inventory["linemate"]) + "_" + str(self.inventory["deraumere"]) + "_" + str(self.inventory["sibur"]) + "_" + str(self.inventory["mendiane"]) + "_" + str(self.inventory["phiras"]) + "_" + str(self.inventory["thystame"])
             self.next_move.append("Broadcast " + allMyInfo)
             return
+
+
+
+        if self.follow_player:
+            if message.startswith("Incant"):
+                message = message.split("_")
+                # todo
+                # wait until "recv (Level 2)" or "recv (stop)"
+                return
+
+            if message.startswith("StopIncant"):
+                message = message.split("_")
+                if len(message) != 2:
+                    Logger.log_err("StopIncant message too short ->" + str(message) , self.id)
+                    return
+                if int(message[1]) == self.player_to_gather["id"]:
+                    self.follow_player = False
+                    self.find_player_to_gather = False
+                return
+
+            if message.startswith("IAmHere"):
+                message = message.split("_")
+                if len(message) != 2:
+                    Logger.log_err("IAmHere message too short ->" + str(message) , self.id)
+                    return
+                if orientation == 0:
+                    self.find_player_to_gather = True
+                    return
+                if int(message[1]) == self.player_to_gather["id"]:
+                    # ? is that useful ?
+                    #  self.player_to_gather["orientation"] = orientation
+                    self.where_move_to_gather(orientation) # and Broadcast WhereAreYou_
+                return
+
+
+        elif self.wait_players:
+            if message.startswith("WhereAreYou"):
+                message = message.split("_")
+                if len(message) != 2:
+                    Logger.log_err("WhereAreYou message too short ->" + str(message) , self.id)
+                    return
+                if message[1] == str(self.id):
+                    self.next_move.append("Broadcast IAmHere_" + str(self.id))
+                    if orientation == 0:
+                        self.players_ready_to_incant += 1
+                        if self.players_ready_to_incant == self.level_cap[self.lvl - 1]["ally"]:
+                            self.wait_players = False
+                            self.next_move.append("Broadcast Incant_" + str(self.id))
+                        #todo: whrer StopIncant ?
+                        # self.next_move.append("Broadcast StopIncant_" + str(self.id))
+                return
 
         if message.startswith("AllMyInfo"):
             if message.startswith("AllMyInfoAndYou") or self.lvl == 0:
@@ -400,15 +529,22 @@ class Player:
                 "thystame": int(message[9])
             }
             if new_player["lvl"] == self.lvl:
+                # add player to my level players
                 is_in = False
-                for player in self.shared_inventory_my_level:
+                for player in self.my_level_players:
                     if player["id"] == new_player["id"]:
                         player = new_player
                         is_in = True
                         break
                 if not is_in:
-                    self.shared_inventory_my_level.append(new_player)
-                Logger.log_warn("Shared inventory my level : " + str(self.shared_inventory_my_level), self.id)
+                    self.my_level_players.append(new_player)
+                Logger.log_warn("Shared inventory my level : " + str(self.my_level_players), self.id)
+            else:
+                # remove player from my level players
+                for player in self.my_level_players:
+                    if player["id"] == new_player["id"]:
+                        self.my_level_players.remove(player)
+                        break
             Logger.log_warn("AllMyInfo : " + str(new_player))
             for player in self.players:
                 if player["id"] == new_player["id"]:
@@ -419,11 +555,13 @@ class Player:
             Logger.log_warn("All players : " + str(self.players), self.id)
             return
 
+    # * ######################################################################################### RESPONSE ####################################################################################################
     def manage_response(self) -> None:
         response = self.server.recv()
 
         if response == "dead":
-            sys.exit(0)
+            self.iamdead = True
+            return
 
         self.message_received.append(response)
         Logger.log_recve(response, self.id)
@@ -435,12 +573,14 @@ class Player:
 
         elif response.startswith("Current level: "):
             if self.lvl != int(response.split(" ")[2]):
-                self.shared_inventory_my_level = []
+                self.my_level_players = []
                 self.lvl = int(response.split(" ")[2])
                 self.next_move.append("Broadcast AllMyInfoAndYou_" + str(self.id) + "_" + str(self.lvl) + "_" + str(self.inventory["food"]) + "_" + str(self.inventory["linemate"]) + "_" + str(self.inventory["deraumere"]) + "_" + str(self.inventory["sibur"]) + "_" + str(self.inventory["mendiane"]) + "_" + str(self.inventory["phiras"]) + "_" + str(self.inventory["thystame"]))
                 Logger.log_err("lvl up to " + str(self.lvl), self.id)
             else:
                 Logger.log_err("lvl up but same lvl", self.id)
+                # self.players_not_gather_to_me_but_waiting_incant = False
+                # todo set var to false ?
             self.boolean_received += 1
             self.message_type_received.append(TypeResponse.BOOL)
             return
@@ -519,6 +659,7 @@ class Player:
             self.boolean_received += 1
         return
 
+    # * ######################################################################################### ACTION ####################################################################################################
 
     def look(self) -> list:
         Logger.log_send("Look", self.id)
@@ -653,6 +794,11 @@ class Player:
         # check with last response if incantation is ok
         Logger.log_debug("incantation receve", self.id)
         if self.message_received[-1] == "ko":
+            if self.lvl > 1 and self.main_player_incantation:
+                self.main_player_incantation = False
+                self.players_ready = -1
+                self.wait_players = False
+                self.next_move.append("StopIncant_" + str(self.id))
             # self.boolean_awaited += 1
             Logger.log_err("incantation ko", self.id)
             self.look()
