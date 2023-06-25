@@ -252,7 +252,7 @@ class Player:
             self.priority = Priority.Gather
             return
 
-        if len(self.players) < self.level_cap[self.lvl - 1]["ally"] - 1:
+        if len(self.players) < self.level_cap[self.lvl - 1]["ally"]:
             self.priority = Priority.Reproduction
             return
 
@@ -260,11 +260,11 @@ class Player:
             self.priority = Priority.Stones
             return
 
-        if len(self.my_level_players) < self.level_cap[self.lvl - 1]["ally"] - 1:
+        if len(self.my_level_players) < self.level_cap[self.lvl - 1]["ally"]:
             self.priority = Priority.Food
             return
 
-        elif self.get_stone() == None and len(self.my_level_players) >= self.level_cap[self.lvl - 1]["ally"] - 1:
+        elif self.get_stone() == None and len(self.my_level_players) >= self.level_cap[self.lvl - 1]["ally"]:
             self.priority = Priority.Gather
             # todo: Am I self.wait_players or self.follow_player
             return
@@ -285,7 +285,7 @@ class Player:
         if self.map[0]["food"] > 0 and self.priority == Priority.Food:
             self.go_case_id = 0
             return
-        if self.map[0][needed_stones] > 0:
+        if needed_stones != None and self.map[0][needed_stones] > 0:
             self.go_case_id = 0
             return
 
@@ -328,14 +328,12 @@ class Player:
         elif x > 0:
             self.next_move.append("Right")
         else:
-            Logger.log_warn("so we do " + str(self.next_move) + "\n", self.id)
             return
         # forward after turn
         mov = 0
         while mov < abs(x):
             self.next_move.append("Forward")
             mov += 1
-        Logger.log_warn("so we do " + str(self.next_move) + "\n", self.id)
         return
 
     def where_move_to_gather(self, orientation: int):
@@ -389,7 +387,10 @@ class Player:
         if self.priority == Priority.Food:
             self.next_move.append("food")
         elif self.priority == Priority.Stones:
-            self.next_move.append(self.get_stone())
+            if self.lvl == 1:
+                self.next_move.append("Incantation")
+            else:
+                self.next_move.append(self.get_stone())
         elif self.priority == Priority.Reproduction:
             self.next_move.append("Fork")
         elif self.priority == Priority.Incantation:
