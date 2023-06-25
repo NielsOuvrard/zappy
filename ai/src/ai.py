@@ -114,7 +114,10 @@ def main():
                 elif action.startswith("Broadcast"):
                     messsage = action.split(" ")[0]
                     player.broadcast(action[len(messsage) + 1:])
+                elif action.startswith("Set"):
+                    player.set(action.split(" ")[1])
                 else:
+                    # StopIncant_1 as next_move ??
                     player.take(action)
             # sleep(0.3)
     sys.exit(0)

@@ -134,6 +134,8 @@ class Player:
         self.players_ready_to_incant = 1 # or put 0 and + 1 when enough stones
         self.main_player_incantation = False
 
+        self.wait_all_stones = False
+
         # Inventory
         self.inventory = {
             "food": 10,
@@ -254,6 +256,18 @@ class Player:
 
         if self.lvl == 1 and self.map[0]["linemate"] >= 1:
             self.priority = Priority.Incantation
+            return
+
+        if self.main_player_incantation and self.wait_all_stones:
+            all_ok = True
+            stones = self.level_cap[self.lvl - 1].copy()
+            stones.pop("ally")
+            for stone in stones:
+                if self.map[0][stone] < self.level_cap[self.lvl - 1][stone]:
+                    all_ok = False
+                    break
+            if all_ok:
+                self.priority = Priority.Incantation
             return
 
         if (self.wait_players or self.follow_player) and self.get_stone() == None:
@@ -492,8 +506,12 @@ class Player:
         if self.follow_player:
             if message.startswith("Incant"):
                 message = message.split("_")
-                # todo
-                # wait until "recv (Level 2)" or "recv (stop)"
+                if int(message[1]) == self.player_to_gather["id"]:
+                    # set all stones to floor
+                    self.drop_necessary_stone()
+                    # todo
+                    # wait until "recv (Level 2)" or "recv (stop)"
+                    return
                 return
 
             if message.startswith("StopIncant"):
@@ -504,6 +522,7 @@ class Player:
                 if int(message[1]) == self.player_to_gather["id"]:
                     self.follow_player = False
                     self.find_player_to_gather = False
+                    self.player_to_gather = None
                 return
 
             if message.startswith("IAmHere"):
@@ -528,12 +547,15 @@ class Player:
                     Logger.log_err("WhereAreYou message too short ->" + str(message) , self.id)
                     return
                 if message[1] == str(self.id):
-                    self.next_move.append("Broadcast IAmHere_" + str(self.id))
                     if orientation == 0:
                         self.players_ready_to_incant += 1
-                        if self.players_ready_to_incant == self.level_cap[self.lvl - 1]["ally"]:
+                        if self.players_ready_to_incant >= self.level_cap[self.lvl - 1]["ally"] + 1:
                             self.wait_players = False
                             self.next_move.append("Broadcast Incant_" + str(self.id))
+                            self.drop_necessary_stone()
+                            self.wait_all_stones = True
+                    else:
+                        self.next_move.append("Broadcast IAmHere_" + str(self.id))
                         #todo: whrer StopIncant ?
                         # self.next_move.append("Broadcast StopIncant_" + str(self.id))
                 return
@@ -604,6 +626,13 @@ class Player:
             if self.lvl != int(response.split(" ")[2]):
                 self.my_level_players = []
                 self.lvl = int(response.split(" ")[2])
+                self.player_to_gather = None
+                self.wait_players = False
+                self.follow_player = False
+                self.find_player_to_gather = False
+                self.players_ready_to_incant = 1 # or put 0 and + 1 when enough stones
+                self.main_player_incantation = False
+                self.wait_all_stones = False
                 if len(self.players) > 0:
                     self.next_move.append("Broadcast AllMyInfoAndYou_" + str(self.id) + "_" + str(self.lvl) + "_" + str(self.inventory["food"]) + "_" + str(self.inventory["linemate"]) + "_" + str(self.inventory["deraumere"]) + "_" + str(self.inventory["sibur"]) + "_" + str(self.inventory["mendiane"]) + "_" + str(self.inventory["phiras"]) + "_" + str(self.inventory["thystame"]))
                 Logger.log_err("lvl up to " + str(self.lvl), self.id)
@@ -779,6 +808,9 @@ class Player:
         while self.boolean_received < self.boolean_awaited:
             pass
         Logger.log_debug("take receve: " + str(self.message_received[-1]), self.id)
+        if object not in self.inventory:
+            Logger.log_err("take error, no " + object + " in inventory", self.id)
+            return
         if self.message_received[-1] == "ok":
             self.inventory[object] += 1
             Logger.log_info("inventory " + str(self.inventory), self.id)
@@ -799,6 +831,17 @@ class Player:
         else:
             Logger.log_err("set error, no " + object + " in inventory because receve " + self.message_received[-1], self.id)
         # return self.response
+
+    def drop_necessary_stone(self):
+        Logger.log_debug("drop necessary stone", self.id)
+        # according to current level cap and inventory drop all needed stones to pass to the next level
+        needed_stones: dict = self.level_cap[self.lvl - 1].copy()
+        needed_stones.pop("ally")
+        for stone in needed_stones:
+            for i in range(self.inventory[stone]):
+                if self.level_cap[self.lvl - 1][stone] - self.map[0][stone] - i < 0:
+                    break
+                self.next_move.append("Set " + stone)
 
     def drop_stone(self):
         # according to current level cap and inventory drop all needed stones to pass to the next level
