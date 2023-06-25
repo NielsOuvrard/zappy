@@ -84,7 +84,7 @@ class Gui
 public:
     Gui(std::string data, Network *network, bool *server_stopped);
     ~Gui();
-    void run(void);
+    void run(sf::RenderWindow *window);
     bool fill_map(std::string data);
 
 private:

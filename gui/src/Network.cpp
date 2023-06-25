@@ -23,7 +23,7 @@ Network::Network(char *ip, int port) : _ip(ip), _port(port)
     if (connect(_sock, (struct sockaddr *)&server, sizeof(server)) < 0)
     {
         std::cout << "Connection failed" << std::endl;
-        exit(84);
+        throw std::runtime_error("Connection failed");
     }
 }
 

@@ -188,10 +188,10 @@ void Gui::event_slider(sf::Event event)
     }
 }
 
-void Gui::run(void)
+void Gui::run(sf::RenderWindow *win)
 {
-    sf::RenderWindow win = sf::RenderWindow(sf::VideoMode(DISPLAY_WIDTH, DISPLAY_HEIGHT), "Zappy");
-    _window = &win;
+    // sf::RenderWindow win = sf::RenderWindow(sf::VideoMode(DISPLAY_WIDTH, DISPLAY_HEIGHT), "Zappy");
+    _window = win;
 
     _slider = sf::RectangleShape(sf::Vector2f(200, 20));
 

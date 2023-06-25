@@ -21,6 +21,10 @@ class Menu {
         std::string get_ip(void) const { return _ip; };
         std::string get_port(void) const { return _port; };
 
+        sf::RenderWindow *get_window(void) const { return _window; };
+
+        void set_connection_failed(bool param) { _failed_connection = param; };
+
     private:
         // draw main menu
         sf::Sprite _background;
@@ -38,7 +42,7 @@ class Menu {
         std::vector<std::string> _buttons_tags;
         std::vector<bool> _buttons_pressed;
         sf::Vector2f _button_init_size;
-        bool _param;
+        bool _param = false;
         bool _input_host_selected;
         bool _input_port_selected;
         std::string _ip;
@@ -46,4 +50,5 @@ class Menu {
         sf::RenderWindow *_window;
         sf::Text _ip_text;
         sf::Text _port_text;
+        bool _failed_connection = false;
 };
