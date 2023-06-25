@@ -124,11 +124,10 @@ class Player:
         self.current_action = "NONE"
         self.players: dict = []
         self.my_level_players: list = []
-        self.player_to_gather = None
-        self.players_gather_to_me = True
         self.iamdead = False
 
         # new algo
+        self.player_to_gather = None
         self.wait_players = False
         self.follow_player = False
         self.find_player_to_gather = False
@@ -185,6 +184,7 @@ class Player:
             inventory["mendiane"]   += player["mendiane"]
             inventory["phiras"]     += player["phiras"]
             inventory["thystame"]   += player["thystame"]
+        Logger.log_debug("Inventory of the level " + str(self.lvl) + " : " + str(self.my_level_players), self.id)
         return inventory
 
     def get_stone(self):
@@ -214,6 +214,14 @@ class Player:
         This function check if the player need to gather
         """
         if self.priority == Priority.Gather:
+            Logger.log_success("Player " + str(self.id) + " need to gather")
+            Logger.log_success("player_to_gather: " + str(self.player_to_gather))
+            Logger.log_success("wait_players: " + str(self.wait_players))
+            Logger.log_success("follow_player: " + str(self.follow_player))
+            Logger.log_success("find_player_to_gather: " + str(self.find_player_to_gather))
+            Logger.log_success("players_ready_to_incant: " + str(self.players_ready_to_incant))
+            Logger.log_success("main_player_incantation: " + str(self.main_player_incantation))
+            Logger.log_success("my_level_players: " + str(self.my_level_players))
             return True
         return False
 
@@ -266,7 +274,27 @@ class Player:
 
         elif self.get_stone() == None and len(self.my_level_players) >= self.level_cap[self.lvl - 1]["ally"]:
             self.priority = Priority.Gather
-            # todo: Am I self.wait_players or self.follow_player
+            follow_player = None
+            they_will_follow_me = True
+            for player in self.my_level_players:
+                if follow_player != None and player["id"] > follow_player["id"]:
+                    follow_player = player
+                    they_will_follow_me = False
+                elif follow_player == None and player["id"] > self.id:
+                    follow_player = player
+                    they_will_follow_me = False
+            if they_will_follow_me:
+                self.wait_players = True
+                self.follow_player = False
+                self.players_ready_to_incant = 1
+                self.player_to_gather = None
+                self.main_player_incantation = True
+            else:
+                self.follow_player = True
+                self.wait_players = False
+                self.player_to_gather = follow_player
+                self.next_move.append("Broadcast WhereAreYou_" + str(self.player_to_gather["id"]))
+
             return
         Logger.log_err("Priority not found", self.id)
         self.priority = Priority.Food
@@ -376,7 +404,7 @@ class Player:
             self.next_move.append("Right")
             self.next_move.append("Forward")
         # allMyInfo = "AllMyInfoAndLevel_" + str(self.id) + "_" + str(self.lvl) + "_" + str(self.inventory["food"]) + "_" + str(self.inventory["linemate"]) + "_" + str(self.inventory["deraumere"]) + "_" + str(self.inventory["sibur"]) + "_" + str(self.inventory["mendiane"]) + "_" + str(self.inventory["phiras"]) + "_" + str(self.inventory["thystame"])
-        self.next_move.append("Broadcast WhereAreYou_" + self.player_to_gather["id"])
+        self.next_move.append("Broadcast WhereAreYou_" + str(self.player_to_gather["id"]))
 
     # * ######################################################################################### COMPUTE ACTION ######################################################################################### * #
 
@@ -576,7 +604,8 @@ class Player:
             if self.lvl != int(response.split(" ")[2]):
                 self.my_level_players = []
                 self.lvl = int(response.split(" ")[2])
-                self.next_move.append("Broadcast AllMyInfoAndYou_" + str(self.id) + "_" + str(self.lvl) + "_" + str(self.inventory["food"]) + "_" + str(self.inventory["linemate"]) + "_" + str(self.inventory["deraumere"]) + "_" + str(self.inventory["sibur"]) + "_" + str(self.inventory["mendiane"]) + "_" + str(self.inventory["phiras"]) + "_" + str(self.inventory["thystame"]))
+                if len(self.players) > 0:
+                    self.next_move.append("Broadcast AllMyInfoAndYou_" + str(self.id) + "_" + str(self.lvl) + "_" + str(self.inventory["food"]) + "_" + str(self.inventory["linemate"]) + "_" + str(self.inventory["deraumere"]) + "_" + str(self.inventory["sibur"]) + "_" + str(self.inventory["mendiane"]) + "_" + str(self.inventory["phiras"]) + "_" + str(self.inventory["thystame"]))
                 Logger.log_err("lvl up to " + str(self.lvl), self.id)
             else:
                 Logger.log_err("lvl up but same lvl", self.id)
