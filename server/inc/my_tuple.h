@@ -102,3 +102,7 @@ void tuple_swap(struct my_tuple_s *this);
 **/
 void tuple_print(struct my_tuple_s *this, void (*print_first)(void *),
 void (*print_second)(void *));
+
+// Utils
+void *my_malloc(size_t size);
+void *my_realloc(void *ptr, size_t size);

@@ -326,3 +326,7 @@ struct my_vector_s *string_split(struct my_string_s *this, char *delim);
 ** @return The string
 **/
 struct my_string_s *string_join(struct my_vector_s *strs, char *delim);
+
+// Utils
+void *my_malloc(size_t size);
+void *my_realloc(void *ptr, size_t size);

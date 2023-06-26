@@ -18,8 +18,8 @@ class Menu {
         void menu_run(void);
         void reset_pos(void);
 
-        std::string get_ip(void) const { return _ip; };
-        std::string get_port(void) const { return _port; };
+        std::string get_ip(void) const { return _input_host.getString(); };
+        std::string get_port(void) const { return _input_port.getString(); };
 
         sf::RenderWindow *get_window(void) const { return _window; };
 

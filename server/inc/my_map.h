@@ -121,3 +121,7 @@ bool (*cmp)(void *, void *));
 **/
 bool map_contains(struct my_map_s *this, void *key,
 bool (*cmp)(void *, void *));
+
+// Utils
+void *my_malloc(size_t size);
+void *my_realloc(void *ptr, size_t size);

@@ -123,3 +123,7 @@ void vector_sort(struct my_vector_s *vector, int (*cmp)(void *, void *));
 ** @param func The function to call on each item.
 **/
 void vector_foreach(struct my_vector_s *vector, void (*func)(void *));
+
+// Utils
+void *my_malloc(size_t size);
+void *my_realloc(void *ptr, size_t size);

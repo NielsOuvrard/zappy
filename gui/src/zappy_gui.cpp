@@ -81,11 +81,11 @@ int zappy_gui(int ac, char **av)
     {
         try {
             menu.menu_run();
-            args.machine = (char *)menu.get_ip().c_str();
-            args.port = atoi(menu.get_port().c_str());
         } catch (std::runtime_error &e) {
             if (std::string(e.what()) == "start2") {
                 try {
+                    args.machine = (char *)menu.get_ip().c_str();
+                    args.port = atoi(menu.get_port().c_str());
                     Network net(args.machine, args.port);
                     shared.net = &net;
                     MyPthread thread_net;
