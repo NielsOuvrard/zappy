@@ -222,7 +222,7 @@ class Player:
             Logger.log_success("follow_player: " + str(self.follow_player))
             Logger.log_success("find_player_to_gather: " + str(self.find_player_to_gather))
             Logger.log_success("players_ready_to_incant: " + str(self.players_ready_to_incant))
-            Logger.log_success("main_player_incantation: " + str(self.main_player_incantation))
+            Logger.log_success("main_player_inca: " + str(self.main_player_incantation))
             Logger.log_success("my_level_players: " + str(self.my_level_players))
             return True
         return False
@@ -250,6 +250,14 @@ class Player:
             Logger.log_err("Player map is empty", self.id)
             return
 
+        if self.inventory["food"] < 2:
+            self.priority = Priority.Food
+            return
+
+        if (self.wait_players or self.follow_player) and self.get_stone() == None:
+            self.priority = Priority.Gather
+            return
+
         if self.inventory["food"] < 6:
             self.priority = Priority.Food
             return
@@ -268,10 +276,6 @@ class Player:
                     break
             if all_ok:
                 self.priority = Priority.Incantation
-            return
-
-        if (self.wait_players or self.follow_player) and self.get_stone() == None:
-            self.priority = Priority.Gather
             return
 
         if len(self.players) < self.level_cap[self.lvl - 1]["ally"]:
@@ -520,9 +524,15 @@ class Player:
                     Logger.log_err("StopIncant message too short ->" + str(message) , self.id)
                     return
                 if int(message[1]) == self.player_to_gather["id"]:
+                    self.my_level_players = []
+                    self.players = []
+                    self.player_to_gather = None
+                    self.wait_players = False
                     self.follow_player = False
                     self.find_player_to_gather = False
-                    self.player_to_gather = None
+                    self.players_ready_to_incant = 1 # or put 0 and + 1 when enough stones
+                    self.main_player_incantation = False
+                    self.wait_all_stones = False
                 return
 
             if message.startswith("IAmHere"):
@@ -624,8 +634,11 @@ class Player:
 
         elif response.startswith("Current level: "):
             if self.lvl != int(response.split(" ")[2]):
-                self.my_level_players = []
                 self.lvl = int(response.split(" ")[2])
+                self.my_level_players = []
+                for player in self.players:
+                    if player["lvl"] == self.lvl:
+                        self.my_level_players.append(player)
                 self.player_to_gather = None
                 self.wait_players = False
                 self.follow_player = False
@@ -716,6 +729,8 @@ class Player:
         if response == "ok" or response == "ko":
             self.message_type_received.append(TypeResponse.BOOL)
             self.boolean_received += 1
+            if self.boolean_received > self.boolean_awaited:
+                Logger.log_err("boolean received (" + str(self.boolean_received) + ") > boolean awaited (" + str(self.boolean_awaited) + ")", self.id)
         return
 
     # * ######################################################################################### ACTION ####################################################################################################
@@ -862,17 +877,27 @@ class Player:
         self.current_action = "INCANTATION"
         Logger.log_send("incantation", self.id)
         self.server.send("Incantation\n")
+        # while self.data_received < self.data_awaited:
+        #     pass
         while self.boolean_received < self.boolean_awaited:
             pass
+        # sleep(1)
         # check with last response if incantation is ok
         Logger.log_debug("incantation receve", self.id)
         if self.message_received[-1] == "ko":
             if self.lvl > 1 and self.main_player_incantation:
-                self.main_player_incantation = False
-                self.players_ready = -1
+                self.my_level_players = []
+                self.players = []
+                self.player_to_gather = None
                 self.wait_players = False
-                self.next_move.append("StopIncant_" + str(self.id))
-            # self.boolean_awaited += 1
+                self.follow_player = False
+                self.find_player_to_gather = False
+                self.players_ready_to_incant = 1 # or put 0 and + 1 when enough stones
+                self.main_player_incantation = False
+                self.wait_all_stones = False
+                self.next_move.append("Broadcast StopIncant_" + str(self.id))
+                self.next_move.append("Broadcast AllMyInfoAndYou_" + str(self.id) + "_" + str(self.lvl) + "_" + str(self.inventory["food"]) + "_" + str(self.inventory["linemate"]) + "_" + str(self.inventory["deraumere"]) + "_" + str(self.inventory["sibur"]) + "_" + str(self.inventory["mendiane"]) + "_" + str(self.inventory["phiras"]) + "_" + str(self.inventory["thystame"]))
+            self.boolean_awaited += 1
             Logger.log_err("incantation ko", self.id)
             self.look()
             Logger.log_err("is there enought ?", self.id)
