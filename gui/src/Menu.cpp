@@ -113,7 +113,6 @@ Menu::Menu(std::string ip, std::string port)
     _buttons_textures.push_back(start_texture);
     sf::Sprite start_sprite2;
     start_sprite2.setTexture(start_texture);
-    start_sprite2.setOrigin(start_sprite2.getGlobalBounds().width / 2, start_sprite2.getGlobalBounds().height / 2);
     start_sprite2.setPosition(40000, 40000);
     _buttons_sprites.push_back(start_sprite2);
     _buttons_pressed.push_back(false);
@@ -154,6 +153,15 @@ void Menu::menu_draw(void)
     _window->draw(_input_port);
     _window->draw(_ip_text);
     _window->draw(_port_text);
+
+    sf::Text connectionFailedText;
+    connectionFailedText.setFont(_adumu);
+    connectionFailedText.setString("Connection failed");
+    connectionFailedText.setCharacterSize(50);
+    connectionFailedText.setFillColor(sf::Color::Red);
+    connectionFailedText.setPosition(_window->getSize().x / 2 - connectionFailedText.getGlobalBounds().width / 2, _window->getSize().y / 2 - connectionFailedText.getGlobalBounds().height / 2 - 200);
+    if (_failed_connection && _param)
+        _window->draw(connectionFailedText);
 }
 
 void Menu::buttons_handling(sf::Event event)
@@ -162,14 +170,14 @@ void Menu::buttons_handling(sf::Event event)
     sf::Vector2f mousePosition = sf::Vector2f(event.mouseMove.x, event.mouseMove.y);
     for (std::size_t i = 0; i < _buttons_sprites.size(); ++i)
     {
-        if (_buttons_sprites[i].getGlobalBounds().contains(mousePosition) && !_buttons_pressed[i])
+        if (event.type == sf::Event::MouseMoved && _buttons_sprites[i].getGlobalBounds().contains(mousePosition) && !_buttons_pressed[i])
             // Scale the button sprite when the mouse is over it
             _buttons_sprites[i].setScale(_button_init_size + sf::Vector2f(0.1f, 0.1f));
         else if (!_buttons_pressed[i])
             // Reset the scale of the button sprite when the mouse is not over it
             _buttons_sprites[i].setScale(_button_init_size);
     }
-    if (event.mouseButton.button == sf::Mouse::Left && event.type == sf::Event::MouseButtonPressed) {
+    if (event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left) {
         mousePosition = sf::Vector2f(event.mouseButton.x, event.mouseButton.y);
         for (std::size_t i = 0; i < _buttons_sprites.size(); ++i)
         {
@@ -179,7 +187,7 @@ void Menu::buttons_handling(sf::Event event)
             }
         }
     }
-    if (event.mouseButton.button == sf::Mouse::Left && event.type == sf::Event::MouseButtonReleased) {
+    if (event.type == sf::Event::MouseButtonReleased && event.mouseButton.button == sf::Mouse::Left) {
         mousePosition = sf::Vector2f(event.mouseButton.x, event.mouseButton.y);
         for (std::size_t i = 0; i < _buttons_sprites.size(); ++i)
         {
@@ -197,21 +205,21 @@ void Menu::buttons_handling(sf::Event event)
                     exit(0);
                 }
                 else if (_buttons_tags[i] == "start2") {
-                    _window->close();
-                    return;
+                    _failed_connection = false;
+                    throw std::runtime_error("start2");
                 }
             }
             else
                 _buttons_sprites[i].setScale(_button_init_size);
         }
     }
-    if (event.mouseButton.button == sf::Mouse::Left && _input_host_rect.getGlobalBounds().contains(mousePosition))
+    if (event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left && _input_host_rect.getGlobalBounds().contains(mousePosition))
         _input_host_selected = true;
-    else if (event.mouseButton.button == sf::Mouse::Left && !_input_host_rect.getGlobalBounds().contains(mousePosition))
+    else if (event.type == sf::Event::MouseButtonReleased && event.mouseButton.button == sf::Mouse::Left && !_input_host_rect.getGlobalBounds().contains(mousePosition))
         _input_host_selected = false;
-    if (event.mouseButton.button == sf::Mouse::Left && _input_port_rect.getGlobalBounds().contains(mousePosition))
+    if (event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left && _input_port_rect.getGlobalBounds().contains(mousePosition))
         _input_port_selected = true;
-    else if (event.mouseButton.button == sf::Mouse::Left && !_input_port_rect.getGlobalBounds().contains(mousePosition))
+    else if (event.type == sf::Event::MouseButtonReleased && event.mouseButton.button == sf::Mouse::Left && !_input_port_rect.getGlobalBounds().contains(mousePosition))
         _input_port_selected = false;
     if (event.type == sf::Event::TextEntered && _input_host.getPosition().x != -40000 && _input_host.getPosition().y != -40000) {
         if (event.text.unicode < 128 && event.text.unicode != 8 && _input_host.getString().getSize() < 15 && _input_host_selected
@@ -230,22 +238,52 @@ void Menu::buttons_handling(sf::Event event)
             _input_port.setString(_input_port.getString().substring(0, _input_port.getString().getSize() - 1));
         }
     }
-    if (event.key.code == sf::Keyboard::Escape && _help_menu.getPosition().x != 40000)
+    if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Escape && _help_menu.getPosition().x != 40000)
         _help_menu.setPosition(40000, 10000);
-    if (event.key.code == sf::Keyboard::Escape && _param)
+    if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Escape && _param)
         _param = false;
     if (_param) {
+        _input_host_rect.setPosition(_window->getSize().x / 2 - _input_host_rect.getGlobalBounds().width / 2, _window->getSize().y / 2 - _input_host_rect.getGlobalBounds().height);
+        _input_host.setPosition(_window->getSize().x / 2 - _input_host.getGlobalBounds().width / 2, _window->getSize().y / 2 - _input_host_rect.getGlobalBounds().height + _input_host_rect.getGlobalBounds().height / 2 - _input_host.getGlobalBounds().height / 2);
+        _ip_text.setPosition(_window->getSize().x / 2 - _ip_text.getGlobalBounds().width / 2, _input_host_rect.getPosition().y - (_input_host_rect.getGlobalBounds().height / 3));
+        _input_port_rect.setPosition(_window->getSize().x / 2 - _input_port_rect.getGlobalBounds().width / 2, _window->getSize().y / 2 + _input_port_rect.getGlobalBounds().height);
+        _input_port.setPosition(_window->getSize().x / 2 - _input_port.getGlobalBounds().width / 2, _window->getSize().y / 2 + _input_port_rect.getGlobalBounds().height + _input_port_rect.getGlobalBounds().height / 2 - _input_port.getGlobalBounds().height / 2);
+        _port_text.setPosition(_window->getSize().x / 2 - _port_text.getGlobalBounds().width / 2, _input_port_rect.getPosition().y - (_input_port_rect.getGlobalBounds().height / 3));
         for (int i = 0; (size_t)i < _buttons_sprites.size(); i++) {
             _buttons_sprites[i].setPosition(40000, 10000);
             if (_buttons_tags[i] == "start2")
-                _buttons_sprites[i].setPosition(_window->getSize().x / 2, _window->getSize().y / 2 + 400);
+                _buttons_sprites[i].setPosition(_input_port_rect.getPosition().x + _input_port_rect.getGlobalBounds().width / 2 - _buttons_sprites[i].getGlobalBounds().width / 2, _input_port_rect.getPosition().y + _input_port_rect.getGlobalBounds().height + 50);
         }
-        _input_host_rect.setPosition(_window->getSize().x / 2 - _input_host_rect.getGlobalBounds().width / 2, _window->getSize().y / 2 - 100 - _input_host_rect.getGlobalBounds().height / 2);
-        _input_host.setPosition(_window->getSize().x / 2 - _input_host.getGlobalBounds().width / 2, _window->getSize().y / 2 - 100 - _input_host.getGlobalBounds().height / 2);
-        _input_port_rect.setPosition(_window->getSize().x / 2 - _input_port_rect.getGlobalBounds().width / 2, _window->getSize().y / 2 + 100 - _input_port_rect.getGlobalBounds().height / 2);
-        _input_port.setPosition(_window->getSize().x / 2 - _input_port.getGlobalBounds().width / 2, _window->getSize().y / 2 + 100 - _input_port.getGlobalBounds().height / 2);
-        _ip_text.setPosition(_window->getSize().x / 2 - _ip_text.getGlobalBounds().width / 2, _window->getSize().y / 2 - 150 - _ip_text.getGlobalBounds().height / 2);
-        _port_text.setPosition(_window->getSize().x / 2 - _port_text.getGlobalBounds().width / 2, _window->getSize().y / 2 + 50 - _port_text.getGlobalBounds().height / 2);
+    } else {
+        for (int i = 0; (size_t)i < _buttons_sprites.size(); i++)
+            if (_buttons_tags[i] != "start2")
+                _buttons_sprites[i].setPosition(_window->getSize().x / 2, _window->getSize().y / 2 + (i * 100 * _button_init_size.y));
+            else
+                _buttons_sprites[i].setPosition(40000, 40000);
+        _input_host.setPosition(40000, 40000);
+        _input_host_rect.setPosition(40000, 40000);
+        _input_port.setPosition(40000, 40000);
+        _input_port_rect.setPosition(40000, 40000);
+        _ip_text.setPosition(40000, 40000);
+        _port_text.setPosition(40000, 40000);
+    }
+}
+
+void Menu::reset_pos(void)
+{
+    if (_param) {
+        _input_host_rect.setPosition(_window->getSize().x / 2 - _input_host_rect.getGlobalBounds().width / 2, _window->getSize().y / 2 - _input_host_rect.getGlobalBounds().height);
+        _input_host.setPosition(_window->getSize().x / 2 - _input_host.getGlobalBounds().width / 2, _window->getSize().y / 2 - _input_host_rect.getGlobalBounds().height + _input_host_rect.getGlobalBounds().height / 2 - _input_host.getGlobalBounds().height / 2);
+        _ip_text.setPosition(_window->getSize().x / 2 - _ip_text.getGlobalBounds().width / 2, _input_host_rect.getPosition().y - (_input_host_rect.getGlobalBounds().height / 3));
+
+        _input_port_rect.setPosition(_window->getSize().x / 2 - _input_port_rect.getGlobalBounds().width / 2, _window->getSize().y / 2 + _input_port_rect.getGlobalBounds().height);
+        _input_port.setPosition(_window->getSize().x / 2 - _input_port.getGlobalBounds().width / 2, _window->getSize().y / 2 + _input_port_rect.getGlobalBounds().height + _input_port_rect.getGlobalBounds().height / 2 - _input_port.getGlobalBounds().height / 2);
+        _port_text.setPosition(_window->getSize().x / 2 - _port_text.getGlobalBounds().width / 2, _input_port_rect.getPosition().y - (_input_port_rect.getGlobalBounds().height / 3));
+        for (int i = 0; (size_t)i < _buttons_sprites.size(); i++) {
+            _buttons_sprites[i].setPosition(40000, 10000);
+            if (_buttons_tags[i] == "start2")
+                _buttons_sprites[i].setPosition(_input_port_rect.getPosition().x + _input_port_rect.getGlobalBounds().width / 2 - _buttons_sprites[i].getGlobalBounds().width / 2, _input_port_rect.getPosition().y + _input_port_rect.getGlobalBounds().height + 50);
+        }
     } else {
         for (int i = 0; (size_t)i < _buttons_sprites.size(); i++)
             if (_buttons_tags[i] != "start2")
@@ -278,17 +316,18 @@ void Menu::menu_run(void)
                 _help_menu.setScale(float(event.size.width) / float(_background_texture.getSize().x), float(event.size.height) / float(_background_texture.getSize().y));
                 if (_help_menu.getPosition().x != 40000)
                     _help_menu.setPosition(_window->getSize().x / 2 - _help_menu.getGlobalBounds().width / 2, _window->getSize().y / 2 - _help_menu.getGlobalBounds().height / 2);
+                _input_host_rect.setScale(float(event.size.width) / float(_background_texture.getSize().x), float(event.size.height) / float(_background_texture.getSize().y));
+                _input_port_rect.setScale(float(event.size.width) / float(_background_texture.getSize().x), float(event.size.height) / float(_background_texture.getSize().y));
+                _input_host.setScale(float(event.size.width) / float(_background_texture.getSize().x), float(event.size.height) / float(_background_texture.getSize().y));
+                _input_port.setScale(float(event.size.width) / float(_background_texture.getSize().x), float(event.size.height) / float(_background_texture.getSize().y));
+                _ip_text.setScale(float(event.size.width) / float(_background_texture.getSize().x), float(event.size.height) / float(_background_texture.getSize().y));
+                _port_text.setScale(float(event.size.width) / float(_background_texture.getSize().x), float(event.size.height) / float(_background_texture.getSize().y));
             }
             if (event.type == sf::Event::Closed) {
                 _window->close();
                 exit(0);
             }
-            if (event.type == sf::Event::MouseMoved ||
-                event.type == sf::Event::MouseButtonPressed ||
-                event.type == sf::Event::MouseButtonReleased ||
-                event.type == sf::Event::KeyPressed ||
-                event.type == sf::Event::KeyReleased)
-                buttons_handling(event);
+            buttons_handling(event);
         }
         menu_draw();
         _window->display();

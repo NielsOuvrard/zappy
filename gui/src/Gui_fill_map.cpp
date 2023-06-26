@@ -25,6 +25,14 @@ bool Gui::fill_map(std::string data)
             _slider_value = _slider_value < 1 ? 1 : _slider_value;
             _slider_value = _slider_value > 100 ? 100 : _slider_value;
         }
+        else if (line.find("sst") != std::string::npos)
+        {
+            std::string values = line.substr(line.find(" ") + 1);
+            _freq = std::stoi(values);
+            _slider_value = _freq / 10;
+            _slider_value = _slider_value < 1 ? 1 : _slider_value;
+            _slider_value = _slider_value > 100 ? 100 : _slider_value;
+        }
         else if (line.find("tna") != std::string::npos)
         {
             std::string values = line.substr(line.find(" ") + 1);
@@ -127,6 +135,21 @@ bool Gui::fill_map(std::string data)
                 }
             }
         }
+        else if (line.find("plv") != std::string::npos)
+        {
+            std::string values = line.substr(line.find(" ") + 1);
+            std::string id = values.substr(0, values.find(" "));
+            values = values.substr(values.find(" ") + 1);
+            std::string level = values.substr(0, values.find(" "));
+            for (size_t i = 0; i < _players.size(); i++)
+            {
+                if (_players[i].id == std::stoi(id))
+                {
+                    _players[i].level = std::stoi(level);
+                    break;
+                }
+            }
+        }
         // enw (egg)
         else if (line.find("enw") != std::string::npos)
         {
@@ -139,6 +162,49 @@ bool Gui::fill_map(std::string data)
             values = values.substr(values.find(" ") + 1);
             std::string y = values.substr(0, values.find(" "));
             _eggs.push_back((t_egg){std::stoi(id), std::stoi(x), std::stoi(y), std::stoi(player_id)});
+        }
+        else if (line.find("ebp") != std::string::npos)
+        {
+            std::string values = line.substr(line.find(" ") + 1);
+            std::string id = values.substr(0, values.find(" "));
+            for (size_t i = 0; i < _eggs.size(); i++)
+            {
+                if (_eggs[i].id == std::stoi(id))
+                {
+                    _eggs.erase(_eggs.begin() + i);
+                    break;
+                }
+            }
+        }
+        else if (line.find("eht") != std::string::npos)
+        {
+            // do nothing
+        }
+        else if (line.find("edi") != std::string::npos)
+        {
+            std::string values = line.substr(line.find(" ") + 1);
+            std::string id = values.substr(0, values.find(" "));
+            for (size_t i = 0; i < _eggs.size(); i++)
+            {
+                if (_eggs[i].id == std::stoi(id))
+                {
+                    _eggs.erase(_eggs.begin() + i);
+                    break;
+                }
+            }
+        }
+        else if (line.find("seg") != std::string::npos)
+        {
+            std::string values = line.substr(line.find(" ") + 1);
+            std::string team = values.substr(0, values.find(" "));
+            _game_over = true;
+            _winner = team;
+        }
+        else if (line.find("smg") != std::string::npos)
+        {
+            std::string values = line.substr(line.find(" ") + 1);
+            std::string message = values.substr(0, values.find(" "));
+            _messages.push_back(message);
         }
         else if (line.find("pgt") != std::string::npos)
         {
@@ -177,6 +243,19 @@ bool Gui::fill_map(std::string data)
             {
                 _players[player_index].inventory[i] = std::stoi(values.substr(0, values.find(" ")));
                 values = values.substr(values.find(" ") + 1);
+            }
+        }
+        else if (line.find("pex") != std::string::npos)
+        {
+            std::string values = line.substr(line.find(" ") + 1);
+            std::string id = values.substr(0, values.find(" "));
+            for (size_t i = 0; i < _players.size(); i++)
+            {
+                if (_players[i].id == std::stoi(id))
+                {
+                    // player as push some other player/egg
+                    break;
+                }
             }
         }
         // pic (incantation)
@@ -259,6 +338,20 @@ bool Gui::fill_map(std::string data)
                 if (_players[i].id == std::stoi(id))
                 {
                     // fork
+                }
+            }
+        }
+        else if (line.find("pdr") != std::string::npos)
+        {
+            std::string values = line.substr(line.find(" ") + 1);
+            std::string id = values.substr(0, values.find(" "));
+            values = values.substr(values.find(" ") + 1);
+            std::string res = values.substr(0, values.find(" "));
+            for (size_t i = 0; i < _players.size(); i++)
+            {
+                if (_players[i].id == std::stoi(id))
+                {
+                    _players[i].inventory[std::stoi(res)]--;
                 }
             }
         }

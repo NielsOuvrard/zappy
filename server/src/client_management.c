@@ -121,8 +121,10 @@ void manage_command_in_buffer(struct client_s *client, struct global_struct_s *g
     string_clear(client->network_client->buffer);
 
     //remplir le buffer avec les commandes restantes
-    for (int i = 0; i < vector_length(lines); i++)
-        string_append(client->network_client->buffer, vector_get(lines, i));
+    for (int i = 0; i < vector_length(lines); i++) {
+        struct my_string_s *line = vector_get(lines, i);
+        string_append(client->network_client->buffer, line->str);
+    }
     vector_destroy(lines);
 }
 
@@ -146,6 +148,9 @@ void manage_specific_client(struct client_s *client, struct global_struct_s *g)
         else if (strlen(client->network_client->buffer->str) > 10000)
             client_disconnection(client, g);
     }
+    else
+        if (strstr(client->network_client->buffer->str, "\n") != NULL)
+            manage_command_in_buffer(client, g);
 }
 
 bool ai_starve_eat(struct global_struct_s *g, struct client_s *client)
@@ -198,6 +203,7 @@ void manage_clients(int select_result, struct global_struct_s *g)
                     string_destroy(client->cmd);
                 client->cmd = NULL;
             }
+            manage_specific_client(client, g);
         }
         close_client();
         return;

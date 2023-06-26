@@ -6,6 +6,7 @@
 ##
 
 import json
+import uuid
 import sys
 import subprocess
 from enum import Enum
@@ -125,6 +126,8 @@ class Player:
         self.players: dict = []
         self.my_level_players: list = []
         self.iamdead = False
+
+        self.all_uuid = []
 
         # new algo
         self.player_to_gather = None
@@ -477,6 +480,16 @@ class Player:
         message = tmp[2]
         # uncrypt message
         message = ''.join(chr(ord(a) ^ 1) for a in message)
+        Logger.log_recve("MESSAGE recieve [" + message + "]", self.id)
+        if len(message.split(" ")) == 1:
+            Logger.log_err("Message not understood", self.id)
+            return
+        for uuid in self.all_uuid:
+            if uuid == message.split(" ")[0]:
+                Logger.log_err("Message already recieve", self.id)
+                return
+        self.all_uuid.append(message.split(" ")[0])
+        message = message.split(" ")[1]
 
         Logger.log_recve("MESSAGE recieve [" + message + "]", self.id)
 
@@ -779,9 +792,13 @@ class Player:
         Logger.log_debug("inventory receve", self.id)
 
     def broadcast(self, message):
+        Logger.log_send("0 Broadcast: " + message, self.id)
         # uncrypt message
-        Logger.log_send("Broadcast: " + message, self.id)
+        id = str(uuid.uuid4())
+        message = id + " " + message
+        Logger.log_send("1 Broadcast: " + message, self.id)
         message = ''.join(chr(ord(a) ^ 1) for a in message)
+        Logger.log_send("2 Broadcast: " + message, self.id)
         self.server.send(("Broadcast " + message + "\n"))
         self.current_action = "BROADCAST"
         self.boolean_awaited += 1

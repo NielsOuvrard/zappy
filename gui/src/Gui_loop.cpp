@@ -140,6 +140,12 @@ void Gui::handle_clocks(sf::Clock *clock, sf::Clock *clock_particules)
         for (int i = 0; (size_t)i < _players.size(); i++)
             if (_players[i].broadcast_time > 0)
                 _players[i].broadcast_time -= 1;
+        if (_messages.size() > 0)
+            _messages_cooldown--;
+        if (_messages.size() > 0 && _messages_cooldown <= 0) {
+            _messages.erase(_messages.begin());
+            _messages_cooldown = 5;
+        }
         _waves++;
         clock->restart();
     }
@@ -147,7 +153,8 @@ void Gui::handle_clocks(sf::Clock *clock, sf::Clock *clock_particules)
 
 void Gui::event_slider(sf::Event event)
 {
-    _slider.setSize(sf::Vector2f(200, 20));
+    _slider.setSize(sf::Vector2f(200 * _window->getSize().x / 1920, 20 * _window->getSize().y / 1080));
+    _slider.setPosition(50 * _window->getSize().x / 1920, 650 * _window->getSize().y / 1080);
     if (event.type == sf::Event::MouseButtonPressed)
     {
         if (event.mouseButton.button == sf::Mouse::Left)
@@ -172,7 +179,7 @@ void Gui::event_slider(sf::Event event)
         if (_slider_selected)
         {
             sf::Vector2i mousePosition = sf::Mouse::getPosition(*_window);
-            _slider_value = (mousePosition.x - _slider.getPosition().x) / 2;
+            _slider_value = (float)(mousePosition.x - _slider.getPosition().x) / (float)_slider.getSize().x * 100.0;
             if (_slider_value < 1)
                 _slider_value = 1;
             else if (_slider_value > 100)
@@ -181,10 +188,10 @@ void Gui::event_slider(sf::Event event)
     }
 }
 
-void Gui::run(void)
+void Gui::run(sf::RenderWindow *win)
 {
-    sf::RenderWindow win = sf::RenderWindow(sf::VideoMode(DISPLAY_WIDTH, DISPLAY_HEIGHT), "Zappy");
-    _window = &win;
+    // sf::RenderWindow win = sf::RenderWindow(sf::VideoMode(DISPLAY_WIDTH, DISPLAY_HEIGHT), "Zappy");
+    _window = win;
 
     _slider = sf::RectangleShape(sf::Vector2f(200, 20));
 
@@ -232,9 +239,10 @@ void Gui::run(void)
                 sf::Vector2f pos = _view_main->getCenter();
                 sf::FloatRect visibleArea(pos.x - event.size.width / 2, pos.y - event.size.height / 2, event.size.width, event.size.height);
                 _view_main->reset(visibleArea);
+                _view_main->setSize(_view_width * _actual_zoom, _view_height * _actual_zoom);
 
-                sf::FloatRect visibleAreaInterface(0, 0, event.size.width, event.size.height);
-                _view_interface->reset(visibleAreaInterface);
+                // sf::FloatRect visibleAreaInterface(0, 0, event.size.width, event.size.height);
+                // _view_interface->reset(visibleAreaInterface);
             }
             // * ZOOM
             if (event.type == sf::Event::KeyPressed)
@@ -314,6 +322,28 @@ void Gui::run(void)
         interface();
         player();
 
+        if (_messages.size() > 0)
+        {
+            sf::Text serverMessagesText;
+            serverMessagesText.setFont(_font);
+            serverMessagesText.setString("Server message : " + _messages[0]);
+            serverMessagesText.setCharacterSize(50);
+            serverMessagesText.setFillColor(sf::Color::Blue);
+            serverMessagesText.setStyle(sf::Text::Bold);
+            serverMessagesText.setOrigin(serverMessagesText.getLocalBounds().width / 2, serverMessagesText.getLocalBounds().height / 2);
+            serverMessagesText.setPosition(-(DISPLAY_WIDTH / 2) + 280 - _interface_center_value, 30);
+
+            sf::RectangleShape serverMessagesBackground(sf::Vector2f(
+                serverMessagesText.getLocalBounds().width + 20,
+                serverMessagesText.getLocalBounds().height + 20));
+
+            serverMessagesBackground.setFillColor(sf::Color(0, 0, 0, 140));
+            serverMessagesBackground.setOrigin(serverMessagesBackground.getLocalBounds().width / 2, serverMessagesBackground.getLocalBounds().height / 2);
+            serverMessagesBackground.setPosition(-(DISPLAY_WIDTH / 2) + 280 - _interface_center_value, 40);
+
+            _window->draw(serverMessagesBackground);
+            _window->draw(serverMessagesText);
+        }
         if (*_server_stopped == true)
         {
             sf::Text serverDisconnectedText;
@@ -335,6 +365,28 @@ void Gui::run(void)
 
             _window->draw(serverDisconnectedBackground);
             _window->draw(serverDisconnectedText);
+        }
+        if (_game_over == true)
+        {
+            sf::Text gameOverText;
+            gameOverText.setFont(_font);
+            gameOverText.setString("Game Over! Winner: " + _winner);
+            gameOverText.setCharacterSize(50);
+            gameOverText.setFillColor(sf::Color::Green);
+            gameOverText.setStyle(sf::Text::Bold);
+            gameOverText.setOrigin(gameOverText.getLocalBounds().width / 2, gameOverText.getLocalBounds().height / 2);
+            gameOverText.setPosition(-(DISPLAY_WIDTH / 2) + 280 - _interface_center_value, 170);
+
+            sf::RectangleShape gameOverBackground(sf::Vector2f(
+                gameOverText.getLocalBounds().width + 20,
+                gameOverText.getLocalBounds().height + 20));
+
+            gameOverBackground.setFillColor(sf::Color(0, 0, 0, 140));
+            gameOverBackground.setOrigin(gameOverBackground.getLocalBounds().width / 2, gameOverBackground.getLocalBounds().height / 2);
+            gameOverBackground.setPosition(-(DISPLAY_WIDTH / 2) + 280 - _interface_center_value, 180);
+
+            _window->draw(gameOverBackground);
+            _window->draw(gameOverText);
         }
 
         // * animation up and down

@@ -74,4 +74,5 @@ Gui::~Gui()
         delete[] _map[i];
     }
     delete[] _map;
+    delete _window;
 }

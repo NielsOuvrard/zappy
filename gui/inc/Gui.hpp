@@ -84,7 +84,7 @@ class Gui
 public:
     Gui(std::string data, Network *network, bool *server_stopped);
     ~Gui();
-    void run(void);
+    void run(sf::RenderWindow *window);
     bool fill_map(std::string data);
 
 private:
@@ -169,8 +169,14 @@ private:
     int _selected_player_ressources[7];
 
     bool _slider_selected = false;
-    unsigned char _slider_value = 100;
+    int _slider_value = 100;
 
     bool _interface_show;
     int _interface_center_value;
+
+    bool _game_over = false;
+    std::string _winner;
+
+    std::vector<std::string> _messages;
+    int _messages_cooldown = 5;
 };
