@@ -9,7 +9,7 @@
 
 struct my_map_s *map_create(void)
 {
-    struct my_map_s *this = malloc(sizeof(struct my_map_s));
+    struct my_map_s *this = my_malloc(sizeof(struct my_map_s));
 
     this->root = vector_create(sizeof(struct my_map_node_s));
     this->destroy_key = NULL;
@@ -70,7 +70,7 @@ int map_size(struct my_map_s *this)
 
 void map_insert(struct my_map_s *this, void *key, void *value)
 {
-    struct my_map_node_s *node = malloc(sizeof(struct my_map_node_s));
+    struct my_map_node_s *node = my_malloc(sizeof(struct my_map_node_s));
 
     node->key = key;
     node->value = value;

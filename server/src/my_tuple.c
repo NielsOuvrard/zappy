@@ -9,7 +9,7 @@
 
 struct my_tuple_s *tuple_create(void)
 {
-    struct my_tuple_s *this = malloc(sizeof(struct my_tuple_s));
+    struct my_tuple_s *this = my_malloc(sizeof(struct my_tuple_s));
 
     this->first = NULL;
     this->second = NULL;

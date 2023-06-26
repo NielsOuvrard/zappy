@@ -234,6 +234,8 @@ void initialize_server(void);
 void convert_coordinate(int *x, int *y);
 void send_to_all_gui(struct global_struct_s *global_struct, char *msg);
 void send_to_client(struct client_s *client, char *format, ...);
+void *my_malloc(size_t size);
+void *my_realloc(void *ptr, size_t size);
 
 // Arg management
 void check_args(int ac, char **av);

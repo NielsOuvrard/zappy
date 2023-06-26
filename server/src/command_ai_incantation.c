@@ -142,7 +142,7 @@ struct my_string_s *buffer)
         if (tmp->is_gui || tmp->level != 8 || tmp->is_closed)
             continue;
         if (map_get(team_lvl8, tmp->team, string_equals_str) == NULL) {
-            struct base_type_s *base = malloc(sizeof(struct base_type_s));
+            struct base_type_s *base = my_malloc(sizeof(struct base_type_s));
             base->_int = 1;
             map_insert(team_lvl8, string_copy(tmp->team), base);
         } else {

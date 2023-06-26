@@ -26,7 +26,7 @@ void check_args(int ac, char **av)
         print_help();
         exit(0);
     }
-    struct arg_s *arg = malloc(sizeof(struct arg_s));
+    struct arg_s *arg = my_malloc(sizeof(struct arg_s));
     arg->port = 4242;
     arg->width = 10;
     arg->height = 10;
@@ -113,7 +113,7 @@ void check_args(int ac, char **av)
             }
         }
     }
-    arg->team_slots_server = malloc(sizeof(int) * vector_length(arg->names));
+    arg->team_slots_server = my_malloc(sizeof(int) * vector_length(arg->names));
     struct global_struct_s *global_struct = get_global_struct();
     global_struct->arg = arg;
     global_struct->team_slots = map_create();
@@ -124,9 +124,9 @@ void check_args(int ac, char **av)
     for (int i = 0; i < vector_length(arg->names); i++) {
         printf("names %d: %s\n", i, ((struct my_string_s *)vector_get(arg->names, i))->str);
         struct my_tuple_s *tuple = tuple_create();
-        struct base_type_s *actual = malloc(sizeof(struct base_type_s));
+        struct base_type_s *actual = my_malloc(sizeof(struct base_type_s));
         actual->_int = 0;
-        struct base_type_s *max = malloc(sizeof(struct base_type_s));
+        struct base_type_s *max = my_malloc(sizeof(struct base_type_s));
         max->_int = arg->clientsNb;
         tuple_set(tuple, actual, max, free, free);
         map_insert(global_struct->team_slots,

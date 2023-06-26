@@ -9,12 +9,12 @@
 
 struct my_vector_s *vector_create(size_t item_size)
 {
-    struct my_vector_s *this = malloc(sizeof(struct my_vector_s));
+    struct my_vector_s *this = my_malloc(sizeof(struct my_vector_s));
 
     this->capacity = 1;
     this->length = 0;
     this->item_size = item_size;
-    this->items = malloc(sizeof(this->item_size) * this->capacity);
+    this->items = my_malloc(sizeof(this->item_size) * this->capacity);
     this->destructor = NULL;
     return this;
 }
@@ -24,7 +24,7 @@ void vector_init(struct my_vector_s *this, size_t item_size)
     this->capacity = 1;
     this->length = 0;
     this->item_size = item_size;
-    this->items = malloc(sizeof(this->item_size) * this->capacity);
+    this->items = my_malloc(sizeof(this->item_size) * this->capacity);
     this->destructor = NULL;
 }
 
@@ -51,7 +51,7 @@ int vector_length(struct my_vector_s *this)
 void vector_resize(struct my_vector_s *this, int new_capacity)
 {
     this->capacity = new_capacity;
-    this->items = realloc(this->items,
+    this->items = my_realloc(this->items,
     sizeof(this->item_size) * this->capacity);
 }
 
@@ -59,7 +59,7 @@ void vector_push_back(struct my_vector_s *this, void *item)
 {
     while (this->length + 1 > this->capacity) {
         this->capacity *= 2;
-        this->items = realloc(this->items,
+        this->items = my_realloc(this->items,
         sizeof(this->item_size) * this->capacity);
     }
     this->items[this->length] = item;
@@ -102,7 +102,7 @@ void vector_insert(struct my_vector_s *this, int index, void *item)
     }
     while (this->length + 1 > this->capacity) {
         this->capacity *= 2;
-        this->items = realloc(this->items,
+        this->items = my_realloc(this->items,
         sizeof(this->item_size) * this->capacity);
     }
     for (int i = this->length; i > index; i--)

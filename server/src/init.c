@@ -10,7 +10,7 @@
 struct my_vector_s *generate_incantation_need(struct global_struct_s *g)
 {
     struct my_vector_s *need = vector_create(sizeof(struct incant_s *));
-    struct incant_s *lvl_1 = malloc(sizeof(struct incant_s));
+    struct incant_s *lvl_1 = my_malloc(sizeof(struct incant_s));
     lvl_1->level = 1;
     lvl_1->nb_players = 1;
     lvl_1->linemate = 1;
@@ -20,7 +20,7 @@ struct my_vector_s *generate_incantation_need(struct global_struct_s *g)
     lvl_1->phiras = 0;
     lvl_1->thystame = 0;
     vector_push_back(need, lvl_1);
-    struct incant_s *lvl_2 = malloc(sizeof(struct incant_s));
+    struct incant_s *lvl_2 = my_malloc(sizeof(struct incant_s));
     lvl_2->level = 2;
     lvl_2->nb_players = 2;
     lvl_2->linemate = 1;
@@ -30,7 +30,7 @@ struct my_vector_s *generate_incantation_need(struct global_struct_s *g)
     lvl_2->phiras = 0;
     lvl_2->thystame = 0;
     vector_push_back(need, lvl_2);
-    struct incant_s *lvl_3 = malloc(sizeof(struct incant_s));
+    struct incant_s *lvl_3 = my_malloc(sizeof(struct incant_s));
     lvl_3->level = 3;
     lvl_3->nb_players = 2;
     lvl_3->linemate = 2;
@@ -40,7 +40,7 @@ struct my_vector_s *generate_incantation_need(struct global_struct_s *g)
     lvl_3->phiras = 2;
     lvl_3->thystame = 0;
     vector_push_back(need, lvl_3);
-    struct incant_s *lvl_4 = malloc(sizeof(struct incant_s));
+    struct incant_s *lvl_4 = my_malloc(sizeof(struct incant_s));
     lvl_4->level = 4;
     lvl_4->nb_players = 4;
     lvl_4->linemate = 1;
@@ -50,7 +50,7 @@ struct my_vector_s *generate_incantation_need(struct global_struct_s *g)
     lvl_4->phiras = 1;
     lvl_4->thystame = 0;
     vector_push_back(need, lvl_4);
-    struct incant_s *lvl_5 = malloc(sizeof(struct incant_s));
+    struct incant_s *lvl_5 = my_malloc(sizeof(struct incant_s));
     lvl_5->level = 5;
     lvl_5->nb_players = 4;
     lvl_5->linemate = 1;
@@ -60,7 +60,7 @@ struct my_vector_s *generate_incantation_need(struct global_struct_s *g)
     lvl_5->phiras = 0;
     lvl_5->thystame = 0;
     vector_push_back(need, lvl_5);
-    struct incant_s *lvl_6 = malloc(sizeof(struct incant_s));
+    struct incant_s *lvl_6 = my_malloc(sizeof(struct incant_s));
     lvl_6->level = 6;
     lvl_6->nb_players = 6;
     lvl_6->linemate = 1;
@@ -70,7 +70,7 @@ struct my_vector_s *generate_incantation_need(struct global_struct_s *g)
     lvl_6->phiras = 1;
     lvl_6->thystame = 0;
     vector_push_back(need, lvl_6);
-    struct incant_s *lvl_7 = malloc(sizeof(struct incant_s));
+    struct incant_s *lvl_7 = my_malloc(sizeof(struct incant_s));
     lvl_7->level = 7;
     lvl_7->nb_players = 6;
     lvl_7->linemate = 2;
@@ -97,7 +97,7 @@ void initialize_map(void)
     for (int i = 0; i < arg->height; i++) {
         struct my_vector_s *line = vector_create(sizeof(struct my_string_s *));
         for (int j = 0; j < arg->width; j++) {
-            struct tile_s *tile = malloc(sizeof(struct tile_s));
+            struct tile_s *tile = my_malloc(sizeof(struct tile_s));
             tile->food = 0;
             tile->linemate = 0;
             tile->deraumere = 0;
@@ -113,7 +113,7 @@ void initialize_map(void)
     global_struct->null_timeout = false;
     global_struct->eggs = vector_create(sizeof(struct egg_s *));
     for (int i = 0; i < arg->clientsNb * vector_length(arg->names); i++) {
-        struct egg_s *egg = malloc(sizeof(struct egg_s));
+        struct egg_s *egg = my_malloc(sizeof(struct egg_s));
         egg->id = global_struct->egg_id++;
         egg->posx = rand() % arg->width;
         egg->posy = rand() % arg->height;
@@ -180,7 +180,7 @@ void initialize_server(void)
 {
     struct global_struct_s *g = get_global_struct();
     struct arg_s *arg = g->arg;
-    struct server_s *server = malloc(sizeof(struct server_s));
+    struct server_s *server = my_malloc(sizeof(struct server_s));
     server->server_sock = socket(PF_INET, SOCK_STREAM, 0);
     if (server->server_sock == -1) {
         printf("socket: %s", strerror(errno));

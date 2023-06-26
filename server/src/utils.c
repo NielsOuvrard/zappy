@@ -40,3 +40,23 @@ void send_to_client(struct client_s *client, char *format, ...)
         client_disconnection(client, get_global_struct());
     va_end(ap);
 }
+
+void *my_malloc(size_t size)
+{
+    void *ptr = malloc(size);
+    if (ptr == NULL) {
+        perror("malloc");
+        exit(84);
+    }
+    return ptr;
+}
+
+void *my_realloc(void *ptr, size_t size)
+{
+    void *new_ptr = realloc(ptr, size);
+    if (new_ptr == NULL) {
+        perror("realloc");
+        exit(84);
+    }
+    return new_ptr;
+}

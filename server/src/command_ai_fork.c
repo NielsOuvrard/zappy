@@ -10,7 +10,7 @@
 void command_ai_fork(struct global_struct_s *g, struct client_s *client,
 struct my_string_s *buffer)
 {
-    struct egg_s *egg = malloc(sizeof(struct egg_s));
+    struct egg_s *egg = my_malloc(sizeof(struct egg_s));
     egg->id = g->egg_id++;
     egg->posx = client->posx;
     egg->posy = client->posy;

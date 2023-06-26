@@ -16,7 +16,7 @@ void generate_missing_eggs(struct global_struct_s *g)
         while (g->arg->team_slots_server[i] < g->arg->clientsNb) {
             g->arg->team_slots_server[i]++;
             ((struct base_type_s *)tuple_get_second(map_get(g->team_slots, name, string_equals_str)))->_int++;
-            struct egg_s *egg = malloc(sizeof(struct egg_s));
+            struct egg_s *egg = my_malloc(sizeof(struct egg_s));
             egg->id = g->egg_id++;
             egg->posx = rand() % g->arg->width;
             egg->posy = rand() % g->arg->height;
@@ -39,8 +39,8 @@ void accept_new_client(int select_result, struct global_struct_s *g)
         (struct sockaddr *) &client_addr, &client_addr_len);
         if (client_fd == -1)
             return;
-        struct client_s *client = malloc(sizeof(struct client_s));
-        client->network_client = malloc(sizeof(struct network_client_s));
+        struct client_s *client = my_malloc(sizeof(struct client_s));
+        client->network_client = my_malloc(sizeof(struct network_client_s));
         client->network_client->client_fd = client_fd;
         client->network_client->buffer = string_create();
         client->is_closed = false;
