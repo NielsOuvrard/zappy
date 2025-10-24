@@ -15,11 +15,11 @@ ifeq ($(shell uname -s),Linux)
 endif
 ifeq ($(shell uname -s),Darwin)
 	# Mac OS X
-	SFML_FLAGS += -I$(HOMEBREW)sfml/2.5.1_2/include -L$(HOMEBREW)sfml/2.5.1_2/lib
+	SFML_FLAGS += -I$(HOMEBREW)sfml@2/2.6.2_1/include -L$(HOMEBREW)sfml@2/2.6.2_1/lib
 endif
 
-# export LIBRARY_PATH=/opt/homebrew/Cellar/sfml/2.5.1_2/lib/
-# export LIBRARY_PATH=/opt/homebrew/Cellar/sfml/2.5.1_2/lib/
+# export LIBRARY_PATH=/opt/homebrew/Cellar/sfml@2/2.6.2_1/lib/
+# export LIBRARY_PATH=/opt/homebrew/Cellar/sfml@2/2.6.2_1/lib/
 
 CC			=	g++
 
