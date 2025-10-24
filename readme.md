@@ -173,10 +173,9 @@ USAGE: ./zappy_ai -p port -n name -h machine
 - **Communication**: Speech bubbles for broadcasts
 
 ## Team
-*Epitech Project - B-YEP-400*
-Server developed by Kenan Blasius
-GUI and AI developed by Niels Ouvrard
+*Epitech Project - B-YEP-400 - Promotion 2026*
+> Server developed by Kenan Blasius  
+> GUI and AI developed by Niels Ouvrard
 
-- Kenan Blasius
-
-- Niels Ouvrard
+- [**Kenan Blasius**](https://github.com/Kenan-Blasius)
+- [**Niels Ouvrard**](https://github.com/NielsOuvrard)
